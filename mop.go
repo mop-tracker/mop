@@ -107,9 +107,8 @@ func main() {
 	}
 	defer termbox.Close()
 
-	markup := `<green>line 1</green>: <white>Hello</white> world
-<green>line 2</green>: <white>Hello</white> again
-<green>line 3</green>: <white>Hello</white> one more time :-)`
+	markup := `{{range .}}<green>{{.Ticker}}</green> ${{.LastTrade}} <red>{{.Change}}</red>
+{{end}}...`
 
 	template, err := template.New("screen").Parse(markup)
 	if err != nil {
@@ -117,7 +116,7 @@ func main() {
 	}
 
 	buffer := new(bytes.Buffer)
-	err = template.Execute(buffer, nil)
+	err = template.Execute(buffer, message)
 	if err != nil {
 		panic(err)
 	}

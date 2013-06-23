@@ -3,40 +3,68 @@
 package mop
 
 import (
-	// "fmt"
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
-	// "strings"
+	// "io/ioutil"
+	// "net/http"
 )
 
 const real_time_url = "http://finance.google.com/finance/info?client=ig&q="
-
-//     body := `
-// // [
-// {
-// "id": "22144"
-// ,"t" : "AAPL"
-// ,"e" : "NASDAQ"
-// ,"l" : "416.84"
-// ,"l_cur" : "416.84"
-// ,"s": "2"
-// ,"ltt":"4:00PM EDT"
-// ,"lt" : "Jun 20, 4:00PM EDT"
-// ,"c" : "-6.16"
-// ,"cp" : "-1.46"
-// ,"ccol" : "chr"
-// ,"el": "416.74"
-// ,"el_cur": "416.74"
-// ,"elt" : "Jun 20, 7:16PM EDT"
-// ,"ec" : "-0.10"
-// ,"ecp" : "-0.02"
-// ,"eccol" : "chr"
-// ,"div" : "3.05"
-// ,"yld" : "2.93"
-// }
-// ]`
+const body = `
+// [
+{
+"id": "665300"
+,"t" : "COH"
+,"e" : "NYSE"
+,"l" : "56.54"
+,"l_cur" : "56.54"
+,"s": "0"
+,"ltt":"4:01PM EDT"
+,"lt" : "Jun 21, 4:01PM EDT"
+,"c" : "-0.75"
+,"cp" : "-1.31"
+,"ccol" : "chr"
+}
+,{
+"id": "353353"
+,"t" : "ATVI"
+,"e" : "NASDAQ"
+,"l" : "13.55"
+,"l_cur" : "13.55"
+,"s": "0"
+,"ltt":"3:59PM EDT"
+,"lt" : "Jun 21, 3:59PM EDT"
+,"c" : "-0.33"
+,"cp" : "-2.38"
+,"ccol" : "chr"
+}
+,{
+"id": "17154"
+,"t" : "HPQ"
+,"e" : "NYSE"
+,"l" : "24.15"
+,"l_cur" : "24.15"
+,"s": "0"
+,"ltt":"4:01PM EDT"
+,"lt" : "Jun 21, 4:01PM EDT"
+,"c" : "-0.57"
+,"cp" : "-2.31"
+,"ccol" : "chr"
+}
+,{
+"id": "18241"
+,"t" : "IBM"
+,"e" : "NYSE"
+,"l" : "195.46"
+,"l_cur" : "195.46"
+,"s": "0"
+,"ltt":"4:02PM EDT"
+,"lt" : "Jun 21, 4:02PM EDT"
+,"c" : "-1.89"
+,"cp" : "-0.96"
+,"ccol" : "chr"
+}
+]`
 
 type Message struct {
 	Ticker    string `json:"t"`
@@ -46,18 +74,22 @@ type Message struct {
 
 func Quote(ticker string) []Message {
 	// Send the request.
-	response, err := http.Get(real_time_url + ticker)
-	if err != nil {
-		panic(err)
-	}
-
-	// Fetch response and get its body.
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+    // response, err := http.Get(real_time_url + ticker)
+    // if err != nil {
+    //     panic(err)
+    // }
+    //
+    // // Fetch response and get its body.
+    // defer response.Body.Close()
+    // body, err := ioutil.ReadAll(response.Body)
+    //
+    // // Parse JSON.
+    // var message []Message
+    // err = json.Unmarshal(sanitize(body, &message)
 
 	// Parse JSON.
 	var message []Message
-	err = json.Unmarshal(sanitize(body), &message)
+	err := json.Unmarshal(sanitize([]byte(body)), &message)
 	if err != nil {
 		panic(err)
 	}
