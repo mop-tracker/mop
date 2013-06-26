@@ -72,20 +72,21 @@ type Message struct {
 	Change    string `json:"c"`
 }
 
+//-----------------------------------------------------------------------------
 func Quote(ticker string) []Message {
-	// Send the request.
-    // response, err := http.Get(real_time_url + ticker)
-    // if err != nil {
-    //     panic(err)
-    // }
-    //
-    // // Fetch response and get its body.
-    // defer response.Body.Close()
-    // body, err := ioutil.ReadAll(response.Body)
-    //
-    // // Parse JSON.
-    // var message []Message
-    // err = json.Unmarshal(sanitize(body, &message)
+	// // Send the request.
+	// response, err := http.Get(real_time_url + ticker)
+	// if err != nil {
+	//     panic(err)
+	// }
+	//
+	// // Fetch response and get its body.
+	// defer response.Body.Close()
+	// body, err := ioutil.ReadAll(response.Body)
+	//
+	// // Parse JSON.
+	// var message []Message
+	// err = json.Unmarshal(sanitize(body), &message)
 
 	// Parse JSON.
 	var message []Message
@@ -96,6 +97,7 @@ func Quote(ticker string) []Message {
 	return message
 }
 
+//-----------------------------------------------------------------------------
 func sanitize(ascii []byte) []byte {
 	return bytes.Replace(ascii, []byte{'/'}, []byte{}, -1)
 }
