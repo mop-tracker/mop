@@ -3,10 +3,9 @@
 package main
 
 import (
-        "fmt"
-        "time"
 	"github.com/michaeldv/mop/lib"
 	"github.com/nsf/termbox-go"
+	"time"
 )
 
 //-----------------------------------------------------------------------------
@@ -19,44 +18,40 @@ func initTermbox() {
 
 //-----------------------------------------------------------------------------
 func mainLoop(profile string) {
-        event_queue := make(chan termbox.Event)
-        event_tick := time.NewTicker(1 * time.Second)
+	event_queue := make(chan termbox.Event)
+	event_tick := time.NewTicker(1 * time.Second)
 
-        go func() {
-                for {
-                        event_queue <- termbox.PollEvent()
-                }
-        }()
+	go func() {
+		for {
+			event_queue <- termbox.PollEvent()
+		}
+	}()
 
-        mop.Draw(profile)
+	mop.Draw(profile)
 loop:
 	for {
-                select {
-                case event := <- event_queue:
-        		switch event.Type {
-        		case termbox.EventKey:
-        			if event.Key == termbox.KeyEsc {
-        				break loop
-        			}
-        		case termbox.EventResize:
-        			// Draw(profile)
-        			// x, y := termbox.Size()
-        			str := fmt.Sprintf("(%d:%d)", event.Width, event.Height)
-        			mop.DrawScreen(str + ": <red>Hello world</red>, how <white>are</white> <blue>you?</blue>")
-        		}
-                case <-event_tick.C:
-			mop.DrawScreen(time.Now().Format("3:04:05pm PST"))
-                        //mop.Draw(profile)
-                }
+		select {
+		case event := <-event_queue:
+			switch event.Type {
+			case termbox.EventKey:
+				if event.Key == termbox.KeyEsc {
+					break loop
+				}
+			case termbox.EventResize:
+				mop.Draw(profile)
+			}
+		case <-event_tick.C:
+			mop.Draw(profile)
+		}
 	}
 }
 
 //-----------------------------------------------------------------------------
 func main() {
 
-        initTermbox()
+	initTermbox()
 	defer termbox.Close()
 
 	profile := mop.LoadProfile()
-        mainLoop(profile)
+	mainLoop(profile)
 }

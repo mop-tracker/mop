@@ -5,11 +5,21 @@ package mop
 import (
 	"bytes"
 	"text/template"
+	"time"
 )
 
 //-----------------------------------------------------------------------------
 func Format(message []Message) string {
-	markup := `{{range .}}<green>{{.Ticker}}</green> ${{.LastTrade}} <red>{{.Change}}</red>
+	vars := struct {
+		Now    string
+		Stocks []Message
+	}{
+		time.Now().Format("3:04:05pm PST"),
+		message,
+	}
+
+	markup := `Hello<right>{{.Now}}</right>
+{{range .Stocks}}<green>{{.Ticker}}</green> ${{.LastTrade}} <red>{{.Change}}</red>
 {{end}}...`
 
 	template, err := template.New("screen").Parse(markup)
@@ -18,9 +28,10 @@ func Format(message []Message) string {
 	}
 
 	buffer := new(bytes.Buffer)
-	err = template.Execute(buffer, message)
+	err = template.Execute(buffer, vars)
 	if err != nil {
 		panic(err)
 	}
+
 	return buffer.String()
 }

@@ -3,10 +3,10 @@
 package mop
 
 import (
-	"regexp"
-	"strings"
 	"github.com/michaeldv/just"
 	"github.com/nsf/termbox-go"
+	"regexp"
+	"strings"
 )
 
 // Can combine attributes and a single color using bitwise OR.
@@ -15,7 +15,7 @@ import (
 // AttrUnderline
 // AttrReverse
 //
-var colors = map[string]termbox.Attribute{
+var tags = map[string]termbox.Attribute{
 	"black":   termbox.ColorBlack,
 	"red":     termbox.ColorRed,
 	"green":   termbox.ColorGreen,
@@ -24,6 +24,7 @@ var colors = map[string]termbox.Attribute{
 	"magenta": termbox.ColorMagenta,
 	"cyan":    termbox.ColorCyan,
 	"white":   termbox.ColorWhite,
+	"right":   termbox.ColorDefault,
 }
 
 //-----------------------------------------------------------------------------
@@ -37,17 +38,17 @@ func Draw(stocks string) {
 }
 
 //
-// Return regular expression that matches all possible color tags, i.e.
+// Return regular expression that matches all possible tags, i.e.
 // </?black>|</?red>| ... |</?white>
 //-----------------------------------------------------------------------------
 func tagsRegexp() *regexp.Regexp {
-	tags := []string{}
+	arr := []string{}
 
-	for color, _ := range colors {
-		tags = append(tags, "</?"+color+">")
+	for tag, _ := range tags {
+		arr = append(arr, "</?"+tag+">")
 	}
 
-	return regexp.MustCompile(strings.Join(tags, "|"))
+	return regexp.MustCompile(strings.Join(arr, "|"))
 }
 
 //
@@ -72,23 +73,34 @@ func tagName(str string) string {
 
 //-----------------------------------------------------------------------------
 func drawLine(x int, y int, str string) {
-	column := 0
+	column, right := 0, false
 	foreground, background := termbox.ColorDefault, termbox.ColorDefault
 
 	for _, token := range just.Split(tagsRegexp(), str) {
 		if tag, open := isTag(token); tag {
-			if color, ok := colors[tagName(token)]; ok {
+			key := tagName(token)
+			if value, ok := tags[key]; ok {
 				token = ""
-				if open {
-					foreground = color
-				} else {
-					foreground = termbox.ColorDefault
+				switch key {
+				case "right":
+					right = open
+				default:
+					if open {
+						foreground = value
+					} else {
+						foreground = termbox.ColorDefault
+					}
 				}
 			}
 		}
 
-		for _, char := range token {
-			termbox.SetCell(x+column, y, char, foreground, background)
+		for i, char := range token {
+			if !right {
+				termbox.SetCell(x+column, y, char, foreground, background)
+			} else {
+				width, _ := termbox.Size()
+				termbox.SetCell(width-len(token)+i, y, char, foreground, background)
+			}
 			column += 1
 		}
 	}
@@ -104,5 +116,5 @@ func drawScreen(str string) {
 }
 
 func DrawScreen(str string) {
-        drawScreen(str)
+	drawScreen(str)
 }
