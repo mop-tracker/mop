@@ -3,11 +3,10 @@
 package mop
 
 import (
-	"fmt"
-	"github.com/michaeldv/just"
-	"github.com/nsf/termbox-go"
 	"regexp"
 	"strings"
+	"github.com/michaeldv/just"
+	"github.com/nsf/termbox-go"
 )
 
 // Can combine attributes and a single color using bitwise OR.
@@ -35,24 +34,6 @@ func Draw(stocks string) {
 	// }
 
 	drawScreen(Format(message))
-}
-
-//-----------------------------------------------------------------------------
-func Refresh(profile string) {
-loop:
-	for {
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			if ev.Key == termbox.KeyEsc {
-				break loop
-			}
-		case termbox.EventResize:
-			// Draw(profile)
-			// x, y := termbox.Size()
-			str := fmt.Sprintf("(%d:%d)", ev.Width, ev.Height)
-			drawScreen(str + ": <red>Hello world</red>, how <white>are</white> <blue>you?</blue>")
-		}
-	}
 }
 
 //
@@ -120,4 +101,8 @@ func drawScreen(str string) {
 		drawLine(0, row, line)
 	}
 	termbox.Flush()
+}
+
+func DrawScreen(str string) {
+        drawScreen(str)
 }
