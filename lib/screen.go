@@ -30,9 +30,11 @@ var tags = map[string]termbox.Attribute{
 //-----------------------------------------------------------------------------
 func Draw(stocks string) {
 	message := Quote(stocks)
+
 	// for _, m := range message {
-	//     fmt.Printf("%s, %s, %s\n", m.Ticker, m.LastTrade, m.Change)
+	//         fmt.Printf("%s, %s, %s\n", m.Ticker, m.LastTrade, m.Change)
 	// }
+	// fmt.Printf("%s\n", Format(message))
 
 	drawScreen(Format(message))
 }
@@ -55,7 +57,7 @@ func tagsRegexp() *regexp.Regexp {
 // Return true if a string looks like a tag.
 //-----------------------------------------------------------------------------
 func isTag(str string) (is bool, open bool) {
-	is = (str[0:1] == "<" && str[len(str)-1:] == ">")
+	is = (len(str) > 3 && str[0:1] == "<" && str[len(str)-1:] == ">")
 	open = (is && str[1:2] != "/")
 	return
 }
@@ -64,7 +66,9 @@ func isTag(str string) (is bool, open bool) {
 // Extract tag name from the given tag, i.e. "<hello>" => "hello"
 //-----------------------------------------------------------------------------
 func tagName(str string) string {
-	if str[1:2] != "/" {
+	if len(str) < 3 {
+		return ""
+	} else if str[1:2] != "/" {
 		return str[1 : len(str)-1]
 	} else {
 		return str[2 : len(str)-1]
