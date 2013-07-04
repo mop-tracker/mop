@@ -4,5 +4,5 @@ package mop
 
 //-----------------------------------------------------------------------------
 func LoadProfile() string {
-	return "aapl,atvi,c,coh,goog,hpq,ibm,ma,tsla,v,yhoo,inin,crm,saas"
+	return "AAPL+ATVI+C+COH+GOOG+HPQ+IBM+MA+TSLA+V+YHOO+ININ+CRM+SAAS"
 }

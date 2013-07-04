@@ -1,5 +1,8 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//
+// +build ignore
+
 package mop
 
 import (
