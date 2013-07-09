@@ -6,6 +6,7 @@ import (
         "fmt"
         "time"
         "bytes"
+        "strings"
         "net/http"
         "io/ioutil"
         // "strings"
@@ -13,7 +14,7 @@ import (
 
 // See http://www.gummy-stuff.org/Yahoo-data.htm
 // Current, Change, Open, High, Low, 52-W High, 52-W Low, Volume, AvgVolume, P/E, Yield, Market Cap.
-// b2: ask rt
+// l1: last trade
 // c6: change rt
 // k2: change % rt
 // o: open
@@ -25,33 +26,36 @@ import (
 // a2: avg volume
 // r2: p/e rt
 // r: p/e
+// d: dividend/share
 // y: wield
 // j3: market cap rt
 // j1: market cap
 
-const yahoo_finance_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,b2c6k2oghjkva2r2ryj3j1`
+const yahoo_finance_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
 
-// "AAPL", 602.93, "+2.31", "N/A - +0.55%", 420.95, 417.45,  422.98,  385.10, 705.07,  8604594, 15205700, N/A,  9.99, 2.63, N/A, 395.0B
-// "GOOG",   0.00, "+4.12", "N/A - +0.47%", 879.90, 878.50,  889.17,  562.09, 920.60,  1048628,  2353530, N/A, 26.40,  N/A, N/A, 294.1B
-// "PG",    94.58, "+0.13", "N/A - +0.17%",  78.28,  77.4301, 78.75,   60.86,  82.54,  5347846,  9929320, N/A, 17.58, 2.92, N/A, 215.3B
+// "AAPL", 417.42, "-3.38", "N/A - -0.80%", 420.33, 415.35,   423.29, 385.10, 705.07, 9788680, 15181900, N/A, 10.04, 11.00, 2.61, N/A, 391.8B
+// "ALU",    1.83, "+0.07", "N/A - +3.98%",   1.77,   1.75,     1.83,   0.91,   2.01, 7957103, 11640700, N/A,   N/A,  0.00,  N/A, N/A,   4.156B
+// "IBM",  194.93, "+1.68", "N/A - +0.87%", 192.83, 192.3501, 195.16, 181.85, 215.90, 2407971,  4376120, N/A, 13.33,  3.50, 1.81, N/A, 216.1B
+// "TSLA", 120.09, "+4.85", "N/A - +4.21%", 118.75, 115.70,   120.28,  25.52, 121.89, 6827497,  9464530, N/A,   N/A,  0.00,  N/A, N/A, 13.877B
 
 type Quote struct {
-	Ticker          []byte
-	Ask             []byte
-	Change          []byte
-	ChangePercent   []byte
-	Open            []byte
-	Low             []byte
-	High            []byte
-	Low52           []byte
-	High52          []byte
-	Volume          []byte
-	AvgVolume       []byte
-	PeRatio         []byte
-	PeRatioX        []byte
-	Yield           []byte
-        MarketCap       []byte
-        MarketCapX      []byte
+	Ticker          string
+	LastTrade       string
+	Change          string
+	ChangePercent   string
+	Open            string
+	Low             string
+	High            string
+	Low52           string
+	High52          string
+	Volume          string
+	AvgVolume       string
+	PeRatio         string
+	PeRatioX        string
+        Dividend        string
+	Yield           string
+        MarketCap       string
+        MarketCapX      string
 }
 type Quotes []Quote
 
@@ -74,7 +78,6 @@ func Get(tickers string) Quotes {
 	// Fetch response and get its body.
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
-        fmt.Println("\n\n\n\n\n\rFetched quotes: " + time.Now().Format("3:04:05pm PST"))
 	if err != nil {
 		panic(err)
 	}
@@ -83,13 +86,19 @@ func Get(tickers string) Quotes {
 	return quotes
 }
 
+func (q *Quote) Color() string {
+	if strings.Index(q.Change, "-") == -1 {
+		return "</green><green>"
+	} else {
+		return "" // "</red><red>"
+	}
+}
+
 func sanitize(body []byte) []byte {
         return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
 }
 
-// "AAPL", 602.93, "+2.31", "N/A - +0.55%", 420.95, 417.45,  422.98,  385.10, 705.07,  8604594, 15205700, N/A,  9.99, 2.63, N/A, 395.0B
 func parse(body []byte) Quotes {
-        // fmt.Printf("[%s]\n", body)
         lines := bytes.Split(body, []byte{'\n'})
         quotes := make(Quotes, len(lines))
 
@@ -102,36 +111,35 @@ func parse(body []byte) Quotes {
 }
 
 func parse_line(line []byte, quote *Quote) {
-        // var quote Quote
-        columns := bytes.Split(line, []byte{','})
-        // fmt.Printf("{%s} -> [%d]", string(line), len(columns))
+        columns := bytes.Split(bytes.TrimSpace(line), []byte{','})
 
-        quote.Ticker          = columns[0]
-        quote.Ask             = columns[1]
-        quote.Change          = columns[2]
-        quote.ChangePercent   = columns[3]
-        quote.Open            = columns[4]
-        quote.Low             = columns[5]
-        quote.High            = columns[6]
-        quote.Low52           = columns[7]
-        quote.High52          = columns[8]
-        quote.Volume          = columns[9]
-        quote.AvgVolume       = columns[10]
-        quote.PeRatio         = columns[11]
-        quote.PeRatioX        = columns[12]
-        quote.Yield           = columns[13]
-        quote.MarketCap       = columns[14]
-        quote.MarketCapX      = columns[15]
+        quote.Ticker          = string(columns[0])
+        quote.LastTrade       = string(columns[1])
+        quote.Change          = string(columns[2])
+        quote.ChangePercent   = string(columns[3])
+        quote.Open            = string(columns[4])
+        quote.Low             = string(columns[5])
+        quote.High            = string(columns[6])
+        quote.Low52           = string(columns[7])
+        quote.High52          = string(columns[8])
+        quote.Volume          = string(columns[9])
+        quote.AvgVolume       = string(columns[10])
+        quote.PeRatio         = string(columns[11])
+        quote.PeRatioX        = string(columns[12])
+        quote.Dividend        = string(columns[13])
+        quote.Yield           = string(columns[14])
+        quote.MarketCap       = string(columns[15])
+        quote.MarketCapX      = string(columns[16])
 }
 
-func (quotes Quotes) Format() string {
-        str := time.Now().Format("3:04:05pm PST\n")
-
-        for _, q := range quotes {
-                str += fmt.Sprintf("%s - %s - %s - %s\n", q.Ticker, q.Ask, q.Change, q.ChangePercent)
-        }
-        return str
-}
+// func (quotes Quotes) Format() string {
+//         str := time.Now().Format("3:04:05pm PST\n")
+// 
+//         for _, q := range quotes {
+//                 str += fmt.Sprintf("%s - %s - %s - %s\n", q.Ticker, q.Ask, q.Change, q.ChangePercent)
+//         }
+//         return str
+// }
 
 //
 // http://query.yahooapis.com/v1/public/yql

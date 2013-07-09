@@ -29,14 +29,14 @@ var tags = map[string]termbox.Attribute{
 
 //-----------------------------------------------------------------------------
 func Draw(stocks string) {
-	message := Get(stocks)
+	quotes := Get(stocks)
 
 	// for _, m := range message {
 	//         fmt.Printf("%s, %s, %s\n", m.Ticker, m.LastTrade, m.Change)
 	// }
 	// fmt.Printf("%s\n", Format(message))
 
-	drawScreen(message.Format())
+	drawScreen(Format(quotes))
 }
 
 //
