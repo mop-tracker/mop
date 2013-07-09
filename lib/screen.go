@@ -5,6 +5,7 @@ package mop
 import (
 	"github.com/michaeldv/just"
 	"github.com/nsf/termbox-go"
+        "time"
 	"regexp"
 	"strings"
 )
@@ -37,6 +38,12 @@ func Draw(stocks string) {
 	// fmt.Printf("%s\n", Format(message))
 
 	drawScreen(Format(quotes))
+}
+
+//-----------------------------------------------------------------------------
+func DrawTime() {
+        now := time.Now().Format("3:04:05pm PST")
+        drawLine(0, 0, "<right>" + now + "</right>")
 }
 
 //
@@ -108,6 +115,7 @@ func drawLine(x int, y int, str string) {
 			column += 1
 		}
 	}
+        termbox.Flush()
 }
 
 //-----------------------------------------------------------------------------
@@ -116,5 +124,4 @@ func drawScreen(str string) {
 	for row, line := range strings.Split(str, "\n") {
 		drawLine(0, row, line)
 	}
-	termbox.Flush()
 }

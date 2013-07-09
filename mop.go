@@ -18,12 +18,13 @@ func initTermbox() {
 
 //-----------------------------------------------------------------------------
 func mainLoop(profile string) {
-	event_queue := make(chan termbox.Event)
-	event_tick := time.NewTicker(1 * time.Second)
+	keyboard_queue := make(chan termbox.Event)
+	quotes_queue := time.NewTicker(5 * time.Second)
+	timestamp_queue := time.NewTicker(1 * time.Second)
 
 	go func() {
 		for {
-			event_queue <- termbox.PollEvent()
+			keyboard_queue <- termbox.PollEvent()
 		}
 	}()
 
@@ -31,7 +32,7 @@ func mainLoop(profile string) {
 loop:
 	for {
 		select {
-		case event := <-event_queue:
+		case event := <-keyboard_queue:
 			switch event.Type {
 			case termbox.EventKey:
 				if event.Key == termbox.KeyEsc {
@@ -40,8 +41,12 @@ loop:
 			case termbox.EventResize:
 				mop.Draw(profile)
 			}
-		case <-event_tick.C:
+
+		case <-quotes_queue.C:
 			mop.Draw(profile)
+
+		case <-timestamp_queue.C:
+			mop.DrawTime()
 		}
 	}
 }

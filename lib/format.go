@@ -4,11 +4,11 @@ package mop
 
 import (
 	"fmt"
+	"time"
 	"bytes"
         "regexp"
         "strings"
 	"text/template"
-	"time"
 )
 
 //-----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ func Format(quotes Quotes) string {
 	}
 
 	markup :=
-		`Hello<right>{{.Now}}</right>
+		`Hello<right><white>{{.Now}}</white></right>
 
 {{.Header}}
 {{range .Stocks}}{{.Color}}{{.Ticker}} {{.LastTrade}} {{.Change}} {{.ChangePercent}} {{.Open}} {{.Low}} {{.High}} {{.Low52}} {{.High52}} {{.Volume}} {{.AvgVolume}} {{.PeRatio}} {{.Dividend}} {{.Yield}} {{.MarketCap}}
@@ -41,7 +41,7 @@ func Format(quotes Quotes) string {
 		panic(err)
 	}
 
-	return buffer.String()
+        return buffer.String()
 }
 
 func header() string {

@@ -4,7 +4,6 @@ package mop
 
 import (
         "fmt"
-        "time"
         "bytes"
         "strings"
         "net/http"
@@ -59,13 +58,8 @@ type Quote struct {
 }
 type Quotes []Quote
 
-var quotes Quotes
-
 // func Get(tickers []string) Quotes {
 func Get(tickers string) Quotes {
-	if len(quotes) > 0 && time.Now().Second() % 5 != 0 { // Fetch quotes every 5 seconds.
-		return quotes
-	}
 
         // Format the URL and send the request.
         // url := fmt.Sprintf(yahoo_finance_url, strings.Join(tickers, "+"))
@@ -81,9 +75,8 @@ func Get(tickers string) Quotes {
 	if err != nil {
 		panic(err)
 	}
-        quotes = parse(sanitize(body))
 
-	return quotes
+        return parse(sanitize(body))
 }
 
 func (q *Quote) Color() string {
