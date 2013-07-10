@@ -19,8 +19,9 @@ func initTermbox() {
 //-----------------------------------------------------------------------------
 func mainLoop(profile string) {
 	keyboard_queue := make(chan termbox.Event)
-	quotes_queue := time.NewTicker(5 * time.Second)
 	timestamp_queue := time.NewTicker(1 * time.Second)
+	quotes_queue := time.NewTicker(5 * time.Second)
+	market_queue := time.NewTicker(12 * time.Second)
 
 	go func() {
 		for {
@@ -28,7 +29,9 @@ func mainLoop(profile string) {
 		}
 	}()
 
-	mop.Draw(profile)
+        termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	mop.DrawMarket()
+	mop.DrawQuotes(profile)
 loop:
 	for {
 		select {
@@ -39,14 +42,19 @@ loop:
 					break loop
 				}
 			case termbox.EventResize:
-				mop.Draw(profile)
+                	        termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+                        	mop.DrawMarket()
+                        	mop.DrawQuotes(profile)
 			}
-
-		case <-quotes_queue.C:
-			mop.Draw(profile)
 
 		case <-timestamp_queue.C:
 			mop.DrawTime()
+
+		case <-quotes_queue.C:
+			mop.DrawQuotes(profile)
+
+		case <-market_queue.C:
+			mop.DrawMarket()
 		}
 	}
 }

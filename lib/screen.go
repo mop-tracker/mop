@@ -29,15 +29,27 @@ var tags = map[string]termbox.Attribute{
 }
 
 //-----------------------------------------------------------------------------
-func Draw(stocks string) {
-	quotes := Get(stocks)
+func DrawMarket() {
+	market := GetMarket()
 
 	// for _, m := range message {
 	//         fmt.Printf("%s, %s, %s\n", m.Ticker, m.LastTrade, m.Change)
 	// }
 	// fmt.Printf("%s\n", Format(message))
 
-	drawScreen(Format(quotes))
+	drawScreen(FormatMarket(market))
+}
+
+//-----------------------------------------------------------------------------
+func DrawQuotes(stocks string) {
+	quotes := GetQuotes(stocks)
+
+	// for _, m := range message {
+	//         fmt.Printf("%s, %s, %s\n", m.Ticker, m.LastTrade, m.Change)
+	// }
+	// fmt.Printf("%s\n", Format(message))
+
+	drawScreen(FormatQuotes(quotes))
 }
 
 //-----------------------------------------------------------------------------
@@ -120,7 +132,6 @@ func drawLine(x int, y int, str string) {
 
 //-----------------------------------------------------------------------------
 func drawScreen(str string) {
-	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	for row, line := range strings.Split(str, "\n") {
 		drawLine(0, row, line)
 	}

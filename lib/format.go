@@ -12,7 +12,32 @@ import (
 )
 
 //-----------------------------------------------------------------------------
-func Format(quotes Quotes) string {
+func FormatMarket(m Market) string {
+	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, `
+        markup += `{{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, `
+        markup += `{{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}`
+        markup += "\n"
+        markup += `{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. `
+        markup += `{{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq`
+        markup += "\n"
+        markup += `New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. `
+        markup += `New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
+	template, err := template.New("market").Parse(markup)
+	if err != nil {
+		panic(err)
+	}
+
+	buffer := new(bytes.Buffer)
+	err = template.Execute(buffer, m)
+	if err != nil {
+		panic(err)
+	}
+
+        return buffer.String()
+}
+
+//-----------------------------------------------------------------------------
+func FormatQuotes(quotes Quotes) string {
 	vars := struct {
 		Now    string
                 Header string
@@ -23,14 +48,15 @@ func Format(quotes Quotes) string {
 		prettify(quotes),
 	}
 
-	markup :=
-		`Hello<right><white>{{.Now}}</white></right>
+	markup := `<right><white>{{.Now}}</white></right>
+
+
 
 {{.Header}}
 {{range .Stocks}}{{.Color}}{{.Ticker}} {{.LastTrade}} {{.Change}} {{.ChangePercent}} {{.Open}} {{.Low}} {{.High}} {{.Low52}} {{.High52}} {{.Volume}} {{.AvgVolume}} {{.PeRatio}} {{.Dividend}} {{.Yield}} {{.MarketCap}}
 {{end}}...`
 
-	template, err := template.New("screen").Parse(markup)
+	template, err := template.New("quotes").Parse(markup)
 	if err != nil {
 		panic(err)
 	}

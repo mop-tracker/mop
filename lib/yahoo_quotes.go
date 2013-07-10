@@ -8,7 +8,6 @@ import (
         "strings"
         "net/http"
         "io/ioutil"
-        // "strings"
 )
 
 // See http://www.gummy-stuff.org/Yahoo-data.htm
@@ -30,7 +29,7 @@ import (
 // j3: market cap rt
 // j1: market cap
 
-const yahoo_finance_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
+const yahoo_quotes_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
 
 // "AAPL", 417.42, "-3.38", "N/A - -0.80%", 420.33, 415.35,   423.29, 385.10, 705.07, 9788680, 15181900, N/A, 10.04, 11.00, 2.61, N/A, 391.8B
 // "ALU",    1.83, "+0.07", "N/A - +3.98%",   1.77,   1.75,     1.83,   0.91,   2.01, 7957103, 11640700, N/A,   N/A,  0.00,  N/A, N/A,   4.156B
@@ -58,12 +57,11 @@ type Quote struct {
 }
 type Quotes []Quote
 
-// func Get(tickers []string) Quotes {
-func Get(tickers string) Quotes {
+func GetQuotes(tickers string) Quotes {
 
         // Format the URL and send the request.
-        // url := fmt.Sprintf(yahoo_finance_url, strings.Join(tickers, "+"))
-        url := fmt.Sprintf(yahoo_finance_url, tickers)
+        // url := fmt.Sprintf(yahoo_quotes_url, strings.Join(tickers, "+"))
+        url := fmt.Sprintf(yahoo_quotes_url, tickers)
 	response, err := http.Get(url)
 	if err != nil {
 		panic(err)
