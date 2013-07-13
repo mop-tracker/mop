@@ -6,13 +6,6 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-// const (
-//         add_prompt = "Add tickers: "
-//         remove_prompt = "Remove tickers: "
-// )
-
-// const prompts = map[rune]string{'+': `Add tickers: `, '-': `Remove tickers: `}
-
 type LineEditor struct {
 	command rune
 	prompt  string
@@ -23,16 +16,10 @@ type LineEditor struct {
 //-----------------------------------------------------------------------------
 func (self *LineEditor) Prompt(command rune) {
 	prompts := map[rune]string{'+': `Add tickers: `, '-': `Remove tickers: `}
+	if prompt, ok := prompts[command]; ok {
+		self.prompt = prompt
+		self.command = command
 
-	self.command = command
-	switch self.command {
-	case '+', '-':
-		self.prompt = prompts[self.command]
-		// if self.command == '+' {
-		//         self.prompt = add_prompt
-		// } else {
-		//         self.prompt = remove_prompt
-		// }
 		DrawLine(0, 3, "<white>"+self.prompt+"</white>")
 		termbox.SetCursor(len(self.prompt), 3)
 		termbox.Flush()
@@ -52,6 +39,13 @@ func (self *LineEditor) Handle(ev termbox.Event) bool {
 		termbox.HideCursor()
 		termbox.Flush()
 		return true
+        case termbox.KeyBackspace, termbox.KeyBackspace2:
+             if len(self.input) > 0 {
+		     self.input = self.input[:len(self.input)-1]
+		     DrawLine(len(self.prompt), 3, self.input + " ")
+		     termbox.SetCursor(len(self.prompt)+len(self.input), 3)
+		     termbox.Flush()
+             }
 	default:
 		if ev.Ch != 0 {
 			self.input += string(ev.Ch)
