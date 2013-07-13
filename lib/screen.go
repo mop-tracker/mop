@@ -5,9 +5,9 @@ package mop
 import (
 	"github.com/michaeldv/just"
 	"github.com/nsf/termbox-go"
-        "time"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // Can combine attributes and a single color using bitwise OR.
@@ -31,31 +31,70 @@ var tags = map[string]termbox.Attribute{
 //-----------------------------------------------------------------------------
 func DrawMarket() {
 	market := GetMarket()
-
-	// for _, m := range message {
-	//         fmt.Printf("%s, %s, %s\n", m.Ticker, m.LastTrade, m.Change)
-	// }
-	// fmt.Printf("%s\n", Format(message))
-
 	drawScreen(FormatMarket(market))
 }
 
 //-----------------------------------------------------------------------------
 func DrawQuotes(stocks string) {
 	quotes := GetQuotes(stocks)
-
-	// for _, m := range message {
-	//         fmt.Printf("%s, %s, %s\n", m.Ticker, m.LastTrade, m.Change)
-	// }
-	// fmt.Printf("%s\n", Format(message))
-
 	drawScreen(FormatQuotes(quotes))
 }
 
 //-----------------------------------------------------------------------------
 func DrawTime() {
-        now := time.Now().Format("3:04:05pm PST")
-        drawLine(0, 0, "<right>" + now + "</right>")
+	now := time.Now().Format("3:04:05pm PST")
+	DrawLine(0, 0, "<right>"+now+"</right>")
+}
+
+//-----------------------------------------------------------------------------
+func ClearLine(x int, y int) {
+	width, _ := termbox.Size()
+	for i := x; i < width; i++ {
+		termbox.SetCell(i, y, ' ', termbox.ColorDefault, termbox.ColorDefault)
+	}
+}
+
+//-----------------------------------------------------------------------------
+func DrawLine(x int, y int, str string) {
+	column, right := 0, false
+	foreground, background := termbox.ColorDefault, termbox.ColorDefault
+
+	for _, token := range just.Split(tagsRegexp(), str) {
+		if tag, open := isTag(token); tag {
+			key := tagName(token)
+			if value, ok := tags[key]; ok {
+				token = ""
+				switch key {
+				case "right":
+					right = open
+				default:
+					if open {
+						foreground = value
+					} else {
+						foreground = termbox.ColorDefault
+					}
+				}
+			}
+		}
+
+		for i, char := range token {
+			if !right {
+				termbox.SetCell(x+column, y, char, foreground, background)
+			} else {
+				width, _ := termbox.Size()
+				termbox.SetCell(width-len(token)+i, y, char, foreground, background)
+			}
+			column += 1
+		}
+	}
+	termbox.Flush()
+}
+
+//-----------------------------------------------------------------------------
+func drawScreen(str string) {
+	for row, line := range strings.Split(str, "\n") {
+		DrawLine(0, row, line)
+	}
 }
 
 //
@@ -91,48 +130,5 @@ func tagName(str string) string {
 		return str[1 : len(str)-1]
 	} else {
 		return str[2 : len(str)-1]
-	}
-}
-
-//-----------------------------------------------------------------------------
-func drawLine(x int, y int, str string) {
-	column, right := 0, false
-	foreground, background := termbox.ColorDefault, termbox.ColorDefault
-
-	for _, token := range just.Split(tagsRegexp(), str) {
-		if tag, open := isTag(token); tag {
-			key := tagName(token)
-			if value, ok := tags[key]; ok {
-				token = ""
-				switch key {
-				case "right":
-					right = open
-				default:
-					if open {
-						foreground = value
-					} else {
-						foreground = termbox.ColorDefault
-					}
-				}
-			}
-		}
-
-		for i, char := range token {
-			if !right {
-				termbox.SetCell(x+column, y, char, foreground, background)
-			} else {
-				width, _ := termbox.Size()
-				termbox.SetCell(width-len(token)+i, y, char, foreground, background)
-			}
-			column += 1
-		}
-	}
-        termbox.Flush()
-}
-
-//-----------------------------------------------------------------------------
-func drawScreen(str string) {
-	for row, line := range strings.Split(str, "\n") {
-		drawLine(0, row, line)
 	}
 }

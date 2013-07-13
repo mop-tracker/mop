@@ -3,25 +3,25 @@
 package mop
 
 import (
-	"fmt"
-	"time"
 	"bytes"
-        "regexp"
-        "strings"
+	"fmt"
+	"regexp"
+	"strings"
 	"text/template"
+	"time"
 )
 
 //-----------------------------------------------------------------------------
 func FormatMarket(m Market) string {
 	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, `
-        markup += `{{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, `
-        markup += `{{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}`
-        markup += "\n"
-        markup += `{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. `
-        markup += `{{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq`
-        markup += "\n"
-        markup += `New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. `
-        markup += `New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
+	markup += `{{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, `
+	markup += `{{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}`
+	markup += "\n"
+	markup += `{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. `
+	markup += `{{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq`
+	markup += "\n"
+	markup += `New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. `
+	markup += `New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
 	template, err := template.New("market").Parse(markup)
 	if err != nil {
 		panic(err)
@@ -33,18 +33,18 @@ func FormatMarket(m Market) string {
 		panic(err)
 	}
 
-        return buffer.String()
+	return buffer.String()
 }
 
 //-----------------------------------------------------------------------------
 func FormatQuotes(quotes Quotes) string {
 	vars := struct {
 		Now    string
-                Header string
+		Header string
 		Stocks Quotes
 	}{
 		time.Now().Format("3:04:05pm PST"),
-                header(),
+		header(),
 		prettify(quotes),
 	}
 
@@ -67,27 +67,27 @@ func FormatQuotes(quotes Quotes) string {
 		panic(err)
 	}
 
-        return buffer.String()
+	return buffer.String()
 }
 
 func header() string {
-        str := fmt.Sprintf("%-7s ", "Ticker")
-        str += fmt.Sprintf("%9s ",  "Last")
-        str += fmt.Sprintf("%9s ",  "Change")
-        str += fmt.Sprintf("%9s ",  "%Change")
-        str += fmt.Sprintf("%9s ",  "Open")
-        str += fmt.Sprintf("%9s ",  "Low")
-        str += fmt.Sprintf("%9s ",  "High")
-        str += fmt.Sprintf("%9s ",  "52w Low")
-        str += fmt.Sprintf("%9s ",  "52w High")
-        str += fmt.Sprintf("%10s ", "Volume")
-        str += fmt.Sprintf("%10s ", "AvgVolume")
-        str += fmt.Sprintf("%9s ",  "P/E")
-        str += fmt.Sprintf("%9s ",  "Dividend")
-        str += fmt.Sprintf("%9s ",  "Yield")
-        str += fmt.Sprintf("%10s",  "MktCap")
+	str := fmt.Sprintf("%-7s ", "Ticker")
+	str += fmt.Sprintf("%9s ", "Last")
+	str += fmt.Sprintf("%9s ", "Change")
+	str += fmt.Sprintf("%9s ", "%Change")
+	str += fmt.Sprintf("%9s ", "Open")
+	str += fmt.Sprintf("%9s ", "Low")
+	str += fmt.Sprintf("%9s ", "High")
+	str += fmt.Sprintf("%9s ", "52w Low")
+	str += fmt.Sprintf("%9s ", "52w High")
+	str += fmt.Sprintf("%10s ", "Volume")
+	str += fmt.Sprintf("%10s ", "AvgVolume")
+	str += fmt.Sprintf("%9s ", "P/E")
+	str += fmt.Sprintf("%9s ", "Dividend")
+	str += fmt.Sprintf("%9s ", "Yield")
+	str += fmt.Sprintf("%10s", "MktCap")
 
-        return str
+	return str
 }
 
 func prettify(quotes Quotes) Quotes {
@@ -113,19 +113,19 @@ func prettify(quotes Quotes) Quotes {
 }
 
 func nullify(str string) string {
-        if len(str) == 3 && str[0:3] == "N/A" {
-                return "-"
-        } else {
-                return str
-        }
+	if len(str) == 3 && str[0:3] == "N/A" {
+		return "-"
+	} else {
+		return str
+	}
 }
 
 func last_of_pair(str string) string {
-        if len(str) >= 6 && str[0:6] != "N/A - " {
+	if len(str) >= 6 && str[0:6] != "N/A - " {
 		return str
-        } else {
-                return str[6:]
-        }
+	} else {
+		return str[6:]
+	}
 }
 
 func with_currency(str string) string {
@@ -168,14 +168,16 @@ func ticker(str string, change string) string {
 }
 
 func pad(str string, width int) string {
-        re := regexp.MustCompile(`(\.\d+)[MB]?$`)
-        match := re.FindStringSubmatch(str)
-        if len(match) > 0 {
-                switch len(match[1]) {
-                case 2: str = strings.Replace(str, match[1], match[1] + "0", 1)
-                case 4, 5: str = strings.Replace(str, match[1], match[1][0:3], 1)
-                }
-        }
+	re := regexp.MustCompile(`(\.\d+)[MB]?$`)
+	match := re.FindStringSubmatch(str)
+	if len(match) > 0 {
+		switch len(match[1]) {
+		case 2:
+			str = strings.Replace(str, match[1], match[1]+"0", 1)
+		case 4, 5:
+			str = strings.Replace(str, match[1], match[1][0:3], 1)
+		}
+	}
 
 	return fmt.Sprintf("%*s", width, str)
 }

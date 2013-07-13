@@ -18,6 +18,7 @@ func initTermbox() {
 
 //-----------------------------------------------------------------------------
 func mainLoop(profile string) {
+	var line_editor *mop.LineEditor
 	keyboard_queue := make(chan termbox.Event)
 	timestamp_queue := time.NewTicker(1 * time.Second)
 	quotes_queue := time.NewTicker(5 * time.Second)
@@ -29,7 +30,7 @@ func mainLoop(profile string) {
 		}
 	}()
 
-        termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	mop.DrawMarket()
 	mop.DrawQuotes(profile)
 loop:
@@ -38,13 +39,23 @@ loop:
 		case event := <-keyboard_queue:
 			switch event.Type {
 			case termbox.EventKey:
-				if event.Key == termbox.KeyEsc {
-					break loop
+				if line_editor == nil {
+					if event.Key == termbox.KeyEsc {
+						break loop
+					} else if event.Ch == '+' || event.Ch == '-' {
+						line_editor = new(mop.LineEditor)
+						line_editor.Prompt(event.Ch)
+					}
+				} else {
+					done := line_editor.Handle(event)
+					if done {
+						line_editor = nil
+					}
 				}
 			case termbox.EventResize:
-                	        termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-                        	mop.DrawMarket()
-                        	mop.DrawQuotes(profile)
+				termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+				mop.DrawMarket()
+				mop.DrawQuotes(profile)
 			}
 
 		case <-timestamp_queue.C:

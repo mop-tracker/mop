@@ -3,11 +3,11 @@
 package mop
 
 import (
-        "fmt"
-        "bytes"
-        "strings"
-        "net/http"
-        "io/ioutil"
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
 // See http://www.gummy-stuff.org/Yahoo-data.htm
@@ -37,31 +37,31 @@ const yahoo_quotes_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=
 // "TSLA", 120.09, "+4.85", "N/A - +4.21%", 118.75, 115.70,   120.28,  25.52, 121.89, 6827497,  9464530, N/A,   N/A,  0.00,  N/A, N/A, 13.877B
 
 type Quote struct {
-	Ticker          string
-	LastTrade       string
-	Change          string
-	ChangePercent   string
-	Open            string
-	Low             string
-	High            string
-	Low52           string
-	High52          string
-	Volume          string
-	AvgVolume       string
-	PeRatio         string
-	PeRatioX        string
-        Dividend        string
-	Yield           string
-        MarketCap       string
-        MarketCapX      string
+	Ticker        string
+	LastTrade     string
+	Change        string
+	ChangePercent string
+	Open          string
+	Low           string
+	High          string
+	Low52         string
+	High52        string
+	Volume        string
+	AvgVolume     string
+	PeRatio       string
+	PeRatioX      string
+	Dividend      string
+	Yield         string
+	MarketCap     string
+	MarketCapX    string
 }
 type Quotes []Quote
 
 func GetQuotes(tickers string) Quotes {
 
-        // Format the URL and send the request.
-        // url := fmt.Sprintf(yahoo_quotes_url, strings.Join(tickers, "+"))
-        url := fmt.Sprintf(yahoo_quotes_url, tickers)
+	// Format the URL and send the request.
+	// url := fmt.Sprintf(yahoo_quotes_url, strings.Join(tickers, "+"))
+	url := fmt.Sprintf(yahoo_quotes_url, tickers)
 	response, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -74,7 +74,7 @@ func GetQuotes(tickers string) Quotes {
 		panic(err)
 	}
 
-        return parse(sanitize(body))
+	return parse(sanitize(body))
 }
 
 func (q *Quote) Color() string {
@@ -86,46 +86,46 @@ func (q *Quote) Color() string {
 }
 
 func sanitize(body []byte) []byte {
-        return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
+	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
 }
 
 func parse(body []byte) Quotes {
-        lines := bytes.Split(body, []byte{'\n'})
-        quotes := make(Quotes, len(lines))
+	lines := bytes.Split(body, []byte{'\n'})
+	quotes := make(Quotes, len(lines))
 
-        for i,line := range lines {
-                // fmt.Printf("\n\n{%d} -> [%s]\n\n", i, string(line))
-                parse_line(line, &quotes[i])
-        }
+	for i, line := range lines {
+		// fmt.Printf("\n\n{%d} -> [%s]\n\n", i, string(line))
+		parse_line(line, &quotes[i])
+	}
 
-        return quotes
+	return quotes
 }
 
 func parse_line(line []byte, quote *Quote) {
-        columns := bytes.Split(bytes.TrimSpace(line), []byte{','})
+	columns := bytes.Split(bytes.TrimSpace(line), []byte{','})
 
-        quote.Ticker          = string(columns[0])
-        quote.LastTrade       = string(columns[1])
-        quote.Change          = string(columns[2])
-        quote.ChangePercent   = string(columns[3])
-        quote.Open            = string(columns[4])
-        quote.Low             = string(columns[5])
-        quote.High            = string(columns[6])
-        quote.Low52           = string(columns[7])
-        quote.High52          = string(columns[8])
-        quote.Volume          = string(columns[9])
-        quote.AvgVolume       = string(columns[10])
-        quote.PeRatio         = string(columns[11])
-        quote.PeRatioX        = string(columns[12])
-        quote.Dividend        = string(columns[13])
-        quote.Yield           = string(columns[14])
-        quote.MarketCap       = string(columns[15])
-        quote.MarketCapX      = string(columns[16])
+	quote.Ticker = string(columns[0])
+	quote.LastTrade = string(columns[1])
+	quote.Change = string(columns[2])
+	quote.ChangePercent = string(columns[3])
+	quote.Open = string(columns[4])
+	quote.Low = string(columns[5])
+	quote.High = string(columns[6])
+	quote.Low52 = string(columns[7])
+	quote.High52 = string(columns[8])
+	quote.Volume = string(columns[9])
+	quote.AvgVolume = string(columns[10])
+	quote.PeRatio = string(columns[11])
+	quote.PeRatioX = string(columns[12])
+	quote.Dividend = string(columns[13])
+	quote.Yield = string(columns[14])
+	quote.MarketCap = string(columns[15])
+	quote.MarketCapX = string(columns[16])
 }
 
 // func (quotes Quotes) Format() string {
 //         str := time.Now().Format("3:04:05pm PST\n")
-// 
+//
 //         for _, q := range quotes {
 //                 str += fmt.Sprintf("%s - %s - %s - %s\n", q.Ticker, q.Ask, q.Change, q.ChangePercent)
 //         }
