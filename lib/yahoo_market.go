@@ -52,14 +52,14 @@ func extract(snippet []byte) Market {
 	const any = `\s*<.+?>`
 	const some = `<.+?`
 	const space = `\s*`
-	const arrow = `"(Up|Down)">\s*`
+	const color = `#([08c]{6});">\s*`
 	const price = `([\d\.,]+)`
 	const percent = `\(([\d\.,%]+)\)`
 
 	regex := []string{
-		"(Dow)", any, price, some, arrow, any, price, some, percent, any,
-		"(Nasdaq)", any, price, /*some, arrow,*/ any, price, some, percent, any,
-		"(S&P 500)", any, price, some, arrow, any, price, some, percent, any,
+		"(Dow)", any, price, some, color, price, some, percent, any,
+		"(Nasdaq)", any, price, some, color, price, some, percent, any,
+		"(S&P 500)", any, price, some, color, price, some, percent, any,
 		"(Advances)", any, price, space, percent, any, price, space, percent, any,
 		"(Declines)", any, price, space, percent, any, price, space, percent, any,
 		"(Unchanged)", any, price, space, percent, any, price, space, percent, any,
@@ -89,36 +89,48 @@ func extract(snippet []byte) Market {
 		Highs:     make(map[string]string),
 		Lows:      make(map[string]string),
 	}
-	return m
+
 	m.Dow[`name`] = matches[0][1]
 	m.Dow[`latest`] = matches[0][2]
 	m.Dow[`change`] = matches[0][4]
-	if matches[0][3] == "Up" {
+	switch matches[0][3] {
+	case "008800":
 		m.Dow[`change`] = "+" + matches[0][4]
 		m.Dow[`percent`] = "+" + matches[0][5]
-	} else {
+	case "cc0000":
 		m.Dow[`change`] = "-" + matches[0][4]
 		m.Dow[`percent`] = "-" + matches[0][5]
+	default:
+		m.Dow[`change`] = matches[0][4]
+		m.Dow[`percent`] = matches[0][5]
 	}
 
 	m.Nasdaq[`name`] = matches[0][6]
 	m.Nasdaq[`latest`] = matches[0][7]
-	if matches[0][8] == "Up" {
+	switch matches[0][8] {
+	case "008800":
 		m.Nasdaq[`change`] = "+" + matches[0][9]
 		m.Nasdaq[`percent`] = "+" + matches[0][10]
-	} else {
+	case "cc0000":
 		m.Nasdaq[`change`] = "-" + matches[0][9]
 		m.Nasdaq[`percent`] = "-" + matches[0][10]
+	default:
+		m.Nasdaq[`change`] = matches[0][9]
+		m.Nasdaq[`percent`] = matches[0][10]
 	}
 
 	m.Sp500[`name`] = matches[0][11]
 	m.Sp500[`latest`] = matches[0][12]
-	if matches[0][13] == "Up" {
+	switch matches[0][13] {
+	case "008800":
 		m.Sp500[`change`] = "+" + matches[0][14]
 		m.Sp500[`percent`] = "+" + matches[0][15]
-	} else {
+	case "cc0000":
 		m.Sp500[`change`] = "-" + matches[0][14]
 		m.Sp500[`percent`] = "-" + matches[0][15]
+	default:
+		m.Sp500[`change`] = matches[0][14]
+		m.Sp500[`percent`] = matches[0][15]
 	}
 
 	m.Advances[`name`] = matches[0][16]

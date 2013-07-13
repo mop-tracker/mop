@@ -148,6 +148,141 @@ func main() {
 <th>CHANGE</th>
 </thead>
 `
+
+html = `
+...
+<table id="yfimktsumm" border="0" cellspacing="0" cellpadding="0" class="rts" summary="Market Summary">
+<thead>
+<th class="first">Symbol</th>
+<th>Last</th>
+<th>Change</th>
+</thead>
+<tbody>
+<tr class="e">
+<td><a href="/q?s=%5EDJI">Dow</a></td>
+<td class="idx"><span id="yfs_l10_^dji">15,464.30</span></td>
+<td class="cu"><span id="yfs_c10_^dji"><img width="10" height="14" style="margin-right:-2px;" border="0" src="http://l.yimg.com/os/mit/media/m/base/images/transparent-1093278.png" class="pos_arrow" alt="Up"> <b style="color:#008800;">3.38</b></span><span id="yfs_p20_^dji"><b style="color:#008800;"> (0.02%)</b></span></td>
+</tr>
+<tr class="">
+<td><a href="/q?s=%5EIXIC">Nasdaq</a></td>
+<td class="idx"><span id="yfs_l10_^ixic">3,600.08</span></td>
+<td class="cu"><span id="yfs_c10_^ixic"> <b style="color:#000000;">0.00</b></span><span id="yfs_p20_^ixic"><b style="color:#000000;"> (0.00%)</b></span></td>
+</tr>
+<tr class="e">
+<td><a href="/q?s=%5EGSPC">S&amp;P 500</a></td>
+<td class="idx"><span id="yfs_l10_^gspc">1,680.19</span></td>
+<td class="cu"><span id="yfs_c10_^gspc"><img width="10" height="14" style="margin-right:-2px;" border="0" src="http://l.yimg.com/os/mit/media/m/base/images/transparent-1093278.png" class="pos_arrow" alt="Up"> <b style="color:#008800;">5.17</b></span><span id="yfs_p20_^gspc"><b style="color:#008800;"> (0.31%)</b></span></td>
+</tr>
+<tr class="">
+<td><a href="/q?s=%5ETNX">10-Yr Bond</a></td>
+<td class="idx"><span id="yfs_l10_^tnx">2.60</span>%
+                  </td>
+<td class="idx"><span id="yfs_c10_^tnx"><img width="10" height="14" style="margin-right:-2px;" border="0" src="http://l.yimg.com/os/mit/media/m/base/images/transparent-1093278.png" class="pos_arrow" alt="Up"> <b style="color:#008800;">0.03</b></span></td>
+</tr>
+<tr class="e">
+<td colspan="2"><a href="/q?s=%5ETV.N">NYSE Volume</a></td>
+<td class="idx"><span id="yfs_lt0_^tv.n">3,315,714,000.00</span></td>
+</tr>
+<tr class="">
+<td colspan="2"><a href="/q?s=%5ETV.O">Nasdaq Volume...</a></td>
+<td class="idx"><span id="yfs_lt0_^tv.o">1,578,376,875.00</span></td>
+</tr>
+</tbody>
+</table>
+<div id="ma">
+<strong>Indices:</strong> <a href="http://us.rd.yahoo.com/finance/finhome/usindices/*http://finance.yahoo.com/indices?e=dow_jones">US</a> - <a href="http://us.rd.yahoo.com/finance/finhome/worldindices/*http://finance.yahoo.com/intlindices?e=americas">World</a> | <a href="http://us.rd.yahoo.com/finance/finhome/mostactives/*http://finance.yahoo.com/actives?e=o">Most Actives</a>
+</div>
+</div>
+</div>
+<div class="tba"><h3>Advances &amp; Declines</h3></div>
+<div class="ob">
+<table id="yfimktsumm" border="0" cellspacing="0" cellpadding="0" class="rts">
+<thead>
+<th class="first">&nbsp;</th>
+<th>NYSE</th>
+<th>NASDAQ</th>
+</thead>
+<tbody>
+<tr class="e">
+<td class="first">Advances</td>
+<td align="right">1,962
+                                (48%)
+                            </td>
+<td align="right">1,322
+                                (53%)
+                            </td>
+</tr>
+<tr>
+<td class="first">Declines</td>
+<td align="right">2,029
+                                (49%)
+                            </td>
+<td align="right">1,068
+                                (43%)
+                            </td>
+</tr>
+<tr class="e">
+<td class="first">Unchanged</td>
+<td align="right">126
+                                (3%)
+                            </td>
+<td align="right">115
+                                (5%)
+                            </td>
+</tr>
+<tr>
+<td class="first">Up Vol*</td>
+<td align="right">1,822
+        (55%)
+      </td>
+<td align="right">918
+        (58%)
+      </td>
+</tr>
+<tr class="e">
+<td class="first">Down Vol*</td>
+<td align="right">1,417
+        (43%)
+      </td>
+<td align="right">636
+        (40%)
+      </td>
+</tr>
+<tr>
+<td class="first">Unch. Vol*</td>
+<td align="right">76
+        (2%)
+      </td>
+<td align="right">24
+        (2%)
+      </td>
+</tr>
+<tr class="e">
+<td class="first">New Hi's</td>
+<td align="right">355</td>
+<td align="right">337</td>
+</tr>
+<tr>
+<td class="first">New Lo's</td>
+<td align="right">110</td>
+<td align="right">14</td>
+</tr>
+</tbody>
+</table>
+<div id="advdec_ftr" class="clear">
+<div>
+<sup>*</sup>in millions</div>
+<div class="more"><a href="/m0">more...</a></div>
+</div>
+</div>
+<div id="yfitn_last">
+<div class="tba"><h3>Most Actives</h3></div>
+<div class="ob oblast clear">
+
+<table id="yfimktsumm" border="0" cellspacing="0" cellpadding="0" class="rts">
+<thead>
+...
+`
         start := strings.Index(html, `<table id="yfimktsumm"`)
         finish := strings.LastIndex(html, `<table id="yfimktsumm"`)
         html = strings.Replace(html[start:finish], "\n", "", -1)
@@ -156,15 +291,15 @@ func main() {
         const any     = `\s*<.+?>`
         const some    = `<.+?`
         const space   = `\s*`
-        const arrow   = `"(Up|Down)">\s*`
+        const color   = `#([08c]{6});">\s*`
         const price   = `([\d\.,]+)`
         const percent = `\(([\d\.,%]+)\)`
 
         regex := []string{
-                "(Dow)",       any, price, some, arrow, any, price, some, percent, any,
-                "(Nasdaq)",    any, price, some, arrow, any, price, some, percent, any,
-                "(S&P 500)",   any, price, some, arrow, any, price, some, percent, any,
-                "(Advances)",  any, price, space, percent, any, price, space, percent, any,
+                "(Dow)",       any, price, some, color, price, some, percent, any,
+		"(Nasdaq)",    any, price, some, color, price, some, percent, any,
+		"(S&P 500)",   any, price, some, color, price, some, percent, any,
+		"(Advances)",  any, price, space, percent, any, price, space, percent, any,
                 "(Declines)",  any, price, space, percent, any, price, space, percent, any,
                 "(Unchanged)", any, price, space, percent, any, price, space, percent, any,
                 "(New Hi's)",  any, price, any, price, any,
@@ -182,7 +317,7 @@ func main() {
         } else {
                 println("No matches")
         }
-
+return
         m := Market{
                 Dow:       make(map[string]string),
                 Nasdaq:    make(map[string]string),

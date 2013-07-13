@@ -13,9 +13,24 @@ import (
 
 //-----------------------------------------------------------------------------
 func FormatMarket(m Market) string {
-	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, `
-	markup += `{{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, `
-	markup += `{{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}`
+	markup := `{{.Dow.name}}: `
+	if m.Dow[`change`][0:1] != "-" {
+		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</green> at {{.Dow.latest}}, `
+	} else {
+		markup += `"{{.Dow.change}}" ({{.Dow.percent}}) at {{.Dow.latest}}, `
+	}
+	markup += `{{.Sp500.name}}: `
+	if m.Sp500[`change`][0:1] != "-" {
+		markup += `<green>{{.Sp500.change}} ({{.Sp500.percent}})</green> at {{.Sp500.latest}}, `
+	} else {
+		markup += `{{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, `
+	}
+	markup += `{{.Nasdaq.name}}: `
+	if m.Nasdaq[`change`][0:1] != "-" {
+		markup += `<green>{{.Nasdaq.change}} ({{.Nasdaq.percent}})</green> at {{.Nasdaq.latest}}`
+	} else {
+		markup += `{{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}`
+	}
 	markup += "\n"
 	markup += `{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. `
 	markup += `{{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq`
