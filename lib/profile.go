@@ -9,49 +9,53 @@ import (
 	"strings"
 )
 
-const rcfile = "/.moprc"
+const moprc = "/.moprc"
 
 type Profile struct {
-	MarketRefreshRate int
-	QuotesRefreshRate int
-	Tickers           []string
-	SortBy            string
-	SortOrder         string
+	MarketRefresh	int
+	QuotesRefresh	int
+	Tickers         []string
+	SortBy          string
+	SortOrder       string
 }
 
-var profile Profile
-
 //-----------------------------------------------------------------------------
-func LoadProfile() string {
-	data, err := ioutil.ReadFile(defaultProfile())
+func (self *Profile) Initialize() *Profile {
+	data, err := ioutil.ReadFile(self.default_file_name())
 	if err != nil {
 		// Set default values.
-		profile.MarketRefreshRate = 12
-		profile.QuotesRefreshRate = 5
-		profile.Tickers = []string{"AAPL", "C", "GOOG", "IBM", "KO", "ORCL", "V"}
-		profile.SortBy = "Ticker"
-		profile.SortOrder = "Desc"
-		profile.Save()
+		self.MarketRefresh = 12
+		self.QuotesRefresh = 5
+		self.Tickers = []string{"AAPL", "C", "GOOG", "IBM", "KO", "ORCL", "V"}
+		self.SortBy = "Ticker"
+		self.SortOrder = "Desc"
+		self.Save()
 	} else {
-		json.Unmarshal(data, &profile)
+		json.Unmarshal(data, self)
 	}
-	return strings.Join(profile.Tickers, "+")
+	return self
 }
 
 //-----------------------------------------------------------------------------
-func (profile *Profile) Save() error {
-	if data, err := json.Marshal(profile); err != nil {
+func (self *Profile) Save() error {
+	if data, err := json.Marshal(self); err != nil {
 		return err
 	} else {
-		return ioutil.WriteFile(defaultProfile(), data, 0644)
+		return ioutil.WriteFile(self.default_file_name(), data, 0644)
 	}
 }
 
 //-----------------------------------------------------------------------------
-func defaultProfile() string {
+func (self *Profile) Quotes() string {
+	return strings.Join(self.Tickers, "+")
+}
+
+// private
+//-----------------------------------------------------------------------------
+func (self *Profile) default_file_name() string {
 	usr, err := user.Current()
 	if err != nil {
 		panic(err)
 	}
-	return usr.HomeDir + rcfile
+	return usr.HomeDir + moprc
 }

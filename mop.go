@@ -3,9 +3,9 @@
 package main
 
 import (
-	"github.com/michaeldv/mop/lib"
-	"github.com/nsf/termbox-go"
-	"time"
+	`github.com/michaeldv/mop/lib`
+	`github.com/nsf/termbox-go`
+	`time`
 )
 
 //-----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ func initTermbox() {
 }
 
 //-----------------------------------------------------------------------------
-func mainLoop(profile string) {
+func mainLoop(profile *mop.Profile) {
 	var line_editor *mop.LineEditor
 	keyboard_queue := make(chan termbox.Event)
 	timestamp_queue := time.NewTicker(1 * time.Second)
@@ -32,7 +32,7 @@ func mainLoop(profile string) {
 
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	mop.DrawMarket()
-	mop.DrawQuotes(profile)
+	mop.DrawQuotes(profile.Quotes())
 loop:
 	for {
 		select {
@@ -55,14 +55,14 @@ loop:
 			case termbox.EventResize:
 				termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 				mop.DrawMarket()
-				mop.DrawQuotes(profile)
+				mop.DrawQuotes(profile.Quotes())
 			}
 
 		case <-timestamp_queue.C:
 			mop.DrawTime()
 
 		case <-quotes_queue.C:
-			mop.DrawQuotes(profile)
+			mop.DrawQuotes(profile.Quotes())
 
 		case <-market_queue.C:
 			mop.DrawMarket()
@@ -76,6 +76,6 @@ func main() {
 	initTermbox()
 	defer termbox.Close()
 
-	profile := mop.LoadProfile()
+	profile := new(mop.Profile).Initialize()
 	mainLoop(profile)
 }

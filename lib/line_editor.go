@@ -3,7 +3,7 @@
 package mop
 
 import (
-"fmt"
+	"fmt"
 	"github.com/nsf/termbox-go"
 )
 
