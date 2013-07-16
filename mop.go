@@ -44,7 +44,7 @@ loop:
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
 						line_editor = new(mop.LineEditor)
-						line_editor.Prompt(event.Ch)
+						line_editor.Prompt(event.Ch, profile)
 					}
 				} else {
 					done := line_editor.Handle(event)
