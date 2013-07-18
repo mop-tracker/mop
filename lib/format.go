@@ -69,7 +69,7 @@ func FormatQuotes(quotes Quotes) string {
 
 {{.Header}}
 {{range .Stocks}}{{.Color}}{{.Ticker}} {{.LastTrade}} {{.Change}} {{.ChangePercent}} {{.Open}} {{.Low}} {{.High}} {{.Low52}} {{.High52}} {{.Volume}} {{.AvgVolume}} {{.PeRatio}} {{.Dividend}} {{.Yield}} {{.MarketCap}}
-{{end}}...`
+{{end}}`
 
 	template, err := template.New("quotes").Parse(markup)
 	if err != nil {

@@ -4,7 +4,6 @@ package mop
 
 import (
 	"fmt"
-	"sort"
 	"regexp"
 	"strings"
 	"github.com/nsf/termbox-go"
@@ -138,37 +137,30 @@ func (self *LineEditor) done() {
 //-----------------------------------------------------------------------------
 func (self *LineEditor) execute() {
 	switch self.command {
-	case '+', '-':
-		input := strings.ToUpper(strings.TrimSpace(self.input))
-		tickers := regexp.MustCompile(`[,\s]+`).Split(input, -1)
+	case '+':
+		tickers := self.tokenize()
 		if len(tickers) > 0 {
-			if self.command == '+' {
-				self.add_tickers(tickers)
-			} else {
-				self.remove_tickers(tickers)
+			self.profile.AddTickers(tickers)
+			DrawQuotes(self.profile.Quotes())
+		}
+	case '-':
+		tickers := self.tokenize()
+		if len(tickers) > 0 {
+			before := len(self.profile.Tickers)
+			self.profile.RemoveTickers(tickers)
+			after := len(self.profile.Tickers)
+			if after < before {
+				DrawQuotes(self.profile.Quotes())
+				for i := before; i > after; i-- {
+					ClearLine(0, i + 4)
+				}
 			}
 		}
 	}
 }
 
 //-----------------------------------------------------------------------------
-func  (self *LineEditor) add_tickers(tickers []string) {
-	existing := make(map[string]bool)
-	for _, ticker := range self.profile.Tickers {
-		existing[ticker] = true
-	}
-
-	for _, ticker := range tickers {
-		if _, found := existing[ticker]; !found {
-			self.profile.Tickers = append(self.profile.Tickers, ticker)
-		}
-	}
-
-	sort.Strings(self.profile.Tickers)
-	self.profile.Save()
-	DrawQuotes(self.profile.Quotes())
-}
-
-//-----------------------------------------------------------------------------
-func  (self *LineEditor) remove_tickers(tickers []string) {
+func (self *LineEditor) tokenize() []string {
+	input := strings.ToUpper(strings.TrimSpace(self.input))
+	return regexp.MustCompile(`[,\s]+`).Split(input, -1)
 }

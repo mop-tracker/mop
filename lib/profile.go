@@ -3,6 +3,7 @@
 package mop
 
 import (
+	"sort"
 	"encoding/json"
 	"io/ioutil"
 	"os/user"
@@ -48,6 +49,35 @@ func (self *Profile) Save() error {
 //-----------------------------------------------------------------------------
 func (self *Profile) Quotes() string {
 	return strings.Join(self.Tickers, "+")
+}
+
+//-----------------------------------------------------------------------------
+func (self *Profile) AddTickers(tickers []string) {
+	existing := make(map[string]bool)
+
+	for _, ticker := range self.Tickers {
+		existing[ticker] = true
+	}
+
+	for _, ticker := range tickers {
+		if _, found := existing[ticker]; !found {
+			self.Tickers = append(self.Tickers, ticker)
+		}
+	}
+	sort.Strings(self.Tickers)
+	self.Save()
+}
+
+//-----------------------------------------------------------------------------
+func (self *Profile) RemoveTickers(tickers []string) {
+	for _, ticker := range tickers {
+		for i, existing := range self.Tickers {
+			if ticker == existing { // Requested ticker is there: remove i-th slice item.
+				self.Tickers = append(self.Tickers[:i], self.Tickers[i+1:]...)
+			}
+		}
+	}
+	self.Save()
 }
 
 // private
