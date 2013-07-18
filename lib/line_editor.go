@@ -3,10 +3,9 @@
 package mop
 
 import (
-	"fmt"
-	"regexp"
-	"strings"
-	"github.com/nsf/termbox-go"
+	`regexp`
+	`strings`
+	`github.com/nsf/termbox-go`
 )
 
 type LineEditor struct {
@@ -25,7 +24,7 @@ func (self *LineEditor) Prompt(command rune, profile *Profile) {
 		self.command = command
 		self.profile = profile
 
-		DrawLine(0, 3, "<white>"+self.prompt+"</white>")
+		DrawLine(0, 3, `<white>` + self.prompt + `</white>`)
 		termbox.SetCursor(len(self.prompt), 3)
 		termbox.Flush()
 	}
@@ -68,7 +67,7 @@ func (self *LineEditor) Handle(ev termbox.Event) bool {
 			self.insert_character(ev.Ch)
 		}
 	}
-	DrawLine(20,20, fmt.Sprintf("cursor: %02d [%s] %08d", self.cursor, self.input, ev.Ch))
+	//DrawLine(20,20, fmt.Sprintf(`cursor: %02d [%s] %08d`, self.cursor, self.input, ev.Ch))
 	return false
 }
 
@@ -82,7 +81,7 @@ func (self *LineEditor) delete_previous_character() {
 			// Remove last input character.
 			self.input = self.input[ : len(self.input)-1]
 		}
-		DrawLine(len(self.prompt), 3, self.input + " ") // Erase last character.
+		DrawLine(len(self.prompt), 3, self.input + ` `) // Erase last character.
 		self.move_left()
 	}
 }

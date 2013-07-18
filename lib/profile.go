@@ -3,14 +3,14 @@
 package mop
 
 import (
-	"sort"
-	"encoding/json"
-	"io/ioutil"
-	"os/user"
-	"strings"
+	`sort`
+	`encoding/json`
+	`io/ioutil`
+	`os/user`
+	`strings`
 )
 
-const moprc = "/.moprc"
+const moprc = `/.moprc`
 
 type Profile struct {
 	MarketRefresh	int
@@ -27,9 +27,9 @@ func (self *Profile) Initialize() *Profile {
 		// Set default values.
 		self.MarketRefresh = 12
 		self.QuotesRefresh = 5
-		self.Tickers = []string{"AAPL", "C", "GOOG", "IBM", "KO", "ORCL", "V"}
-		self.SortBy = "Ticker"
-		self.SortOrder = "Desc"
+		self.Tickers = []string{`AAPL`, `C`, `GOOG`, `IBM`, `KO`, `ORCL`, `V`}
+		self.SortBy = `Ticker`
+		self.SortOrder = `Desc`
 		self.Save()
 	} else {
 		json.Unmarshal(data, self)
@@ -48,7 +48,7 @@ func (self *Profile) Save() error {
 
 //-----------------------------------------------------------------------------
 func (self *Profile) Quotes() string {
-	return strings.Join(self.Tickers, "+")
+	return strings.Join(self.Tickers, `+`)
 }
 
 //-----------------------------------------------------------------------------

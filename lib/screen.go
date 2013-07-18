@@ -3,11 +3,11 @@
 package mop
 
 import (
-	"github.com/michaeldv/just"
-	"github.com/nsf/termbox-go"
-	"regexp"
-	"strings"
-	"time"
+	`github.com/michaeldv/just`
+	`github.com/nsf/termbox-go`
+	`regexp`
+	`strings`
+	`time`
 )
 
 // Can combine attributes and a single color using bitwise OR.
@@ -17,15 +17,15 @@ import (
 // AttrReverse
 //
 var tags = map[string]termbox.Attribute{
-	"black":   termbox.ColorBlack,
-	"red":     termbox.ColorRed,
-	"green":   termbox.ColorGreen,
-	"yellow":  termbox.ColorYellow,
-	"blue":    termbox.ColorBlue,
-	"magenta": termbox.ColorMagenta,
-	"cyan":    termbox.ColorCyan,
-	"white":   termbox.ColorWhite,
-	"right":   termbox.ColorDefault,
+	`black`:   termbox.ColorBlack,
+	`red`:     termbox.ColorRed,
+	`green`:   termbox.ColorGreen,
+	`yellow`:  termbox.ColorYellow,
+	`blue`:    termbox.ColorBlue,
+	`magenta`: termbox.ColorMagenta,
+	`cyan`:    termbox.ColorCyan,
+	`white`:   termbox.ColorWhite,
+	`right`:   termbox.ColorDefault,
 }
 
 //-----------------------------------------------------------------------------
@@ -42,8 +42,8 @@ func DrawQuotes(stocks string) {
 
 //-----------------------------------------------------------------------------
 func DrawTime() {
-	now := time.Now().Format("3:04:05pm PST")
-	DrawLine(0, 0, "<right>"+now+"</right>")
+	now := time.Now().Format(`3:04:05pm PST`)
+	DrawLine(0, 0, `<right>` + now + `</right>`)
 }
 
 //-----------------------------------------------------------------------------
@@ -63,9 +63,9 @@ func DrawLine(x int, y int, str string) {
 		if tag, open := isTag(token); tag {
 			key := tagName(token)
 			if value, ok := tags[key]; ok {
-				token = ""
+				token = ``
 				switch key {
-				case "right":
+				case `right`:
 					right = open
 				default:
 					if open {
@@ -105,28 +105,28 @@ func tagsRegexp() *regexp.Regexp {
 	arr := []string{}
 
 	for tag, _ := range tags {
-		arr = append(arr, "</?"+tag+">")
+		arr = append(arr, `</?` + tag + `>`)
 	}
 
-	return regexp.MustCompile(strings.Join(arr, "|"))
+	return regexp.MustCompile(strings.Join(arr, `|`))
 }
 
 //
 // Return true if a string looks like a tag.
 //-----------------------------------------------------------------------------
 func isTag(str string) (is bool, open bool) {
-	is = (len(str) > 3 && str[0:1] == "<" && str[len(str)-1:] == ">")
-	open = (is && str[1:2] != "/")
+	is = (len(str) > 3 && str[0:1] == `<` && str[len(str)-1:] == `>`)
+	open = (is && str[1:2] != `/`)
 	return
 }
 
 //
-// Extract tag name from the given tag, i.e. "<hello>" => "hello"
+// Extract tag name from the given tag, i.e. `<hello>` => `hello`
 //-----------------------------------------------------------------------------
 func tagName(str string) string {
 	if len(str) < 3 {
-		return ""
-	} else if str[1:2] != "/" {
+		return ``
+	} else if str[1:2] != `/` {
 		return str[1 : len(str)-1]
 	} else {
 		return str[2 : len(str)-1]

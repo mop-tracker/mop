@@ -3,11 +3,11 @@
 package mop
 
 import (
-	"bytes"
-	"io/ioutil"
-	"net/http"
-	"regexp"
-	"strings"
+	`bytes`
+	`io/ioutil`
+	`net/http`
+	`regexp`
+	`strings`
 )
 
 type Market struct {
@@ -40,10 +40,10 @@ func GetMarket() Market {
 }
 
 func trim(body []byte) []byte {
-	start := bytes.Index(body, []byte("<table id=\"yfimktsumm\""))
-	finish := bytes.LastIndex(body, []byte("<table id=\"yfimktsumm\""))
+	start := bytes.Index(body, []byte(`<table id="yfimktsumm"`))
+	finish := bytes.LastIndex(body, []byte(`<table id="yfimktsumm"`))
 	snippet := bytes.Replace(body[start:finish], []byte{'\n'}, []byte{}, -1)
-	snippet = bytes.Replace(snippet, []byte("&amp;"), []byte{'&'}, -1)
+	snippet = bytes.Replace(snippet, []byte(`&amp;`), []byte{'&'}, -1)
 
 	return snippet
 }
@@ -57,17 +57,17 @@ func extract(snippet []byte) Market {
 	const percent = `\(([\d\.,%]+)\)`
 
 	regex := []string{
-		"(Dow)", any, price, some, color, price, some, percent, any,
-		"(Nasdaq)", any, price, some, color, price, some, percent, any,
-		"(S&P 500)", any, price, some, color, price, some, percent, any,
-		"(Advances)", any, price, space, percent, any, price, space, percent, any,
-		"(Declines)", any, price, space, percent, any, price, space, percent, any,
-		"(Unchanged)", any, price, space, percent, any, price, space, percent, any,
-		"(New Hi's)", any, price, any, price, any,
-		"(New Lo's)", any, price, any, price, any,
+		`(Dow)`, any, price, some, color, price, some, percent, any,
+		`(Nasdaq)`, any, price, some, color, price, some, percent, any,
+		`(S&P 500)`, any, price, some, color, price, some, percent, any,
+		`(Advances)`, any, price, space, percent, any, price, space, percent, any,
+		`(Declines)`, any, price, space, percent, any, price, space, percent, any,
+		`(Unchanged)`, any, price, space, percent, any, price, space, percent, any,
+		`(New Hi's)`, any, price, any, price, any,
+		`(New Lo's)`, any, price, any, price, any,
 	}
 
-	re := regexp.MustCompile(strings.Join(regex, ""))
+	re := regexp.MustCompile(strings.Join(regex, ``))
 	matches := re.FindAllStringSubmatch(string(snippet), -1)
 
 	// if len(matches) > 0 {
@@ -76,7 +76,7 @@ func extract(snippet []byte) Market {
 	//                 fmt.Printf("%d) [%s]\n", i, str)
 	//         }
 	// } else {
-	//         println("No matches")
+	//         println(`No matches`)
 	// }
 
 	m := Market{
@@ -94,12 +94,12 @@ func extract(snippet []byte) Market {
 	m.Dow[`latest`] = matches[0][2]
 	m.Dow[`change`] = matches[0][4]
 	switch matches[0][3] {
-	case "008800":
-		m.Dow[`change`] = "+" + matches[0][4]
-		m.Dow[`percent`] = "+" + matches[0][5]
-	case "cc0000":
-		m.Dow[`change`] = "-" + matches[0][4]
-		m.Dow[`percent`] = "-" + matches[0][5]
+	case `008800`:
+		m.Dow[`change`] = `+` + matches[0][4]
+		m.Dow[`percent`] = `+` + matches[0][5]
+	case `cc0000`:
+		m.Dow[`change`] = `-` + matches[0][4]
+		m.Dow[`percent`] = `-` + matches[0][5]
 	default:
 		m.Dow[`change`] = matches[0][4]
 		m.Dow[`percent`] = matches[0][5]
@@ -108,12 +108,12 @@ func extract(snippet []byte) Market {
 	m.Nasdaq[`name`] = matches[0][6]
 	m.Nasdaq[`latest`] = matches[0][7]
 	switch matches[0][8] {
-	case "008800":
-		m.Nasdaq[`change`] = "+" + matches[0][9]
-		m.Nasdaq[`percent`] = "+" + matches[0][10]
-	case "cc0000":
-		m.Nasdaq[`change`] = "-" + matches[0][9]
-		m.Nasdaq[`percent`] = "-" + matches[0][10]
+	case `008800`:
+		m.Nasdaq[`change`] = `+` + matches[0][9]
+		m.Nasdaq[`percent`] = `+` + matches[0][10]
+	case `cc0000`:
+		m.Nasdaq[`change`] = `-` + matches[0][9]
+		m.Nasdaq[`percent`] = `-` + matches[0][10]
 	default:
 		m.Nasdaq[`change`] = matches[0][9]
 		m.Nasdaq[`percent`] = matches[0][10]
@@ -122,12 +122,12 @@ func extract(snippet []byte) Market {
 	m.Sp500[`name`] = matches[0][11]
 	m.Sp500[`latest`] = matches[0][12]
 	switch matches[0][13] {
-	case "008800":
-		m.Sp500[`change`] = "+" + matches[0][14]
-		m.Sp500[`percent`] = "+" + matches[0][15]
-	case "cc0000":
-		m.Sp500[`change`] = "-" + matches[0][14]
-		m.Sp500[`percent`] = "-" + matches[0][15]
+	case `008800`:
+		m.Sp500[`change`] = `+` + matches[0][14]
+		m.Sp500[`percent`] = `+` + matches[0][15]
+	case `cc0000`:
+		m.Sp500[`change`] = `-` + matches[0][14]
+		m.Sp500[`percent`] = `-` + matches[0][15]
 	default:
 		m.Sp500[`change`] = matches[0][14]
 		m.Sp500[`percent`] = matches[0][15]
