@@ -13,18 +13,26 @@ type LineEditor struct {
 	prompt    string
 	cursor    int
 	input     string
+	screen   *Screen
 	profile	 *Profile
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) Prompt(command rune, profile *Profile) {
+func (self *LineEditor) Initialize(screen *Screen, profile *Profile) *LineEditor {
+	self.screen = screen
+	self.profile = profile
+
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *LineEditor) Prompt(command rune) {
 	prompts := map[rune]string{'+': `Add tickers: `, '-': `Remove tickers: `}
 	if prompt, ok := prompts[command]; ok {
 		self.prompt = prompt
 		self.command = command
-		self.profile = profile
 
-		DrawLine(0, 3, `<white>` + self.prompt + `</white>`)
+		self.screen.DrawLine(0, 3, `<white>` + self.prompt + `</white>`)
 		termbox.SetCursor(len(self.prompt), 3)
 		termbox.Flush()
 	}
@@ -67,7 +75,7 @@ func (self *LineEditor) Handle(ev termbox.Event) bool {
 			self.insert_character(ev.Ch)
 		}
 	}
-	//DrawLine(20,20, fmt.Sprintf(`cursor: %02d [%s] %08d`, self.cursor, self.input, ev.Ch))
+	//self.screen.DrawLine(20,20, fmt.Sprintf(`cursor: %02d [%s] %08d`, self.cursor, self.input, ev.Ch))
 	return false
 }
 
@@ -81,7 +89,7 @@ func (self *LineEditor) delete_previous_character() {
 			// Remove last input character.
 			self.input = self.input[ : len(self.input)-1]
 		}
-		DrawLine(len(self.prompt), 3, self.input + ` `) // Erase last character.
+		self.screen.DrawLine(len(self.prompt), 3, self.input + ` `) // Erase last character.
 		self.move_left()
 	}
 }
@@ -95,7 +103,7 @@ func (self *LineEditor) insert_character(ch rune) {
 		// Append the character to the end of the input string.
 		self.input += string(ch)
 	}
-	DrawLine(len(self.prompt), 3, self.input)
+	self.screen.DrawLine(len(self.prompt), 3, self.input)
 	self.move_right()
 }
 
@@ -129,7 +137,7 @@ func (self *LineEditor) jump_to_end() {
 
 //-----------------------------------------------------------------------------
 func (self *LineEditor) done() {
-	ClearLine(0, 3)
+	self.screen.ClearLine(0, 3)
 	termbox.HideCursor()
 }
 
@@ -140,7 +148,7 @@ func (self *LineEditor) execute() {
 		tickers := self.tokenize()
 		if len(tickers) > 0 {
 			self.profile.AddTickers(tickers)
-			DrawQuotes(self.profile.Quotes())
+			self.screen.DrawQuotes(self.profile.Quotes())
 		}
 	case '-':
 		tickers := self.tokenize()
@@ -149,9 +157,9 @@ func (self *LineEditor) execute() {
 			self.profile.RemoveTickers(tickers)
 			after := len(self.profile.Tickers)
 			if after < before {
-				DrawQuotes(self.profile.Quotes())
+				self.screen.DrawQuotes(self.profile.Quotes())
 				for i := before; i > after; i-- {
-					ClearLine(0, i + 4)
+					self.screen.ClearLine(0, i + 4)
 				}
 			}
 		}

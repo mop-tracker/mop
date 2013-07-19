@@ -86,7 +86,7 @@ func FormatQuotes(quotes Quotes) string {
 }
 
 func header() string {
-	str := fmt.Sprintf(`%-7s `, `Ticker`)
+	str := fmt.Sprintf(`<u>%-7s `, `Ticker`)
 	str += fmt.Sprintf(`%9s `, `Last`)
 	str += fmt.Sprintf(`%9s `, `Change`)
 	str += fmt.Sprintf(`%9s `, `%Change`)
@@ -100,7 +100,7 @@ func header() string {
 	str += fmt.Sprintf(`%9s `, `P/E`)
 	str += fmt.Sprintf(`%9s `, `Dividend`)
 	str += fmt.Sprintf(`%9s `, `Yield`)
-	str += fmt.Sprintf(`%10s`, `MktCap`)
+	str += fmt.Sprintf(`%10s</u>`, `MktCap`)
 
 	return str
 }

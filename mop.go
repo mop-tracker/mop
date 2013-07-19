@@ -9,15 +9,7 @@ import (
 )
 
 //-----------------------------------------------------------------------------
-func initTermbox() {
-	err := termbox.Init()
-	if err != nil {
-		panic(err)
-	}
-}
-
-//-----------------------------------------------------------------------------
-func mainLoop(profile *mop.Profile) {
+func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	var line_editor *mop.LineEditor
 	keyboard_queue := make(chan termbox.Event)
 	timestamp_queue := time.NewTicker(1 * time.Second)
@@ -30,9 +22,9 @@ func mainLoop(profile *mop.Profile) {
 		}
 	}()
 
-	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-	mop.DrawMarket()
-	mop.DrawQuotes(profile.Quotes())
+	screen.Clear()
+	screen.DrawMarket()
+	screen.DrawQuotes(profile.Quotes())
 loop:
 	for {
 		select {
@@ -43,8 +35,8 @@ loop:
 					if event.Key == termbox.KeyEsc {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
-						line_editor = new(mop.LineEditor)
-						line_editor.Prompt(event.Ch, profile)
+						line_editor = new(mop.LineEditor).Initialize(screen, profile)
+						line_editor.Prompt(event.Ch)
 					}
 				} else {
 					done := line_editor.Handle(event)
@@ -53,29 +45,28 @@ loop:
 					}
 				}
 			case termbox.EventResize:
-				termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-				mop.DrawMarket()
-				mop.DrawQuotes(profile.Quotes())
+				screen.Resize().Clear()
+				screen.DrawMarket()
+				screen.DrawQuotes(profile.Quotes())
 			}
 
 		case <-timestamp_queue.C:
-			mop.DrawTime()
+			screen.DrawTime()
 
 		case <-quotes_queue.C:
-			mop.DrawQuotes(profile.Quotes())
+			screen.DrawQuotes(profile.Quotes())
 
 		case <-market_queue.C:
-			mop.DrawMarket()
+			screen.DrawMarket()
 		}
 	}
 }
 
 //-----------------------------------------------------------------------------
 func main() {
-
-	initTermbox()
-	defer termbox.Close()
+	screen := new(mop.Screen).Initialize()
+	defer screen.Close()
 
 	profile := new(mop.Profile).Initialize()
-	mainLoop(profile)
+	mainLoop(screen, profile)
 }

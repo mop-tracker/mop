@@ -10,59 +10,90 @@ import (
 	`time`
 )
 
-// Can combine attributes and a single color using bitwise OR.
-//
-// AttrBold Attribute = 1 << (iota + 4)
-// AttrUnderline
-// AttrReverse
-//
-var tags = map[string]termbox.Attribute{
-	`black`:   termbox.ColorBlack,
-	`red`:     termbox.ColorRed,
-	`green`:   termbox.ColorGreen,
-	`yellow`:  termbox.ColorYellow,
-	`blue`:    termbox.ColorBlue,
-	`magenta`: termbox.ColorMagenta,
-	`cyan`:    termbox.ColorCyan,
-	`white`:   termbox.ColorWhite,
-	`right`:   termbox.ColorDefault,
+type Screen struct {
+	width	int
+	height	int
+	tags	map[string]termbox.Attribute
 }
 
 //-----------------------------------------------------------------------------
-func DrawMarket() {
+func (self *Screen) Initialize() *Screen {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	self.Resize()
+	self.tags = make(map[string]termbox.Attribute)
+	self.tags[`black`]   = termbox.ColorBlack
+	self.tags[`red`]     = termbox.ColorRed
+	self.tags[`green`]   = termbox.ColorGreen
+	self.tags[`yellow`]  = termbox.ColorYellow
+	self.tags[`blue`]    = termbox.ColorBlue
+	self.tags[`magenta`] = termbox.ColorMagenta
+	self.tags[`cyan`]    = termbox.ColorCyan
+	self.tags[`white`]   = termbox.ColorWhite
+	self.tags[`right`]   = termbox.ColorDefault	// Termbox can combine attributes and a single color using bitwise OR.
+	self.tags[`b`]       = termbox.AttrBold		// Attribute = 1 << (iota + 4)
+	self.tags[`u`]       = termbox.AttrUnderline
+	self.tags[`r`]       = termbox.AttrReverse
+
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *Screen) Resize() *Screen {
+	self.width, self.height = termbox.Size()
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *Screen) Clear() *Screen {
+	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *Screen) Close() {
+	termbox.Close()
+}
+
+//-----------------------------------------------------------------------------
+func (self *Screen) DrawMarket() {
 	market := GetMarket()
-	drawScreen(FormatMarket(market))
+	self.draw(FormatMarket(market))
 }
 
 //-----------------------------------------------------------------------------
-func DrawQuotes(stocks string) {
+func (self *Screen) DrawQuotes(stocks string) {
 	quotes := GetQuotes(stocks)
-	drawScreen(FormatQuotes(quotes))
+	self.draw(FormatQuotes(quotes))
 }
 
 //-----------------------------------------------------------------------------
-func DrawTime() {
+func (self *Screen) DrawTime() {
 	now := time.Now().Format(`3:04:05pm PST`)
-	DrawLine(0, 0, `<right>` + now + `</right>`)
+	self.DrawLine(0, 0, `<right>` + now + `</right>`)
 }
 
 //-----------------------------------------------------------------------------
-func ClearLine(x int, y int) {
-	width, _ := termbox.Size()
-	for i := x; i < width; i++ {
+func (self *Screen) ClearLine(x int, y int) {
+	for i := x; i < self.width; i++ {
 		termbox.SetCell(i, y, ' ', termbox.ColorDefault, termbox.ColorDefault)
 	}
+
+	termbox.Flush()
 }
 
 //-----------------------------------------------------------------------------
-func DrawLine(x int, y int, str string) {
+func (self *Screen) DrawLine(x int, y int, str string) {
 	column, right := 0, false
 	foreground, background := termbox.ColorDefault, termbox.ColorDefault
 
-	for _, token := range just.Split(tagsRegexp(), str) {
-		if tag, open := isTag(token); tag {
-			key := tagName(token)
-			if value, ok := tags[key]; ok {
+	for _, token := range just.Split(self.possible_tags(), str) {
+		if tag, open := self.is_tag(token); tag {
+			key := self.tag_name(token)
+			if value, ok := self.tags[key]; ok {
 				token = ``
 				switch key {
 				case `right`:
@@ -81,8 +112,7 @@ func DrawLine(x int, y int, str string) {
 			if !right {
 				termbox.SetCell(x+column, y, char, foreground, background)
 			} else {
-				width, _ := termbox.Size()
-				termbox.SetCell(width-len(token)+i, y, char, foreground, background)
+				termbox.SetCell(self.width-len(token)+i, y, char, foreground, background)
 			}
 			column += 1
 		}
@@ -90,10 +120,11 @@ func DrawLine(x int, y int, str string) {
 	termbox.Flush()
 }
 
+// private
 //-----------------------------------------------------------------------------
-func drawScreen(str string) {
+func (self *Screen) draw(str string) {
 	for row, line := range strings.Split(str, "\n") {
-		DrawLine(0, row, line)
+		self.DrawLine(0, row, line)
 	}
 }
 
@@ -101,10 +132,10 @@ func drawScreen(str string) {
 // Return regular expression that matches all possible tags, i.e.
 // </?black>|</?red>| ... |</?white>
 //-----------------------------------------------------------------------------
-func tagsRegexp() *regexp.Regexp {
+func (self *Screen) possible_tags() *regexp.Regexp {
 	arr := []string{}
 
-	for tag, _ := range tags {
+	for tag, _ := range self.tags {
 		arr = append(arr, `</?` + tag + `>`)
 	}
 
@@ -114,8 +145,8 @@ func tagsRegexp() *regexp.Regexp {
 //
 // Return true if a string looks like a tag.
 //-----------------------------------------------------------------------------
-func isTag(str string) (is bool, open bool) {
-	is = (len(str) > 3 && str[0:1] == `<` && str[len(str)-1:] == `>`)
+func (self *Screen) is_tag(str string) (is bool, open bool) {
+	is = (len(str) > 2 && str[0:1] == `<` && str[len(str)-1:] == `>`)
 	open = (is && str[1:2] != `/`)
 	return
 }
@@ -123,7 +154,7 @@ func isTag(str string) (is bool, open bool) {
 //
 // Extract tag name from the given tag, i.e. `<hello>` => `hello`
 //-----------------------------------------------------------------------------
-func tagName(str string) string {
+func (self *Screen) tag_name(str string) string {
 	if len(str) < 3 {
 		return ``
 	} else if str[1:2] != `/` {
