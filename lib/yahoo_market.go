@@ -11,6 +11,7 @@ import (
 )
 
 type Market struct {
+	Open      bool
 	Dow       map[string]string
 	Nasdaq    map[string]string
 	Sp500     map[string]string
@@ -21,10 +22,24 @@ type Market struct {
 	Lows      map[string]string
 }
 
-const yahoo_market_url = `http://finance.yahoo.com/marketupdate/overview`
+//-----------------------------------------------------------------------------
+func (self *Market) Initialize() *Market {
+	self.Open       = true
+	self.Dow        = make(map[string]string)
+	self.Nasdaq     = make(map[string]string)
+	self.Sp500      = make(map[string]string)
+	self.Advances   = make(map[string]string)
+	self.Declines   = make(map[string]string)
+	self.Unchanged  = make(map[string]string)
+	self.Highs      = make(map[string]string)
+	self.Lows       = make(map[string]string)
 
-func GetMarket() Market {
-	response, err := http.Get(yahoo_market_url)
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *Market) Fetch() *Market {
+	response, err := http.Get(`http://finance.yahoo.com/marketupdate/overview`)
 	if err != nil {
 		panic(err)
 	}
@@ -36,10 +51,11 @@ func GetMarket() Market {
 		panic(err)
 	}
 
-	return extract(trim(body))
+	return self.extract(self.trim(body))
 }
 
-func trim(body []byte) []byte {
+//-----------------------------------------------------------------------------
+func (self *Market) trim(body []byte) []byte {
 	start := bytes.Index(body, []byte(`<table id="yfimktsumm"`))
 	finish := bytes.LastIndex(body, []byte(`<table id="yfimktsumm"`))
 	snippet := bytes.Replace(body[start:finish], []byte{'\n'}, []byte{}, -1)
@@ -48,7 +64,8 @@ func trim(body []byte) []byte {
 	return snippet
 }
 
-func extract(snippet []byte) Market {
+//-----------------------------------------------------------------------------
+func (self *Market) extract(snippet []byte) *Market {
 	const any = `\s*<.+?>`
 	const some = `<.+?`
 	const space = `\s*`
@@ -79,84 +96,74 @@ func extract(snippet []byte) Market {
 	//         println(`No matches`)
 	// }
 
-	m := Market{
-		Dow:       make(map[string]string),
-		Nasdaq:    make(map[string]string),
-		Sp500:     make(map[string]string),
-		Advances:  make(map[string]string),
-		Declines:  make(map[string]string),
-		Unchanged: make(map[string]string),
-		Highs:     make(map[string]string),
-		Lows:      make(map[string]string),
-	}
 
-	m.Dow[`name`] = matches[0][1]
-	m.Dow[`latest`] = matches[0][2]
-	m.Dow[`change`] = matches[0][4]
+	self.Dow[`name`] = matches[0][1]
+	self.Dow[`latest`] = matches[0][2]
+	self.Dow[`change`] = matches[0][4]
 	switch matches[0][3] {
 	case `008800`:
-		m.Dow[`change`] = `+` + matches[0][4]
-		m.Dow[`percent`] = `+` + matches[0][5]
+		self.Dow[`change`] = `+` + matches[0][4]
+		self.Dow[`percent`] = `+` + matches[0][5]
 	case `cc0000`:
-		m.Dow[`change`] = `-` + matches[0][4]
-		m.Dow[`percent`] = `-` + matches[0][5]
+		self.Dow[`change`] = `-` + matches[0][4]
+		self.Dow[`percent`] = `-` + matches[0][5]
 	default:
-		m.Dow[`change`] = matches[0][4]
-		m.Dow[`percent`] = matches[0][5]
+		self.Dow[`change`] = matches[0][4]
+		self.Dow[`percent`] = matches[0][5]
 	}
 
-	m.Nasdaq[`name`] = matches[0][6]
-	m.Nasdaq[`latest`] = matches[0][7]
+	self.Nasdaq[`name`] = matches[0][6]
+	self.Nasdaq[`latest`] = matches[0][7]
 	switch matches[0][8] {
 	case `008800`:
-		m.Nasdaq[`change`] = `+` + matches[0][9]
-		m.Nasdaq[`percent`] = `+` + matches[0][10]
+		self.Nasdaq[`change`] = `+` + matches[0][9]
+		self.Nasdaq[`percent`] = `+` + matches[0][10]
 	case `cc0000`:
-		m.Nasdaq[`change`] = `-` + matches[0][9]
-		m.Nasdaq[`percent`] = `-` + matches[0][10]
+		self.Nasdaq[`change`] = `-` + matches[0][9]
+		self.Nasdaq[`percent`] = `-` + matches[0][10]
 	default:
-		m.Nasdaq[`change`] = matches[0][9]
-		m.Nasdaq[`percent`] = matches[0][10]
+		self.Nasdaq[`change`] = matches[0][9]
+		self.Nasdaq[`percent`] = matches[0][10]
 	}
 
-	m.Sp500[`name`] = matches[0][11]
-	m.Sp500[`latest`] = matches[0][12]
+	self.Sp500[`name`] = matches[0][11]
+	self.Sp500[`latest`] = matches[0][12]
 	switch matches[0][13] {
 	case `008800`:
-		m.Sp500[`change`] = `+` + matches[0][14]
-		m.Sp500[`percent`] = `+` + matches[0][15]
+		self.Sp500[`change`] = `+` + matches[0][14]
+		self.Sp500[`percent`] = `+` + matches[0][15]
 	case `cc0000`:
-		m.Sp500[`change`] = `-` + matches[0][14]
-		m.Sp500[`percent`] = `-` + matches[0][15]
+		self.Sp500[`change`] = `-` + matches[0][14]
+		self.Sp500[`percent`] = `-` + matches[0][15]
 	default:
-		m.Sp500[`change`] = matches[0][14]
-		m.Sp500[`percent`] = matches[0][15]
+		self.Sp500[`change`] = matches[0][14]
+		self.Sp500[`percent`] = matches[0][15]
 	}
 
-	m.Advances[`name`] = matches[0][16]
-	m.Advances[`nyse`] = matches[0][17]
-	m.Advances[`nysep`] = matches[0][18]
-	m.Advances[`nasdaq`] = matches[0][19]
-	m.Advances[`nasdaqp`] = matches[0][20]
+	self.Advances[`name`] = matches[0][16]
+	self.Advances[`nyse`] = matches[0][17]
+	self.Advances[`nysep`] = matches[0][18]
+	self.Advances[`nasdaq`] = matches[0][19]
+	self.Advances[`nasdaqp`] = matches[0][20]
 
-	m.Declines[`name`] = matches[0][21]
-	m.Declines[`nyse`] = matches[0][22]
-	m.Declines[`nysep`] = matches[0][23]
-	m.Declines[`nasdaq`] = matches[0][24]
-	m.Declines[`nasdaqp`] = matches[0][25]
+	self.Declines[`name`] = matches[0][21]
+	self.Declines[`nyse`] = matches[0][22]
+	self.Declines[`nysep`] = matches[0][23]
+	self.Declines[`nasdaq`] = matches[0][24]
+	self.Declines[`nasdaqp`] = matches[0][25]
 
-	m.Unchanged[`name`] = matches[0][26]
-	m.Unchanged[`nyse`] = matches[0][27]
-	m.Unchanged[`nysep`] = matches[0][28]
-	m.Unchanged[`nasdaq`] = matches[0][29]
-	m.Unchanged[`nasdaqp`] = matches[0][30]
+	self.Unchanged[`name`] = matches[0][26]
+	self.Unchanged[`nyse`] = matches[0][27]
+	self.Unchanged[`nysep`] = matches[0][28]
+	self.Unchanged[`nasdaq`] = matches[0][29]
+	self.Unchanged[`nasdaqp`] = matches[0][30]
 
-	m.Highs[`name`] = matches[0][31]
-	m.Highs[`nyse`] = matches[0][32]
-	m.Highs[`nasdaq`] = matches[0][33]
-	m.Lows[`name`] = matches[0][34]
-	m.Lows[`nyse`] = matches[0][35]
-	m.Lows[`nasdaq`] = matches[0][36]
+	self.Highs[`name`] = matches[0][31]
+	self.Highs[`nyse`] = matches[0][32]
+	self.Highs[`nasdaq`] = matches[0][33]
+	self.Lows[`name`] = matches[0][34]
+	self.Lows[`nyse`] = matches[0][35]
+	self.Lows[`nasdaq`] = matches[0][36]
 
-	return m
+	return self
 }

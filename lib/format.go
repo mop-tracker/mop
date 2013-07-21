@@ -12,12 +12,12 @@ import (
 )
 
 //-----------------------------------------------------------------------------
-func FormatMarket(m Market) string {
+func FormatMarket(m *Market) string {
 	markup := `{{.Dow.name}}: `
 	if m.Dow[`change`][0:1] != `-` {
 		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</green> at {{.Dow.latest}}, `
 	} else {
-		markup += `"{{.Dow.change}}" ({{.Dow.percent}}) at {{.Dow.latest}}, `
+		markup += `{{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, `
 	}
 	markup += `{{.Sp500.name}}: `
 	if m.Sp500[`change`][0:1] != `-` {

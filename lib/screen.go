@@ -59,8 +59,7 @@ func (self *Screen) Close() {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Screen) DrawMarket() {
-	market := GetMarket()
+func (self *Screen) DrawMarket(market *Market) {
 	self.draw(FormatMarket(market))
 }
 
