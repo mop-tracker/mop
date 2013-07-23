@@ -47,7 +47,7 @@ func (self *Profile) Save() error {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Profile) Quotes() string {
+func (self *Profile) ListOfTickers() string {
 	return strings.Join(self.Tickers, `+`)
 }
 

@@ -60,13 +60,12 @@ func (self *Screen) Close() {
 
 //-----------------------------------------------------------------------------
 func (self *Screen) DrawMarket(market *Market) {
-	self.draw(FormatMarket(market))
+	self.draw(FormatMarket(market.Fetch()))
 }
 
 //-----------------------------------------------------------------------------
-func (self *Screen) DrawQuotes(stocks string) {
-	quotes := GetQuotes(stocks)
-	self.draw(FormatQuotes(quotes))
+func (self *Screen) DrawQuotes(quotes *Quotes) {
+	self.draw(FormatQuotes(quotes.Fetch()))
 }
 
 //-----------------------------------------------------------------------------

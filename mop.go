@@ -23,9 +23,10 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	}()
 
 	market := new(mop.Market).Initialize().Fetch()
+	quotes := new(mop.Quotes).Initialize(market, profile)
 	screen.Clear()
 	screen.DrawMarket(market)
-	screen.DrawQuotes(profile.Quotes())
+	screen.DrawQuotes(quotes)
 
 loop:
 	for {
@@ -37,7 +38,7 @@ loop:
 					if event.Key == termbox.KeyEsc {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
-						line_editor = new(mop.LineEditor).Initialize(screen, profile)
+						line_editor = new(mop.LineEditor).Initialize(screen, quotes)
 						line_editor.Prompt(event.Ch)
 					}
 				} else {
@@ -48,18 +49,18 @@ loop:
 				}
 			case termbox.EventResize:
 				screen.Resize().Clear()
-				screen.DrawMarket(market.Fetch())
-				screen.DrawQuotes(profile.Quotes())
+				screen.DrawMarket(market)
+				screen.DrawQuotes(quotes)
 			}
 
 		case <-timestamp_queue.C:
 			screen.DrawTime()
 
 		case <-quotes_queue.C:
-			screen.DrawQuotes(profile.Quotes())
+			screen.DrawQuotes(quotes)
 
 		case <-market_queue.C:
-			screen.DrawMarket(market.Fetch())
+			screen.DrawMarket(market)
 		}
 	}
 }

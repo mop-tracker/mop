@@ -14,13 +14,13 @@ type LineEditor struct {
 	cursor    int
 	input     string
 	screen   *Screen
-	profile	 *Profile
+	quotes   *Quotes
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) Initialize(screen *Screen, profile *Profile) *LineEditor {
+func (self *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
 	self.screen = screen
-	self.profile = profile
+	self.quotes = quotes
 
 	return self
 }
@@ -147,17 +147,17 @@ func (self *LineEditor) execute() {
 	case '+':
 		tickers := self.tokenize()
 		if len(tickers) > 0 {
-			self.profile.AddTickers(tickers)
-			self.screen.DrawQuotes(self.profile.Quotes())
+			self.quotes.profile.AddTickers(tickers)
+			self.screen.DrawQuotes(self.quotes)
 		}
 	case '-':
 		tickers := self.tokenize()
 		if len(tickers) > 0 {
-			before := len(self.profile.Tickers)
-			self.profile.RemoveTickers(tickers)
-			after := len(self.profile.Tickers)
+			before := len(self.quotes.profile.Tickers)
+			self.quotes.profile.RemoveTickers(tickers)
+			after := len(self.quotes.profile.Tickers)
 			if after < before {
-				self.screen.DrawQuotes(self.profile.Quotes())
+				self.screen.DrawQuotes(self.quotes)
 				for i := before; i > after; i-- {
 					self.screen.ClearLine(0, i + 4)
 				}

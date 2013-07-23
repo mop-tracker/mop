@@ -52,15 +52,15 @@ func FormatMarket(m *Market) string {
 }
 
 //-----------------------------------------------------------------------------
-func FormatQuotes(quotes Quotes) string {
+func FormatQuotes(q *Quotes) string {
 	vars := struct {
 		Now    string
 		Header string
-		Stocks Quotes
+		Stocks []Stock
 	}{
 		time.Now().Format(`3:04:05pm PST`),
 		header(),
-		prettify(quotes),
+		prettify(q.stocks),
 	}
 
 	markup := `<right><white>{{.Now}}</white></right>
@@ -85,6 +85,7 @@ func FormatQuotes(quotes Quotes) string {
 	return buffer.String()
 }
 
+//-----------------------------------------------------------------------------
 func header() string {
 	str := fmt.Sprintf(`<u>%-7s `, `Ticker`)
 	str += fmt.Sprintf(`%9s `, `Last`)
@@ -105,9 +106,10 @@ func header() string {
 	return str
 }
 
-func prettify(quotes Quotes) Quotes {
-	pretty := make(Quotes, len(quotes))
-	for i, q := range quotes {
+//-----------------------------------------------------------------------------
+func prettify(stocks []Stock) []Stock {
+	pretty := make([]Stock, len(stocks))
+	for i, q := range stocks {
 		pretty[i].Ticker        = pad(q.Ticker, -7)
 		pretty[i].LastTrade     = pad(with_currency(q.LastTrade), 9)
 		pretty[i].Change        = pad(with_currency(q.Change), 9)
@@ -127,6 +129,7 @@ func prettify(quotes Quotes) Quotes {
 	return pretty
 }
 
+//-----------------------------------------------------------------------------
 func nullify(str string) string {
 	if len(str) == 3 && str[0:3] == `N/A` {
 		return `-`
@@ -135,6 +138,7 @@ func nullify(str string) string {
 	}
 }
 
+//-----------------------------------------------------------------------------
 func last_of_pair(str string) string {
 	if len(str) >= 6 && str[0:6] != `N/A - ` {
 		return str
@@ -143,6 +147,7 @@ func last_of_pair(str string) string {
 	}
 }
 
+//-----------------------------------------------------------------------------
 func with_currency(str string) string {
 	if str == `N/A` || str == `0.00` {
 		return `-`
@@ -156,6 +161,7 @@ func with_currency(str string) string {
 	}
 }
 
+//-----------------------------------------------------------------------------
 func with_percent(str string) string {
 	if str == `N/A` {
 		return `-`
@@ -164,6 +170,7 @@ func with_percent(str string) string {
 	}
 }
 
+//-----------------------------------------------------------------------------
 func colorize(str string) string {
 	if str == `N/A` {
 		return `-`
@@ -174,6 +181,7 @@ func colorize(str string) string {
 	}
 }
 
+//-----------------------------------------------------------------------------
 func ticker(str string, change string) string {
 	if change[0:1] == `-` {
 		return `<red>` + str + `</red>`
@@ -182,6 +190,7 @@ func ticker(str string, change string) string {
 	}
 }
 
+//-----------------------------------------------------------------------------
 func pad(str string, width int) string {
 	re := regexp.MustCompile(`(\.\d+)[MB]?$`)
 	match := re.FindStringSubmatch(str)
