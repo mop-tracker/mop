@@ -24,8 +24,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 
 	market := new(mop.Market).Initialize().Fetch()
 	quotes := new(mop.Quotes).Initialize(market, profile)
-	screen.Draw(market)
-	screen.Draw(quotes)
+	screen.Draw(market, quotes)
 
 loop:
 	for {
@@ -48,8 +47,7 @@ loop:
 				}
 			case termbox.EventResize:
 				screen.Resize()
-				screen.Draw(market)
-				screen.Draw(quotes)
+				screen.Draw(market, quotes)
 			}
 
 		case <-timestamp_queue.C:

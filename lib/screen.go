@@ -62,14 +62,16 @@ func (self *Screen) Close() {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Screen) Draw(ptr interface{}) {
-	switch ptr.(type) {
-	case *Market:
-		object := ptr.(*Market)
-		self.draw(object.Fetch().Format())
-	case *Quotes:
-		object := ptr.(*Quotes)
-		self.draw(object.Fetch().Format())
+func (self *Screen) Draw(objects ...interface{}) {
+	for _, ptr := range objects {
+		switch ptr.(type) {
+		case *Market:
+			object := ptr.(*Market)
+			self.draw(object.Fetch().Format())
+		case *Quotes:
+			object := ptr.(*Quotes)
+			self.draw(object.Fetch().Format())
+		}
 	}
 }
 
