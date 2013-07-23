@@ -72,27 +72,46 @@ func (self *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Fetch() *Quotes {
+	if self.market.Open || self.stocks == nil {
+		// Format the URL and send the request.
+		url := fmt.Sprintf(yahoo_quotes_url, self.profile.ListOfTickers())
+		response, err := http.Get(url)
+		if err != nil {
+			panic(err)
+		}
 
-	// Format the URL and send the request.
-	url := fmt.Sprintf(yahoo_quotes_url, self.profile.ListOfTickers())
-	response, err := http.Get(url)
-	if err != nil {
-		panic(err)
+		// Fetch response and get its body.
+		defer response.Body.Close()
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			panic(err)
+		}
+
+		self.parse(self.sanitize(body))
 	}
 
-	// Fetch response and get its body.
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	return self.parse(self.sanitize(body))
+	return self
 }
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Format() string {
 	return new(Formatter).Format(self)
+}
+
+//-----------------------------------------------------------------------------
+func (self *Quotes) AddTickers(tickers []string) (added int, err error) {
+	if added, err = self.profile.AddTickers(tickers); added > 0 {
+		self.stocks = nil	// Force fetch.
+	}
+	return
+}
+
+//-----------------------------------------------------------------------------
+func (self *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
+	if removed, err = self.profile.RemoveTickers(tickers); removed > 0 {
+		self.stocks = nil	// Force fetch.
+	}
+	return
 }
 
 //-----------------------------------------------------------------------------

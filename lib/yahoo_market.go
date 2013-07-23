@@ -51,12 +51,23 @@ func (self *Market) Fetch() *Market {
 		panic(err)
 	}
 
+	body = self.check_if_market_open(body)
 	return self.extract(self.trim(body))
 }
 
 //-----------------------------------------------------------------------------
 func (self *Market) Format() string {
 	return new(Formatter).Format(self)
+}
+
+// private
+//-----------------------------------------------------------------------------
+func (self *Market) check_if_market_open(body []byte) []byte {
+	start := bytes.Index(body, []byte(`id="yfs_market_time"`))
+	finish := start + bytes.Index(body[start:], []byte(`</span>`))
+	self.Open = !bytes.Contains(body[start:finish], []byte(`closed`))
+
+	return body[finish:]
 }
 
 //-----------------------------------------------------------------------------

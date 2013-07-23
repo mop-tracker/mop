@@ -52,7 +52,8 @@ func (self *Profile) ListOfTickers() string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Profile) AddTickers(tickers []string) {
+func (self *Profile) AddTickers(tickers []string) (added int, err error) {
+	added = 0
 	existing := make(map[string]bool)
 
 	for _, ticker := range self.Tickers {
@@ -62,22 +63,27 @@ func (self *Profile) AddTickers(tickers []string) {
 	for _, ticker := range tickers {
 		if _, found := existing[ticker]; !found {
 			self.Tickers = append(self.Tickers, ticker)
+			added++
 		}
 	}
 	sort.Strings(self.Tickers)
-	self.Save()
+	err = self.Save()
+	return
 }
 
 //-----------------------------------------------------------------------------
-func (self *Profile) RemoveTickers(tickers []string) {
+func (self *Profile) RemoveTickers(tickers []string) (removed int, err error) {
+	removed = 0
 	for _, ticker := range tickers {
 		for i, existing := range self.Tickers {
 			if ticker == existing { // Requested ticker is there: remove i-th slice item.
 				self.Tickers = append(self.Tickers[:i], self.Tickers[i+1:]...)
+				removed++
 			}
 		}
 	}
-	self.Save()
+	err = self.Save()
+	return
 }
 
 // private
