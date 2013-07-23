@@ -24,7 +24,6 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 
 	market := new(mop.Market).Initialize().Fetch()
 	quotes := new(mop.Quotes).Initialize(market, profile)
-	screen.Clear()
 	screen.DrawMarket(market)
 	screen.DrawQuotes(quotes)
 
@@ -48,7 +47,7 @@ loop:
 					}
 				}
 			case termbox.EventResize:
-				screen.Resize().Clear()
+				screen.Resize()
 				screen.DrawMarket(market)
 				screen.DrawQuotes(quotes)
 			}

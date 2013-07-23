@@ -13,6 +13,7 @@ import (
 type Screen struct {
 	width	int
 	height	int
+	cleared bool
 	tags	map[string]termbox.Attribute
 }
 
@@ -44,12 +45,14 @@ func (self *Screen) Initialize() *Screen {
 //-----------------------------------------------------------------------------
 func (self *Screen) Resize() *Screen {
 	self.width, self.height = termbox.Size()
+	self.cleared = false
 	return self
 }
 
 //-----------------------------------------------------------------------------
 func (self *Screen) Clear() *Screen {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	self.cleared = true
 	return self
 }
 
@@ -121,6 +124,9 @@ func (self *Screen) DrawLine(x int, y int, str string) {
 // private
 //-----------------------------------------------------------------------------
 func (self *Screen) draw(str string) {
+	if !self.cleared {
+		self.Clear()
+	}
 	for row, line := range strings.Split(str, "\n") {
 		self.DrawLine(0, row, line)
 	}

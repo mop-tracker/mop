@@ -149,7 +149,7 @@ func last_of_pair(str string) string {
 
 //-----------------------------------------------------------------------------
 func with_currency(str string) string {
-	if str == `N/A` || str == `0.00` {
+	if str == `N/A` {
 		return `-`
 	} else {
 		switch str[0:1] {
