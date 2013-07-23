@@ -55,6 +55,11 @@ func (self *Market) Fetch() *Market {
 }
 
 //-----------------------------------------------------------------------------
+func (self *Market) Format() string {
+	return new(Formatter).Format(self)
+}
+
+//-----------------------------------------------------------------------------
 func (self *Market) trim(body []byte) []byte {
 	start := bytes.Index(body, []byte(`<table id="yfimktsumm"`))
 	finish := bytes.LastIndex(body, []byte(`<table id="yfimktsumm"`))

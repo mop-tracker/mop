@@ -91,6 +91,11 @@ func (self *Quotes) Fetch() *Quotes {
 }
 
 //-----------------------------------------------------------------------------
+func (self *Quotes) Format() string {
+	return new(Formatter).Format(self)
+}
+
+//-----------------------------------------------------------------------------
 func (self *Quotes) parse(body []byte) *Quotes {
 	lines := bytes.Split(body, []byte{'\n'})
 	self.stocks = make([]Stock, len(lines))

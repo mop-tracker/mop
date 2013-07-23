@@ -62,13 +62,15 @@ func (self *Screen) Close() {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Screen) DrawMarket(market *Market) {
-	self.draw(FormatMarket(market.Fetch()))
-}
-
-//-----------------------------------------------------------------------------
-func (self *Screen) DrawQuotes(quotes *Quotes) {
-	self.draw(FormatQuotes(quotes.Fetch()))
+func (self *Screen) Draw(ptr interface{}) {
+	switch ptr.(type) {
+	case *Market:
+		object := ptr.(*Market)
+		self.draw(object.Fetch().Format())
+	case *Quotes:
+		object := ptr.(*Quotes)
+		self.draw(object.Fetch().Format())
+	}
 }
 
 //-----------------------------------------------------------------------------

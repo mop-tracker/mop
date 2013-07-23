@@ -148,7 +148,7 @@ func (self *LineEditor) execute() {
 		tickers := self.tokenize()
 		if len(tickers) > 0 {
 			self.quotes.profile.AddTickers(tickers)
-			self.screen.DrawQuotes(self.quotes)
+			self.screen.Draw(self.quotes)
 		}
 	case '-':
 		tickers := self.tokenize()
@@ -157,7 +157,7 @@ func (self *LineEditor) execute() {
 			self.quotes.profile.RemoveTickers(tickers)
 			after := len(self.quotes.profile.Tickers)
 			if after < before {
-				self.screen.DrawQuotes(self.quotes)
+				self.screen.Draw(self.quotes)
 				for i := before; i > after; i-- {
 					self.screen.ClearLine(0, i + 4)
 				}

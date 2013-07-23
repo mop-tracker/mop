@@ -11,8 +11,21 @@ import (
 	`time`
 )
 
+type Formatter struct {}
+
 //-----------------------------------------------------------------------------
-func FormatMarket(m *Market) string {
+func (self *Formatter) Format(entity interface{}) string {
+	switch entity.(type) {
+	case *Market:
+		return self.format_market(entity.(*Market))
+	case *Quotes:
+		return self.format_quotes(entity.(*Quotes))
+	}
+	return ``
+}
+
+//-----------------------------------------------------------------------------
+func (self *Formatter) format_market(m *Market) string {
 	markup := `{{.Dow.name}}: `
 	if m.Dow[`change`][0:1] != `-` {
 		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</green> at {{.Dow.latest}}, `
@@ -52,7 +65,7 @@ func FormatMarket(m *Market) string {
 }
 
 //-----------------------------------------------------------------------------
-func FormatQuotes(q *Quotes) string {
+func (self *Formatter) format_quotes(q *Quotes) string {
 	vars := struct {
 		Now    string
 		Header string
