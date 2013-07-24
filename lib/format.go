@@ -68,7 +68,7 @@ func (self *Formatter) format_market(m *Market) string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) format_quotes(q *Quotes) string {
+func (self *Formatter) format_quotes(quotes *Quotes) string {
 	vars := struct {
 		Now    string
 		Header string
@@ -76,7 +76,7 @@ func (self *Formatter) format_quotes(q *Quotes) string {
 	}{
 		time.Now().Format(`3:04:05pm PST`),
 		header(),
-		prettify(q.stocks),
+		prettify(quotes),
 	}
 
 	markup := `<right><white>{{.Now}}</white></right>
@@ -86,7 +86,7 @@ func (self *Formatter) format_quotes(q *Quotes) string {
 {{.Header}}
 {{range .Stocks}}{{.Color}}{{.Ticker}} {{.LastTrade}} {{.Change}} {{.ChangePercent}} {{.Open}} {{.Low}} {{.High}} {{.Low52}} {{.High52}} {{.Volume}} {{.AvgVolume}} {{.PeRatio}} {{.Dividend}} {{.Yield}} {{.MarketCap}}
 {{end}}`
-
+	//markup += fmt.Sprintf("[%v]", quotes.profile.Grouped)
 	template, err := template.New(`quotes`).Parse(markup)
 	if err != nil {
 		panic(err)
@@ -123,9 +123,9 @@ func header() string {
 }
 
 //-----------------------------------------------------------------------------
-func prettify(stocks []Stock) []Stock {
-	pretty := make([]Stock, len(stocks))
-	for i, q := range stocks {
+func prettify(quotes *Quotes) []Stock {
+	pretty := make([]Stock, len(quotes.stocks))
+	for i, q := range group(quotes) {
 		pretty[i].Ticker        = pad(q.Ticker, -7)
 		pretty[i].LastTrade     = pad(with_currency(q.LastTrade), 9)
 		pretty[i].Change        = pad(with_currency(q.Change), 9)
@@ -143,6 +143,29 @@ func prettify(stocks []Stock) []Stock {
 		pretty[i].MarketCap     = pad(with_currency(q.MarketCapX), 10)
 	}
 	return pretty
+}
+
+//-----------------------------------------------------------------------------
+func group(quotes *Quotes) []Stock {
+	if !quotes.profile.Grouped {
+		return quotes.stocks
+	} else {
+		grouped := make([]Stock, len(quotes.stocks))
+		current := 0
+		for _,stock := range quotes.stocks {
+			if strings.Index(stock.Change, "-") == -1 {
+				grouped[current] = stock
+				current++
+			}
+		}
+		for _,stock := range quotes.stocks {
+			if strings.Index(stock.Change, "-") != -1 {
+				grouped[current] = stock
+				current++
+			}
+		}
+		return grouped
+	}
 }
 
 //-----------------------------------------------------------------------------

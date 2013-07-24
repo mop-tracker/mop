@@ -38,6 +38,9 @@ loop:
 					} else if event.Ch == '+' || event.Ch == '-' {
 						line_editor = new(mop.LineEditor).Initialize(screen, quotes)
 						line_editor.Prompt(event.Ch)
+					} else if event.Ch == 'g' {
+						profile.Regroup()
+						screen.Draw(quotes)
 					}
 				} else {
 					done := line_editor.Handle(event)

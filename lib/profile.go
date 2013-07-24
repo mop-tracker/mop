@@ -15,6 +15,7 @@ const moprc = `/.moprc`
 type Profile struct {
 	MarketRefresh	int
 	QuotesRefresh	int
+	Grouped         bool
 	Tickers         []string
 	SortBy          string
 	SortOrder       string
@@ -27,6 +28,7 @@ func (self *Profile) Initialize() *Profile {
 		// Set default values.
 		self.MarketRefresh = 12
 		self.QuotesRefresh = 5
+		self.Grouped = false
 		self.Tickers = []string{`AAPL`, `C`, `GOOG`, `IBM`, `KO`, `ORCL`, `V`}
 		self.SortBy = `Ticker`
 		self.SortOrder = `Desc`
@@ -49,6 +51,12 @@ func (self *Profile) Save() error {
 //-----------------------------------------------------------------------------
 func (self *Profile) ListOfTickers() string {
 	return strings.Join(self.Tickers, `+`)
+}
+
+//-----------------------------------------------------------------------------
+func (self *Profile) Regroup() error {
+	self.Grouped = !self.Grouped
+	return self.Save()
 }
 
 //-----------------------------------------------------------------------------
