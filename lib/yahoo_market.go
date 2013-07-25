@@ -57,7 +57,7 @@ func (self *Market) Fetch() *Market {
 
 //-----------------------------------------------------------------------------
 func (self *Market) Format() string {
-	return new(Formatter).Format(self)
+	return new(Formatter).Initialize().DoMarket(self)
 }
 
 // private

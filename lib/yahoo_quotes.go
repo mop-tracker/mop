@@ -57,9 +57,9 @@ type Stock struct {
 }
 
 type Quotes struct {
-	market	*Market
-	profile	*Profile
-	stocks	[]Stock
+	market	      *Market
+	profile	      *Profile
+	stocks	      []Stock
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ func (self *Quotes) Fetch() *Quotes {
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Format() string {
-	return new(Formatter).Format(self)
+	return new(Formatter).Initialize().DoQuotes(self)
 }
 
 //-----------------------------------------------------------------------------

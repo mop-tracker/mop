@@ -105,9 +105,17 @@ func (self *Screen) DrawLine(x int, y int, str string) {
 					right = open
 				default:
 					if open {
-						foreground = value
+						if value >= termbox.AttrBold {
+							foreground |= value
+						} else {
+							foreground = value
+						}
 					} else {
-						foreground = termbox.ColorDefault
+						if value >= termbox.AttrBold {
+							foreground &= ^value
+						} else {
+							foreground = termbox.ColorDefault
+						}
 					}
 				}
 			}
@@ -119,7 +127,7 @@ func (self *Screen) DrawLine(x int, y int, str string) {
 			} else {
 				termbox.SetCell(self.width-len(token)+i, y, char, foreground, background)
 			}
-			column += 1
+			column++
 		}
 	}
 	termbox.Flush()

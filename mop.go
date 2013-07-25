@@ -11,6 +11,7 @@ import (
 //-----------------------------------------------------------------------------
 func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	var line_editor *mop.LineEditor
+	var column_editor *mop.ColumnEditor
 	keyboard_queue := make(chan termbox.Event)
 	timestamp_queue := time.NewTicker(1 * time.Second)
 	quotes_queue := time.NewTicker(5 * time.Second)
@@ -32,20 +33,27 @@ loop:
 		case event := <-keyboard_queue:
 			switch event.Type {
 			case termbox.EventKey:
-				if line_editor == nil {
+				if line_editor == nil && column_editor == nil {
 					if event.Key == termbox.KeyEsc {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
 						line_editor = new(mop.LineEditor).Initialize(screen, quotes)
 						line_editor.Prompt(event.Ch)
-					} else if event.Ch == 'g' {
+					} else if event.Ch == 'o' || event.Ch == 'O' {
+						column_editor = new(mop.ColumnEditor).Initialize(screen, profile)
+					} else if event.Ch == 'g' || event.Ch == 'G' {
 						profile.Regroup()
 						screen.Draw(quotes)
 					}
-				} else {
+				} else if line_editor != nil {
 					done := line_editor.Handle(event)
 					if done {
 						line_editor = nil
+					}
+				} else if column_editor != nil {
+					done := column_editor.Handle(event)
+					if done {
+						column_editor = nil
 					}
 				}
 			case termbox.EventResize:

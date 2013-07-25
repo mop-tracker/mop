@@ -13,12 +13,13 @@ import (
 const moprc = `/.moprc`
 
 type Profile struct {
-	MarketRefresh	int
-	QuotesRefresh	int
-	Grouped         bool
-	Tickers         []string
-	SortBy          string
-	SortOrder       string
+	MarketRefresh	 int
+	QuotesRefresh	 int
+	Grouped          bool
+	Tickers          []string
+	SortColumn       int
+	Ascending        bool
+	selected_column	 int
 }
 
 //-----------------------------------------------------------------------------
@@ -30,12 +31,14 @@ func (self *Profile) Initialize() *Profile {
 		self.QuotesRefresh = 5
 		self.Grouped = false
 		self.Tickers = []string{`AAPL`, `C`, `GOOG`, `IBM`, `KO`, `ORCL`, `V`}
-		self.SortBy = `Ticker`
-		self.SortOrder = `Desc`
+		self.SortColumn = 0
+		self.Ascending = true
 		self.Save()
 	} else {
 		json.Unmarshal(data, self)
 	}
+	self.selected_column = -1
+
 	return self
 }
 

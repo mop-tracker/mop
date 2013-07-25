@@ -11,21 +11,40 @@ import (
 	`time`
 )
 
-type Formatter struct {}
+type Column struct {
+	width	int
+	title	string
+}
 
-//-----------------------------------------------------------------------------
-func (self *Formatter) Format(entity interface{}) string {
-	switch entity.(type) {
-	case *Market:
-		return self.format_market(entity.(*Market))
-	case *Quotes:
-		return self.format_quotes(entity.(*Quotes))
-	}
-	return ``
+type Formatter struct {
+	columns []Column
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) format_market(m *Market) string {
+func (self *Formatter) Initialize() *Formatter {
+	self.columns = make([]Column, 15)
+
+	self.columns[0]  = Column{ -7, `Ticker`}
+	self.columns[1]  = Column{ 10, `Last`}
+	self.columns[2]  = Column{ 10, `Change`}
+	self.columns[3]  = Column{ 10, `%Change`}
+	self.columns[4]  = Column{ 10, `Open`}
+	self.columns[5]  = Column{ 10, `Low`}
+	self.columns[6]  = Column{ 10, `High`}
+	self.columns[7]  = Column{ 10, `52w Low`}
+	self.columns[8]  = Column{ 10, `52w High`}
+	self.columns[9]  = Column{ 11, `Volume`}
+	self.columns[10] = Column{ 11, `AvgVolume`}
+	self.columns[11] = Column{ 10, `P/E`}
+	self.columns[12] = Column{ 10, `Dividend`}
+	self.columns[13] = Column{ 10, `Yield`}
+	self.columns[14] = Column{ 11, `MktCap`}
+
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *Formatter) DoMarket(m *Market) string {
 	markup := `{{.Dow.name}}: `
 	if m.Dow[`change`][0:1] != `-` {
 		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</green> at {{.Dow.latest}}, `
@@ -68,15 +87,15 @@ func (self *Formatter) format_market(m *Market) string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) format_quotes(quotes *Quotes) string {
+func (self *Formatter) DoQuotes(quotes *Quotes) string {
 	vars := struct {
 		Now    string
 		Header string
 		Stocks []Stock
 	}{
 		time.Now().Format(`3:04:05pm PST`),
-		header(),
-		prettify(quotes),
+		self.DoHeader(quotes.profile),
+		self.prettify(quotes),
 	}
 
 	markup := `<right><white>{{.Now}}</white></right>
@@ -84,7 +103,7 @@ func (self *Formatter) format_quotes(quotes *Quotes) string {
 
 
 {{.Header}}
-{{range .Stocks}}{{.Color}}{{.Ticker}} {{.LastTrade}} {{.Change}} {{.ChangePercent}} {{.Open}} {{.Low}} {{.High}} {{.Low52}} {{.High52}} {{.Volume}} {{.AvgVolume}} {{.PeRatio}} {{.Dividend}} {{.Yield}} {{.MarketCap}}
+{{range.Stocks}}{{.Color}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePercent}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}
 {{end}}`
 	//markup += fmt.Sprintf("[%v]", quotes.profile.Grouped)
 	template, err := template.New(`quotes`).Parse(markup)
@@ -102,45 +121,46 @@ func (self *Formatter) format_quotes(quotes *Quotes) string {
 }
 
 //-----------------------------------------------------------------------------
-func header() string {
-	str := fmt.Sprintf(`<u>%-7s `, `Ticker`)
-	str += fmt.Sprintf(`%9s `, `Last`)
-	str += fmt.Sprintf(`%9s `, `Change`)
-	str += fmt.Sprintf(`%9s `, `%Change`)
-	str += fmt.Sprintf(`%9s `, `Open`)
-	str += fmt.Sprintf(`%9s `, `Low`)
-	str += fmt.Sprintf(`%9s `, `High`)
-	str += fmt.Sprintf(`%9s `, `52w Low`)
-	str += fmt.Sprintf(`%9s `, `52w High`)
-	str += fmt.Sprintf(`%10s `, `Volume`)
-	str += fmt.Sprintf(`%10s `, `AvgVolume`)
-	str += fmt.Sprintf(`%9s `, `P/E`)
-	str += fmt.Sprintf(`%9s `, `Dividend`)
-	str += fmt.Sprintf(`%9s `, `Yield`)
-	str += fmt.Sprintf(`%10s</u>`, `MktCap`)
+func (self *Formatter) DoHeader(profile *Profile) string {
+	selected := profile.selected_column
+
+	str := `<u>`
+	for i,col := range self.columns {
+		if i != selected {
+			str += fmt.Sprintf(`%*s`, col.width, col.title)
+		} else {
+			str += fmt.Sprintf(`<r>%*s</r>`, col.width, col.title)
+		}
+	}
+	str += `</u>`
 
 	return str
 }
 
 //-----------------------------------------------------------------------------
-func prettify(quotes *Quotes) []Stock {
+func (self *Formatter) TotalColumns() int {
+	return len(self.columns)
+}
+
+//-----------------------------------------------------------------------------
+func (self *Formatter) prettify(quotes *Quotes) []Stock {
 	pretty := make([]Stock, len(quotes.stocks))
 	for i, q := range group(quotes) {
-		pretty[i].Ticker        = pad(q.Ticker, -7)
-		pretty[i].LastTrade     = pad(with_currency(q.LastTrade), 9)
-		pretty[i].Change        = pad(with_currency(q.Change), 9)
-		pretty[i].ChangePercent = pad(last_of_pair(q.ChangePercent), 9)
-		pretty[i].Open          = pad(with_currency(q.Open), 9)
-		pretty[i].Low           = pad(with_currency(q.Low), 9)
-		pretty[i].High          = pad(with_currency(q.High), 9)
-		pretty[i].Low52         = pad(with_currency(q.Low52), 9)
-		pretty[i].High52        = pad(with_currency(q.High52), 9)
-		pretty[i].Volume        = pad(q.Volume, 10)
-		pretty[i].AvgVolume     = pad(q.AvgVolume, 10)
-		pretty[i].PeRatio       = pad(nullify(q.PeRatioX), 9)
-		pretty[i].Dividend      = pad(with_currency(q.Dividend), 9)
-		pretty[i].Yield         = pad(with_percent(q.Yield), 9)
-		pretty[i].MarketCap     = pad(with_currency(q.MarketCapX), 10)
+		pretty[i].Ticker        = pad(q.Ticker,                      self.columns[0].width)
+		pretty[i].LastTrade     = pad(with_currency(q.LastTrade),    self.columns[1].width)
+		pretty[i].Change        = pad(with_currency(q.Change),       self.columns[2].width)
+		pretty[i].ChangePercent = pad(last_of_pair(q.ChangePercent), self.columns[3].width)
+		pretty[i].Open          = pad(with_currency(q.Open),         self.columns[4].width)
+		pretty[i].Low           = pad(with_currency(q.Low),          self.columns[5].width)
+		pretty[i].High          = pad(with_currency(q.High),         self.columns[6].width)
+		pretty[i].Low52         = pad(with_currency(q.Low52),        self.columns[7].width)
+		pretty[i].High52        = pad(with_currency(q.High52),       self.columns[8].width)
+		pretty[i].Volume        = pad(q.Volume,                      self.columns[9].width)
+		pretty[i].AvgVolume     = pad(q.AvgVolume,                   self.columns[10].width)
+		pretty[i].PeRatio       = pad(nullify(q.PeRatioX),           self.columns[11].width)
+		pretty[i].Dividend      = pad(with_currency(q.Dividend),     self.columns[12].width)
+		pretty[i].Yield         = pad(with_percent(q.Yield),         self.columns[13].width)
+		pretty[i].MarketCap     = pad(with_currency(q.MarketCapX),   self.columns[14].width)
 	}
 	return pretty
 }
