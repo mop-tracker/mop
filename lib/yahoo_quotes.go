@@ -95,7 +95,7 @@ func (self *Quotes) Fetch() *Quotes {
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Format() string {
-	return new(Formatter).Initialize().DoQuotes(self)
+	return new(Layout).Initialize().Quotes(self)
 }
 
 //-----------------------------------------------------------------------------

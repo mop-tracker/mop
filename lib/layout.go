@@ -11,18 +11,20 @@ import (
 	`time`
 )
 
+const TotalColumns = 15
+
 type Column struct {
 	width	int
 	title	string
 }
 
-type Formatter struct {
+type Layout struct {
 	columns []Column
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) Initialize() *Formatter {
-	self.columns = make([]Column, 15)
+func (self *Layout) Initialize() *Layout {
+	self.columns = make([]Column, TotalColumns)
 
 	self.columns[0]  = Column{ -7, `Ticker`}
 	self.columns[1]  = Column{ 10, `Last`}
@@ -44,7 +46,7 @@ func (self *Formatter) Initialize() *Formatter {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) DoMarket(m *Market) string {
+func (self *Layout) Market(m *Market) string {
 	markup := `{{.Dow.name}}: `
 	if m.Dow[`change`][0:1] != `-` {
 		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</green> at {{.Dow.latest}}, `
@@ -87,14 +89,14 @@ func (self *Formatter) DoMarket(m *Market) string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) DoQuotes(quotes *Quotes) string {
+func (self *Layout) Quotes(quotes *Quotes) string {
 	vars := struct {
 		Now    string
 		Header string
 		Stocks []Stock
 	}{
 		time.Now().Format(`3:04:05pm PST`),
-		self.DoHeader(quotes.profile),
+		self.Header(quotes.profile.selected_column),
 		self.prettify(quotes),
 	}
 
@@ -121,12 +123,10 @@ func (self *Formatter) DoQuotes(quotes *Quotes) string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) DoHeader(profile *Profile) string {
-	selected := profile.selected_column
-
+func (self *Layout) Header(selected_column int) string {
 	str := `<u>`
 	for i,col := range self.columns {
-		if i != selected {
+		if i != selected_column {
 			str += fmt.Sprintf(`%*s`, col.width, col.title)
 		} else {
 			str += fmt.Sprintf(`<r>%*s</r>`, col.width, col.title)
@@ -138,12 +138,7 @@ func (self *Formatter) DoHeader(profile *Profile) string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Formatter) TotalColumns() int {
-	return len(self.columns)
-}
-
-//-----------------------------------------------------------------------------
-func (self *Formatter) prettify(quotes *Quotes) []Stock {
+func (self *Layout) prettify(quotes *Quotes) []Stock {
 	pretty := make([]Stock, len(quotes.stocks))
 	for i, q := range group(quotes) {
 		pretty[i].Ticker        = pad(q.Ticker,                      self.columns[0].width)

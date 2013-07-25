@@ -10,18 +10,17 @@ import (
 
 type ColumnEditor struct {
 	screen     *Screen
+	layout     *Layout
 	profile    *Profile
-	formatter  *Formatter
 }
 
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) Initialize(screen *Screen, profile *Profile) *ColumnEditor {
 	self.screen = screen
 	self.profile = profile
-	self.formatter = new(Formatter).Initialize()
+	self.layout = new(Layout).Initialize()
 
 	self.select_current_column()
-
 	return self
 }
 
@@ -57,7 +56,7 @@ func (self *ColumnEditor) select_current_column() *ColumnEditor {
 func (self *ColumnEditor) select_left_column() *ColumnEditor {
 	self.profile.selected_column--
 	if self.profile.selected_column < 0 {
-		self.profile.selected_column = self.formatter.TotalColumns() - 1
+		self.profile.selected_column = TotalColumns - 1
 	}
 	return self
 }
@@ -65,7 +64,7 @@ func (self *ColumnEditor) select_left_column() *ColumnEditor {
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) select_right_column() *ColumnEditor {
 	self.profile.selected_column++
-	if self.profile.selected_column > self.formatter.TotalColumns() - 1 {
+	if self.profile.selected_column > TotalColumns - 1 {
 		self.profile.selected_column = 0
 	}
 	return self
@@ -85,7 +84,7 @@ func (self *ColumnEditor) done() bool {
 
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) redraw_header() {
-	self.screen.DrawLine(0, 4, self.formatter.DoHeader(self.profile))
+	self.screen.DrawLine(0, 4, self.layout.Header(self.profile.selected_column))
 	termbox.Flush()
 }
 
