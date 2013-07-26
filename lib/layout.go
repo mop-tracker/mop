@@ -146,21 +146,21 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 
       //for i, q := range group(quotes) {
 	for i, q := range quotes.stocks {
-		pretty[i].Ticker    = pad(q.Ticker,                    self.columns[0].width)
-		pretty[i].LastTrade = pad(with_currency(q.LastTrade),  self.columns[1].width)
-		pretty[i].Change    = pad(with_currency(q.Change),     self.columns[2].width)
-		pretty[i].ChangePct = pad(last_of_pair(q.ChangePct),   self.columns[3].width)
-		pretty[i].Open      = pad(with_currency(q.Open),       self.columns[4].width)
-		pretty[i].Low       = pad(with_currency(q.Low),        self.columns[5].width)
-		pretty[i].High      = pad(with_currency(q.High),       self.columns[6].width)
-		pretty[i].Low52     = pad(with_currency(q.Low52),      self.columns[7].width)
-		pretty[i].High52    = pad(with_currency(q.High52),     self.columns[8].width)
-		pretty[i].Volume    = pad(q.Volume,                    self.columns[9].width)
-		pretty[i].AvgVolume = pad(q.AvgVolume,                 self.columns[10].width)
-		pretty[i].PeRatio   = pad(nullify(q.PeRatioX),         self.columns[11].width)
-		pretty[i].Dividend  = pad(with_currency(q.Dividend),   self.columns[12].width)
-		pretty[i].Yield     = pad(with_percent(q.Yield),       self.columns[13].width)
-		pretty[i].MarketCap = pad(with_currency(q.MarketCapX), self.columns[14].width)
+		pretty[i].Ticker    = pad(q.Ticker,                   self.columns[0].width)
+		pretty[i].LastTrade = pad(currency(q.LastTrade),      self.columns[1].width)
+		pretty[i].Change    = pad(currency(q.Change),         self.columns[2].width)
+		pretty[i].ChangePct = pad(last(q.ChangePct),          self.columns[3].width)
+		pretty[i].Open      = pad(currency(q.Open),           self.columns[4].width)
+		pretty[i].Low       = pad(currency(q.Low),            self.columns[5].width)
+		pretty[i].High      = pad(currency(q.High),           self.columns[6].width)
+		pretty[i].Low52     = pad(currency(q.Low52),          self.columns[7].width)
+		pretty[i].High52    = pad(currency(q.High52),         self.columns[8].width)
+		pretty[i].Volume    = pad(q.Volume,                   self.columns[9].width)
+		pretty[i].AvgVolume = pad(q.AvgVolume,                self.columns[10].width)
+		pretty[i].PeRatio   = pad(blank(q.PeRatioX),          self.columns[11].width)
+		pretty[i].Dividend  = pad(blank_currency(q.Dividend), self.columns[12].width)
+		pretty[i].Yield     = pad(percent(q.Yield),           self.columns[13].width)
+		pretty[i].MarketCap = pad(currency(q.MarketCapX),     self.columns[14].width)
 	}
 
 	if quotes.profile.Ascending {
@@ -245,7 +245,7 @@ func arrow_for(column int, profile *Profile) string {
 }
 
 //-----------------------------------------------------------------------------
-func nullify(str string) string {
+func blank(str string) string {
 	if len(str) == 3 && str[0:3] == `N/A` {
 		return `-`
 	} else {
@@ -254,7 +254,16 @@ func nullify(str string) string {
 }
 
 //-----------------------------------------------------------------------------
-func last_of_pair(str string) string {
+func blank_currency(str string) string {
+	if str == `0.00` {
+		return `-`
+	} else {
+		return currency(str)
+	}
+}
+
+//-----------------------------------------------------------------------------
+func last(str string) string {
 	if len(str) >= 6 && str[0:6] != `N/A - ` {
 		return str
 	} else {
@@ -263,7 +272,7 @@ func last_of_pair(str string) string {
 }
 
 //-----------------------------------------------------------------------------
-func with_currency(str string) string {
+func currency(str string) string {
 	if str == `N/A` {
 		return `-`
 	} else {
@@ -277,7 +286,7 @@ func with_currency(str string) string {
 }
 
 //-----------------------------------------------------------------------------
-func with_percent(str string) string {
+func percent(str string) string {
 	if str == `N/A` {
 		return `-`
 	} else {
