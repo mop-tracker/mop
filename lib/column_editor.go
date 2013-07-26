@@ -3,21 +3,21 @@
 package mop
 
 import (
-	// `regexp`
-	// `strings`
 	`github.com/nsf/termbox-go`
 )
 
 type ColumnEditor struct {
 	screen     *Screen
 	layout     *Layout
+	quotes     *Quotes
 	profile    *Profile
 }
 
 //-----------------------------------------------------------------------------
-func (self *ColumnEditor) Initialize(screen *Screen, profile *Profile) *ColumnEditor {
+func (self *ColumnEditor) Initialize(screen *Screen, quotes *Quotes) *ColumnEditor {
 	self.screen = screen
-	self.profile = profile
+	self.quotes = quotes
+	self.profile = quotes.profile
 	self.layout = new(Layout).Initialize()
 
 	self.select_current_column()
@@ -33,7 +33,7 @@ func (self *ColumnEditor) Handle(ev termbox.Event) bool {
 		return self.done()
 
 	case termbox.KeyEnter:
-		return self.execute().done()
+		self.execute()
 
         case termbox.KeyArrowLeft:
 		self.select_left_column()
@@ -72,7 +72,13 @@ func (self *ColumnEditor) select_right_column() *ColumnEditor {
 
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) execute() *ColumnEditor {
-
+	if self.profile.selected_column == self.profile.SortColumn {
+		self.profile.Ascending = !self.profile.Ascending
+	} else {
+		self.profile.SortColumn = self.profile.selected_column
+	}
+	self.profile.Save()
+	self.screen.Draw(self.quotes)
 	return self
 }
 
@@ -84,7 +90,7 @@ func (self *ColumnEditor) done() bool {
 
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) redraw_header() {
-	self.screen.DrawLine(0, 4, self.layout.Header(self.profile.selected_column))
+	self.screen.DrawLine(0, 4, self.layout.Header(self.profile))
 	termbox.Flush()
 }
 

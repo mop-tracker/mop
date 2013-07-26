@@ -40,7 +40,7 @@ loop:
 						line_editor = new(mop.LineEditor).Initialize(screen, quotes)
 						line_editor.Prompt(event.Ch)
 					} else if event.Ch == 'o' || event.Ch == 'O' {
-						column_editor = new(mop.ColumnEditor).Initialize(screen, profile)
+						column_editor = new(mop.ColumnEditor).Initialize(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						profile.Regroup()
 						screen.Draw(quotes)

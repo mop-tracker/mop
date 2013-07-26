@@ -96,7 +96,7 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 		Stocks []Stock
 	}{
 		time.Now().Format(`3:04:05pm PST`),
-		self.Header(quotes.profile.selected_column),
+		self.Header(quotes.profile),
 		self.prettify(quotes),
 	}
 
@@ -123,18 +123,19 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Layout) Header(selected_column int) string {
-	str := `<u>`
+func (self *Layout) Header(profile *Profile) string {
+	str, selected_column := ``, profile.selected_column
+
 	for i,col := range self.columns {
+		arrow := arrow_for(i, profile)
 		if i != selected_column {
-			str += fmt.Sprintf(`%*s`, col.width, col.title)
+			str += fmt.Sprintf(`%*s`, col.width, arrow + col.title)
 		} else {
-			str += fmt.Sprintf(`<r>%*s</r>`, col.width, col.title)
+			str += fmt.Sprintf(`<r>%*s</r>`, col.width, arrow + col.title)
 		}
 	}
-	str += `</u>`
 
-	return str
+	return `<u>` + str + `</u>`
 }
 
 //-----------------------------------------------------------------------------
@@ -181,6 +182,18 @@ func group(quotes *Quotes) []Stock {
 		}
 		return grouped
 	}
+}
+
+//-----------------------------------------------------------------------------
+func arrow_for(column int, profile *Profile) string {
+	if column == profile.SortColumn {
+		if profile.Ascending {
+			return string('\U00002193')
+		} else {
+			return string('\U00002191')
+		}
+	}
+	return ``
 }
 
 //-----------------------------------------------------------------------------
