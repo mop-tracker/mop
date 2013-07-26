@@ -37,23 +37,23 @@ import (
 const yahoo_quotes_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
 
 type Stock struct {
-	Ticker        string
-	LastTrade     string
-	Change        string
-	ChangePercent string
-	Open          string
-	Low           string
-	High          string
-	Low52         string
-	High52        string
-	Volume        string
-	AvgVolume     string
-	PeRatio       string
-	PeRatioX      string
-	Dividend      string
-	Yield         string
-	MarketCap     string
-	MarketCapX    string
+	Ticker      string
+	LastTrade   string
+	Change      string
+	ChangePct   string
+	Open        string
+	Low         string
+	High        string
+	Low52       string
+	High52      string
+	Volume      string
+	AvgVolume   string
+	PeRatio     string
+	PeRatioX    string
+	Dividend    string
+	Yield       string
+	MarketCap   string
+	MarketCapX  string
 }
 
 type Quotes struct {
@@ -72,7 +72,7 @@ func (self *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Fetch() *Quotes {
-	if self.market.Open || self.stocks == nil {
+	if !self.market.IsClosed || self.stocks == nil {
 		// Format the URL and send the request.
 		url := fmt.Sprintf(yahoo_quotes_url, self.profile.ListOfTickers())
 		response, err := http.Get(url)
@@ -121,23 +121,23 @@ func (self *Quotes) parse(body []byte) *Quotes {
 
 	for i, line := range lines {
 		columns := bytes.Split(bytes.TrimSpace(line), []byte{','})
-		self.stocks[i].Ticker        = string(columns[0])
-		self.stocks[i].LastTrade     = string(columns[1])
-		self.stocks[i].Change        = string(columns[2])
-		self.stocks[i].ChangePercent = string(columns[3])
-		self.stocks[i].Open          = string(columns[4])
-		self.stocks[i].Low           = string(columns[5])
-		self.stocks[i].High          = string(columns[6])
-		self.stocks[i].Low52         = string(columns[7])
-		self.stocks[i].High52        = string(columns[8])
-		self.stocks[i].Volume        = string(columns[9])
-		self.stocks[i].AvgVolume     = string(columns[10])
-		self.stocks[i].PeRatio       = string(columns[11])
-		self.stocks[i].PeRatioX      = string(columns[12])
-		self.stocks[i].Dividend      = string(columns[13])
-		self.stocks[i].Yield         = string(columns[14])
-		self.stocks[i].MarketCap     = string(columns[15])
-		self.stocks[i].MarketCapX    = string(columns[16])
+		self.stocks[i].Ticker      = string(columns[0])
+		self.stocks[i].LastTrade   = string(columns[1])
+		self.stocks[i].Change      = string(columns[2])
+		self.stocks[i].ChangePct   = string(columns[3])
+		self.stocks[i].Open        = string(columns[4])
+		self.stocks[i].Low         = string(columns[5])
+		self.stocks[i].High        = string(columns[6])
+		self.stocks[i].Low52       = string(columns[7])
+		self.stocks[i].High52      = string(columns[8])
+		self.stocks[i].Volume      = string(columns[9])
+		self.stocks[i].AvgVolume   = string(columns[10])
+		self.stocks[i].PeRatio     = string(columns[11])
+		self.stocks[i].PeRatioX    = string(columns[12])
+		self.stocks[i].Dividend    = string(columns[13])
+		self.stocks[i].Yield       = string(columns[14])
+		self.stocks[i].MarketCap   = string(columns[15])
+		self.stocks[i].MarketCapX  = string(columns[16])
 	}
 
 	return self

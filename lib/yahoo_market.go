@@ -11,7 +11,7 @@ import (
 )
 
 type Market struct {
-	Open      bool
+	IsClosed  bool
 	Dow       map[string]string
 	Nasdaq    map[string]string
 	Sp500     map[string]string
@@ -24,7 +24,7 @@ type Market struct {
 
 //-----------------------------------------------------------------------------
 func (self *Market) Initialize() *Market {
-	self.Open       = true
+	self.IsClosed   = false
 	self.Dow        = make(map[string]string)
 	self.Nasdaq     = make(map[string]string)
 	self.Sp500      = make(map[string]string)
@@ -65,7 +65,8 @@ func (self *Market) Format() string {
 func (self *Market) check_if_market_open(body []byte) []byte {
 	start := bytes.Index(body, []byte(`id="yfs_market_time"`))
 	finish := start + bytes.Index(body[start:], []byte(`</span>`))
-	self.Open = !bytes.Contains(body[start:finish], []byte(`closed`))
+	snippet := body[start:finish]
+	self.IsClosed = bytes.Contains(snippet, []byte(`closed`)) || bytes.Contains(snippet, []byte(`open in`))
 
 	return body[finish:]
 }
