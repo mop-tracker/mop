@@ -8,7 +8,6 @@ import (
 	`regexp`
 	`strings`
 	`text/template`
-	`sort`
 	`time`
 )
 
@@ -141,10 +140,8 @@ func (self *Layout) Header(profile *Profile) string {
 
 //-----------------------------------------------------------------------------
 func (self *Layout) prettify(quotes *Quotes) []Stock {
-	var sorts []sort.Interface
 	pretty := make([]Stock, len(quotes.stocks))
 
-      //for i, q := range group(quotes) {
 	for i, q := range quotes.stocks {
 		pretty[i].Ticker    = pad(q.Ticker,                   self.columns[0].width)
 		pretty[i].LastTrade = pad(currency(q.LastTrade),      self.columns[1].width)
@@ -163,69 +160,38 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 		pretty[i].MarketCap = pad(currency(q.MarketCapX),     self.columns[14].width)
 	}
 
-	if quotes.profile.Ascending {
-		sorts = []sort.Interface{
-			ByTickerAsc       { pretty },
-			ByLastTradeAsc    { pretty },
-			ByChangeAsc       { pretty },
-			ByChangePctAsc    { pretty },
-			ByOpenAsc         { pretty },
-			ByLowAsc          { pretty },
-			ByHighAsc         { pretty },
-			ByLow52Asc        { pretty },
-			ByHigh52Asc       { pretty },
-			ByVolumeAsc       { pretty },
-			ByAvgVolumeAsc    { pretty },
-			ByPeRatioAsc      { pretty },
-			ByDividendAsc     { pretty },
-			ByYieldAsc        { pretty },
-			ByMarketCapAsc    { pretty },
-		}
-	} else {
-		sorts = []sort.Interface{
-			ByTickerDesc      { pretty },
-			ByLastTradeDesc   { pretty },
-			ByChangeDesc      { pretty },
-			ByChangePctDesc   { pretty },
-			ByOpenDesc        { pretty },
-			ByLowDesc         { pretty },
-			ByHighDesc        { pretty },
-			ByLow52Desc       { pretty },
-			ByHigh52Desc      { pretty },
-			ByVolumeDesc      { pretty },
-			ByAvgVolumeDesc   { pretty },
-			ByPeRatioDesc     { pretty },
-			ByDividendDesc    { pretty },
-			ByYieldDesc       { pretty },
-			ByMarketCapDesc   { pretty },
-		}
+	profile := quotes.profile
+	new(Sorter).Initialize(profile).SortByCurrentColumn(pretty)
+	//
+	// Group stocks by advancing/declining unless sorted by Chanage or Change%
+	// in which case the grouping is done already.
+	//
+	if profile.Grouped && (profile.SortColumn < 2 || profile.SortColumn > 3) {
+		pretty = group(pretty)
 	}
 
-	sort.Sort(sorts[quotes.profile.SortColumn])
 	return pretty
 }
 
 //-----------------------------------------------------------------------------
-func group(quotes *Quotes) []Stock {
-	if !quotes.profile.Grouped {
-		return quotes.stocks
-	} else {
-		grouped := make([]Stock, len(quotes.stocks))
-		current := 0
-		for _,stock := range quotes.stocks {
-			if strings.Index(stock.Change, "-") == -1 {
-				grouped[current] = stock
-				current++
-			}
+func group(stocks []Stock) []Stock {
+	grouped := make([]Stock, len(stocks))
+	current := 0
+
+	for _,stock := range stocks {
+		if strings.Index(stock.Change, "-") == -1 {
+			grouped[current] = stock
+			current++
 		}
-		for _,stock := range quotes.stocks {
-			if strings.Index(stock.Change, "-") != -1 {
-				grouped[current] = stock
-				current++
-			}
-		}
-		return grouped
 	}
+	for _,stock := range stocks {
+		if strings.Index(stock.Change, "-") != -1 {
+			grouped[current] = stock
+			current++
+		}
+	}
+
+	return grouped
 }
 
 //-----------------------------------------------------------------------------

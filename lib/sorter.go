@@ -3,6 +3,7 @@
 package mop
 
 import (
+	`sort`
 	`strings`
 	`strconv`
 )
@@ -43,7 +44,6 @@ type ByDividendDesc    struct { Sortable }
 type ByYieldDesc       struct { Sortable }
 type ByMarketCapDesc   struct { Sortable }
 
-
 func (list ByTickerAsc)       Less(i, j int) bool { return list.Sortable[i].Ticker        < list.Sortable[j].Ticker }
 func (list ByLastTradeAsc)    Less(i, j int) bool { return list.Sortable[i].LastTrade     < list.Sortable[j].LastTrade }
 func (list ByChangeAsc)       Less(i, j int) bool { return c(list.Sortable[i].Change)     < c(list.Sortable[j].Change) }
@@ -62,7 +62,7 @@ func (list ByMarketCapAsc)    Less(i, j int) bool { return m(list.Sortable[i].Ma
                                   
 func (list ByTickerDesc)      Less(i, j int) bool { return list.Sortable[j].Ticker        < list.Sortable[i].Ticker }
 func (list ByLastTradeDesc)   Less(i, j int) bool { return list.Sortable[j].LastTrade     < list.Sortable[i].LastTrade }
-func (list ByChangeDesc)      Less(i, j int) bool { return c(list.Sortable[j].Change)     < c(list.Sortable[i].Change) }
+func (list ByChangeDesc)      Less(i, j int) bool { return c(list.Sortable[j].ChangePct)  < c(list.Sortable[i].ChangePct) }
 func (list ByChangePctDesc)   Less(i, j int) bool { return c(list.Sortable[j].ChangePct)  < c(list.Sortable[i].ChangePct) }
 func (list ByOpenDesc)        Less(i, j int) bool { return list.Sortable[j].Open          < list.Sortable[i].Open }
 func (list ByLowDesc)         Less(i, j int) bool { return list.Sortable[j].Low           < list.Sortable[i].Low }
@@ -76,6 +76,64 @@ func (list ByDividendDesc)    Less(i, j int) bool { return list.Sortable[j].Divi
 func (list ByYieldDesc)       Less(i, j int) bool { return list.Sortable[j].Yield         < list.Sortable[i].Yield }
 func (list ByMarketCapDesc)   Less(i, j int) bool { return m(list.Sortable[j].MarketCap)  < m(list.Sortable[i].MarketCap) }
 
+type Sorter struct {
+	profile  *Profile
+}
+
+func (self *Sorter) Initialize(profile *Profile) *Sorter {
+	self.profile = profile
+
+	return self
+}
+
+func (self *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
+	var interfaces []sort.Interface
+
+	if self.profile.Ascending {
+		interfaces = []sort.Interface{
+			ByTickerAsc       { stocks },
+			ByLastTradeAsc    { stocks },
+			ByChangeAsc       { stocks },
+			ByChangePctAsc    { stocks },
+			ByOpenAsc         { stocks },
+			ByLowAsc          { stocks },
+			ByHighAsc         { stocks },
+			ByLow52Asc        { stocks },
+			ByHigh52Asc       { stocks },
+			ByVolumeAsc       { stocks },
+			ByAvgVolumeAsc    { stocks },
+			ByPeRatioAsc      { stocks },
+			ByDividendAsc     { stocks },
+			ByYieldAsc        { stocks },
+			ByMarketCapAsc    { stocks },
+		}
+	} else {
+		interfaces = []sort.Interface{
+			ByTickerDesc      { stocks },
+			ByLastTradeDesc   { stocks },
+			ByChangeDesc      { stocks },
+			ByChangePctDesc   { stocks },
+			ByOpenDesc        { stocks },
+			ByLowDesc         { stocks },
+			ByHighDesc        { stocks },
+			ByLow52Desc       { stocks },
+			ByHigh52Desc      { stocks },
+			ByVolumeDesc      { stocks },
+			ByAvgVolumeDesc   { stocks },
+			ByPeRatioDesc     { stocks },
+			ByDividendDesc    { stocks },
+			ByYieldDesc       { stocks },
+			ByMarketCapDesc   { stocks },
+		}
+	}
+
+	sort.Sort(interfaces[self.profile.SortColumn])
+
+	return self
+}
+
+// The same exact method is used to sort by Change and Change%. In both cases
+// we sort by the value of Change% so that $0.00 change gets sorted proferly.
 func c(str string) float32 {
 	trimmed := strings.Replace(strings.Trim(str, ` %`), `$`, ``, 1)
 	value, _ := strconv.ParseFloat(trimmed, 32)
