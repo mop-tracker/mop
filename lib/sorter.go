@@ -23,11 +23,9 @@ type ByHigh52Asc       struct { Sortable }
 type ByVolumeAsc       struct { Sortable }
 type ByAvgVolumeAsc    struct { Sortable }
 type ByPeRatioAsc      struct { Sortable }
-type ByPeRatioXAsc     struct { Sortable }
 type ByDividendAsc     struct { Sortable }
 type ByYieldAsc        struct { Sortable }
 type ByMarketCapAsc    struct { Sortable }
-type ByMarketCapXAsc   struct { Sortable }
                        
 type ByTickerDesc      struct { Sortable }
 type ByLastTradeDesc   struct { Sortable }
@@ -41,17 +39,15 @@ type ByHigh52Desc      struct { Sortable }
 type ByVolumeDesc      struct { Sortable }
 type ByAvgVolumeDesc   struct { Sortable }
 type ByPeRatioDesc     struct { Sortable }
-type ByPeRatioXDesc    struct { Sortable }
 type ByDividendDesc    struct { Sortable }
 type ByYieldDesc       struct { Sortable }
 type ByMarketCapDesc   struct { Sortable }
-type ByMarketCapXDesc  struct { Sortable }
 
 
 func (list ByTickerAsc)       Less(i, j int) bool { return list.Sortable[i].Ticker        < list.Sortable[j].Ticker }
 func (list ByLastTradeAsc)    Less(i, j int) bool { return list.Sortable[i].LastTrade     < list.Sortable[j].LastTrade }
-func (list ByChangeAsc)       Less(i, j int) bool { return z(list.Sortable[i].Change)     < z(list.Sortable[j].Change) }
-func (list ByChangePctAsc)    Less(i, j int) bool { return z(list.Sortable[i].ChangePct)  < z(list.Sortable[j].ChangePct) }
+func (list ByChangeAsc)       Less(i, j int) bool { return c(list.Sortable[i].Change)     < c(list.Sortable[j].Change) }
+func (list ByChangePctAsc)    Less(i, j int) bool { return c(list.Sortable[i].ChangePct)  < c(list.Sortable[j].ChangePct) }
 func (list ByOpenAsc)         Less(i, j int) bool { return list.Sortable[i].Open          < list.Sortable[j].Open }
 func (list ByLowAsc)          Less(i, j int) bool { return list.Sortable[i].Low           < list.Sortable[j].Low }
 func (list ByHighAsc)         Less(i, j int) bool { return list.Sortable[i].High          < list.Sortable[j].High }
@@ -60,16 +56,14 @@ func (list ByHigh52Asc)       Less(i, j int) bool { return list.Sortable[i].High
 func (list ByVolumeAsc)       Less(i, j int) bool { return list.Sortable[i].Volume        < list.Sortable[j].Volume }
 func (list ByAvgVolumeAsc)    Less(i, j int) bool { return list.Sortable[i].AvgVolume     < list.Sortable[j].AvgVolume }
 func (list ByPeRatioAsc)      Less(i, j int) bool { return list.Sortable[i].PeRatio       < list.Sortable[j].PeRatio }
-func (list ByPeRatioXAsc)     Less(i, j int) bool { return list.Sortable[i].PeRatioX      < list.Sortable[j].PeRatioX }
 func (list ByDividendAsc)     Less(i, j int) bool { return list.Sortable[i].Dividend      < list.Sortable[j].Dividend }
 func (list ByYieldAsc)        Less(i, j int) bool { return list.Sortable[i].Yield         < list.Sortable[j].Yield }
-func (list ByMarketCapAsc)    Less(i, j int) bool { return list.Sortable[i].MarketCap     < list.Sortable[j].MarketCap }
-func (list ByMarketCapXAsc)   Less(i, j int) bool { return list.Sortable[i].MarketCapX    < list.Sortable[j].MarketCapX }
+func (list ByMarketCapAsc)    Less(i, j int) bool { return m(list.Sortable[i].MarketCap)  < m(list.Sortable[j].MarketCap) }
                                   
 func (list ByTickerDesc)      Less(i, j int) bool { return list.Sortable[j].Ticker        < list.Sortable[i].Ticker }
 func (list ByLastTradeDesc)   Less(i, j int) bool { return list.Sortable[j].LastTrade     < list.Sortable[i].LastTrade }
-func (list ByChangeDesc)      Less(i, j int) bool { return z(list.Sortable[j].Change)     < z(list.Sortable[i].Change) }
-func (list ByChangePctDesc)   Less(i, j int) bool { return z(list.Sortable[j].ChangePct)  < z(list.Sortable[i].ChangePct) }
+func (list ByChangeDesc)      Less(i, j int) bool { return c(list.Sortable[j].Change)     < c(list.Sortable[i].Change) }
+func (list ByChangePctDesc)   Less(i, j int) bool { return c(list.Sortable[j].ChangePct)  < c(list.Sortable[i].ChangePct) }
 func (list ByOpenDesc)        Less(i, j int) bool { return list.Sortable[j].Open          < list.Sortable[i].Open }
 func (list ByLowDesc)         Less(i, j int) bool { return list.Sortable[j].Low           < list.Sortable[i].Low }
 func (list ByHighDesc)        Less(i, j int) bool { return list.Sortable[j].High          < list.Sortable[i].High }
@@ -78,14 +72,27 @@ func (list ByHigh52Desc)      Less(i, j int) bool { return list.Sortable[j].High
 func (list ByVolumeDesc)      Less(i, j int) bool { return list.Sortable[j].Volume        < list.Sortable[i].Volume }
 func (list ByAvgVolumeDesc)   Less(i, j int) bool { return list.Sortable[j].AvgVolume     < list.Sortable[i].AvgVolume }
 func (list ByPeRatioDesc)     Less(i, j int) bool { return list.Sortable[j].PeRatio       < list.Sortable[i].PeRatio }
-func (list ByPeRatioXDesc)    Less(i, j int) bool { return list.Sortable[j].PeRatioX      < list.Sortable[i].PeRatioX }
 func (list ByDividendDesc)    Less(i, j int) bool { return list.Sortable[j].Dividend      < list.Sortable[i].Dividend }
 func (list ByYieldDesc)       Less(i, j int) bool { return list.Sortable[j].Yield         < list.Sortable[i].Yield }
-func (list ByMarketCapDesc)   Less(i, j int) bool { return list.Sortable[j].MarketCap     < list.Sortable[i].MarketCap }
-func (list ByMarketCapXDesc)  Less(i, j int) bool { return list.Sortable[j].MarketCapX    < list.Sortable[i].MarketCapX }
+func (list ByMarketCapDesc)   Less(i, j int) bool { return m(list.Sortable[j].MarketCap)  < m(list.Sortable[i].MarketCap) }
 
-func z(str string) float32 {
-	float := strings.Replace(strings.Trim(str, ` %`), `$`, ``, 1)
-	value,_ := strconv.ParseFloat(float, 32)
+func c(str string) float32 {
+	trimmed := strings.Replace(strings.Trim(str, ` %`), `$`, ``, 1)
+	value, _ := strconv.ParseFloat(trimmed, 32)
 	return float32(value)
+}
+
+func m(str string) float32 {
+	multiplier := 1.0
+	switch str[len(str)-1:len(str)] {
+	case `B`:
+		multiplier = 1000000000.0
+	case `M`:
+		multiplier = 1000000.0
+	case `K`:
+		multiplier = 1000.0
+	}
+	trimmed := strings.Trim(str, ` $BMK`)
+	value, _ := strconv.ParseFloat(trimmed, 32)
+	return float32(value * multiplier)
 }

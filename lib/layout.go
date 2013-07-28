@@ -26,21 +26,21 @@ type Layout struct {
 //-----------------------------------------------------------------------------
 func (self *Layout) Initialize() *Layout {
 	self.columns = []Column{
-		{ -7, `Ticker`},
-		{ 10, `Last`},
-		{ 10, `Change`},
-		{ 10, `%Change`},
-		{ 10, `Open`},
-		{ 10, `Low`},
-		{ 10, `High`},
-		{ 10, `52w Low`},
-		{ 10, `52w High`},
-		{ 11, `Volume`},
-		{ 11, `AvgVolume`},
-		{ 10, `P/E`},
-		{ 10, `Dividend`},
-		{ 10, `Yield`},
-		{ 11, `MktCap`},
+		{ -7, `Ticker` },
+		{ 10, `Last` },
+		{ 10, `Change` },
+		{ 10, `Change%` },
+		{ 10, `Open` },
+		{ 10, `Low` },
+		{ 10, `High` },
+		{ 10, `52w Low` },
+		{ 10, `52w High` },
+		{ 11, `Volume` },
+		{ 11, `AvgVolume` },
+		{ 10, `P/E` },
+		{ 10, `Dividend` },
+		{ 10, `Yield` },
+		{ 11, `MktCap` },
 	}
 
 	return self
@@ -177,11 +177,9 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 			ByVolumeAsc       { pretty },
 			ByAvgVolumeAsc    { pretty },
 			ByPeRatioAsc      { pretty },
-		      //ByPeRatioXAsc     { pretty },
 			ByDividendAsc     { pretty },
 			ByYieldAsc        { pretty },
 			ByMarketCapAsc    { pretty },
-		      //ByMarketCapXAsc   { pretty },
 		}
 	} else {
 		sorts = []sort.Interface{
@@ -197,11 +195,9 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 			ByVolumeDesc      { pretty },
 			ByAvgVolumeDesc   { pretty },
 			ByPeRatioDesc     { pretty },
-		      //ByPeRatioXDesc    { pretty },
 			ByDividendDesc    { pretty },
 			ByYieldDesc       { pretty },
 			ByMarketCapDesc   { pretty },
-		      //ByMarketCapXDesc  { pretty },
 		}
 	}
 
