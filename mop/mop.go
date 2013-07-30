@@ -3,7 +3,7 @@
 package main
 
 import (
-	`github.com/michaeldv/mop/lib`
+	`github.com/michaeldv/mop`
 	`github.com/nsf/termbox-go`
 	`time`
 )
