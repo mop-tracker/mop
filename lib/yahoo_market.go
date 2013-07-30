@@ -11,15 +11,16 @@ import (
 )
 
 type Market struct {
-	IsClosed  bool
-	Dow       map[string]string
-	Nasdaq    map[string]string
-	Sp500     map[string]string
-	Advances  map[string]string
-	Declines  map[string]string
-	Unchanged map[string]string
-	Highs     map[string]string
-	Lows      map[string]string
+	regex      *regexp.Regexp
+	IsClosed   bool
+	Dow        map[string]string
+	Nasdaq     map[string]string
+	Sp500      map[string]string
+	Advances   map[string]string
+	Declines   map[string]string
+	Unchanged  map[string]string
+	Highs      map[string]string
+	Lows       map[string]string
 }
 
 //-----------------------------------------------------------------------------
@@ -33,6 +34,26 @@ func (self *Market) Initialize() *Market {
 	self.Unchanged  = make(map[string]string)
 	self.Highs      = make(map[string]string)
 	self.Lows       = make(map[string]string)
+
+	const any = `\s*<.+?>`
+	const some = `<.+?`
+	const space = `\s*`
+	const color = `#([08c]{6});">\s*`
+	const price = `([\d\.,]+)`
+	const percent = `\(([\d\.,%]+)\)`
+
+	rules := []string{
+		`(Dow)`, any, price, some, color, price, some, percent, any,
+		`(Nasdaq)`, any, price, some, color, price, some, percent, any,
+		`(S&P 500)`, any, price, some, color, price, some, percent, any,
+		`(Advances)`, any, price, space, percent, any, price, space, percent, any,
+		`(Declines)`, any, price, space, percent, any, price, space, percent, any,
+		`(Unchanged)`, any, price, space, percent, any, price, space, percent, any,
+		`(New Hi's)`, any, price, any, price, any,
+		`(New Lo's)`, any, price, any, price, any,
+	}
+
+	self.regex = regexp.MustCompile(strings.Join(rules, ``))
 
 	return self
 }
@@ -83,26 +104,7 @@ func (self *Market) trim(body []byte) []byte {
 
 //-----------------------------------------------------------------------------
 func (self *Market) extract(snippet []byte) *Market {
-	const any = `\s*<.+?>`
-	const some = `<.+?`
-	const space = `\s*`
-	const color = `#([08c]{6});">\s*`
-	const price = `([\d\.,]+)`
-	const percent = `\(([\d\.,%]+)\)`
-
-	regex := []string{
-		`(Dow)`, any, price, some, color, price, some, percent, any,
-		`(Nasdaq)`, any, price, some, color, price, some, percent, any,
-		`(S&P 500)`, any, price, some, color, price, some, percent, any,
-		`(Advances)`, any, price, space, percent, any, price, space, percent, any,
-		`(Declines)`, any, price, space, percent, any, price, space, percent, any,
-		`(Unchanged)`, any, price, space, percent, any, price, space, percent, any,
-		`(New Hi's)`, any, price, any, price, any,
-		`(New Lo's)`, any, price, any, price, any,
-	}
-
-	re := regexp.MustCompile(strings.Join(regex, ``))
-	matches := re.FindAllStringSubmatch(string(snippet), -1)
+	matches := self.regex.FindAllStringSubmatch(string(snippet), -1)
 
 	// if len(matches) > 0 {
 	//         fmt.Printf("%d matches\n", len(matches[0]))
@@ -112,7 +114,6 @@ func (self *Market) extract(snippet []byte) *Market {
 	// } else {
 	//         println(`No matches`)
 	// }
-
 
 	self.Dow[`name`] = matches[0][1]
 	self.Dow[`latest`] = matches[0][2]

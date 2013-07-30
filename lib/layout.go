@@ -47,41 +47,18 @@ func (self *Layout) Initialize() *Layout {
 
 //-----------------------------------------------------------------------------
 func (self *Layout) Market(m *Market) string {
-	markup := `{{.Dow.name}}: `
-	if m.Dow[`change`][0:1] != `-` {
-		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</> at {{.Dow.latest}}, `
-	} else {
-		markup += `{{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, `
-	}
-	markup += `{{.Sp500.name}}: `
-	if m.Sp500[`change`][0:1] != `-` {
-		markup += `<green>{{.Sp500.change}} ({{.Sp500.percent}})</> at {{.Sp500.latest}}, `
-	} else {
-		markup += `{{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, `
-	}
-	markup += `{{.Nasdaq.name}}: `
-	if m.Nasdaq[`change`][0:1] != `-` {
-		markup += `<green>{{.Nasdaq.change}} ({{.Nasdaq.percent}})</> at {{.Nasdaq.latest}}`
-	} else {
-		markup += `{{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}`
-	}
-	markup += "\n"
-	markup += `{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. `
-	markup += `{{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq`
-	if m.IsClosed {
-		markup += `<right>U.S. markets closed</right>`
-	}
-	markup += "\n"
-	markup += `New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. `
-	markup += `New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
+	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, {{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, {{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
+{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. {{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
+New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
+
 	template, err := template.New(`market`).Parse(markup)
 	if err != nil {
 		panic(err)
 	}
 
 	buffer := new(bytes.Buffer)
-	err = template.Execute(buffer, m)
-	if err != nil {
+	highlight(m.Dow, m.Sp500, m.Nasdaq)
+	if err = template.Execute(buffer, m); err != nil {
 		panic(err)
 	}
 
@@ -171,6 +148,15 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 	}
 
 	return pretty
+}
+
+//-----------------------------------------------------------------------------
+func highlight(collections ...map[string]string) {
+	for _, collection := range collections {
+		if collection[`change`][0:1] != `-` {
+			collection[`change`] = `<green>` + collection[`change`] + `</>`
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
