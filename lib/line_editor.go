@@ -32,7 +32,7 @@ func (self *LineEditor) Prompt(command rune) {
 		self.prompt = prompt
 		self.command = command
 
-		self.screen.DrawLine(0, 3, `<white>` + self.prompt + `</white>`)
+		self.screen.DrawLine(0, 3, `<white>` + self.prompt + `</>`)
 		termbox.SetCursor(len(self.prompt), 3)
 		termbox.Flush()
 	}

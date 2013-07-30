@@ -151,7 +151,7 @@ func (self *Quotes) sanitize(body []byte) []byte {
 //-----------------------------------------------------------------------------
 func (stock *Stock) Color() string {
 	if strings.Index(stock.Change, "-") == -1 {
-		return `</green><green>`
+		return `</><green>`
 	} else {
 		return `` // `</red><red>`
 	}

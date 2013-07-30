@@ -3,18 +3,15 @@
 package mop
 
 import (
-	`github.com/michaeldv/just`
 	`github.com/nsf/termbox-go`
-	`regexp`
 	`strings`
 	`time`
 )
 
 type Screen struct {
-	width	int
-	height	int
-	cleared bool
-	tags	map[string]termbox.Attribute
+	width	 int
+	height	 int
+	cleared  bool
 }
 
 //-----------------------------------------------------------------------------
@@ -24,28 +21,14 @@ func (self *Screen) Initialize() *Screen {
 		panic(err)
 	}
 
-	self.Resize()
-	self.tags = make(map[string]termbox.Attribute)
-	self.tags[`black`]   = termbox.ColorBlack
-	self.tags[`red`]     = termbox.ColorRed
-	self.tags[`green`]   = termbox.ColorGreen
-	self.tags[`yellow`]  = termbox.ColorYellow
-	self.tags[`blue`]    = termbox.ColorBlue
-	self.tags[`magenta`] = termbox.ColorMagenta
-	self.tags[`cyan`]    = termbox.ColorCyan
-	self.tags[`white`]   = termbox.ColorWhite
-	self.tags[`right`]   = termbox.ColorDefault	// Termbox can combine attributes and a single color using bitwise OR.
-	self.tags[`b`]       = termbox.AttrBold		// Attribute = 1 << (iota + 4)
-	self.tags[`u`]       = termbox.AttrUnderline
-	self.tags[`r`]       = termbox.AttrReverse
-
-	return self
+	return self.Resize()
 }
 
 //-----------------------------------------------------------------------------
 func (self *Screen) Resize() *Screen {
 	self.width, self.height = termbox.Size()
 	self.cleared = false
+
 	return self
 }
 
@@ -53,12 +36,15 @@ func (self *Screen) Resize() *Screen {
 func (self *Screen) Clear() *Screen {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	self.cleared = true
+
 	return self
 }
 
 //-----------------------------------------------------------------------------
-func (self *Screen) Close() {
+func (self *Screen) Close() *Screen {
 	termbox.Close()
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
@@ -92,42 +78,20 @@ func (self *Screen) ClearLine(x int, y int) {
 
 //-----------------------------------------------------------------------------
 func (self *Screen) DrawLine(x int, y int, str string) {
-	column, right := 0, false
-	foreground, background := termbox.ColorDefault, termbox.ColorDefault
+	start, column := 0, 0
 
-	for _, token := range just.Split(self.possible_tags(), str) {
-		if tag, open := self.is_tag(token); tag {
-			key := self.tag_name(token)
-			if value, ok := self.tags[key]; ok {
-				token = ``
-				switch key {
-				case `right`:
-					right = open
-				default:
-					if open {
-						if value >= termbox.AttrBold {
-							foreground |= value
-						} else {
-							foreground = value
-						}
-					} else {
-						if value >= termbox.AttrBold {
-							foreground &= ^value
-						} else {
-							foreground = termbox.ColorDefault
-						}
-					}
+	markup := new(Markup).Initialize()
+	for _, token := range markup.Tokenize(str) {
+		if !markup.IsTag(token) {
+			for i, char := range token {
+				if !markup.RightAligned {
+					start = x + column
+					column++
+				} else {
+					start = self.width - len(token) + i
 				}
+				termbox.SetCell(start, y, char, markup.Foreground, markup.Background)
 			}
-		}
-
-		for i, char := range token {
-			if !right {
-				termbox.SetCell(x+column, y, char, foreground, background)
-			} else {
-				termbox.SetCell(self.width-len(token)+i, y, char, foreground, background)
-			}
-			column++
 		}
 	}
 	termbox.Flush()
@@ -141,41 +105,5 @@ func (self *Screen) draw(str string) {
 	}
 	for row, line := range strings.Split(str, "\n") {
 		self.DrawLine(0, row, line)
-	}
-}
-
-//
-// Return regular expression that matches all possible tags, i.e.
-// </?black>|</?red>| ... |</?white>
-//-----------------------------------------------------------------------------
-func (self *Screen) possible_tags() *regexp.Regexp {
-	arr := []string{}
-
-	for tag, _ := range self.tags {
-		arr = append(arr, `</?` + tag + `>`)
-	}
-
-	return regexp.MustCompile(strings.Join(arr, `|`))
-}
-
-//
-// Return true if a string looks like a tag.
-//-----------------------------------------------------------------------------
-func (self *Screen) is_tag(str string) (is bool, open bool) {
-	is = (len(str) > 2 && str[0:1] == `<` && str[len(str)-1:] == `>`)
-	open = (is && str[1:2] != `/`)
-	return
-}
-
-//
-// Extract tag name from the given tag, i.e. `<hello>` => `hello`
-//-----------------------------------------------------------------------------
-func (self *Screen) tag_name(str string) string {
-	if len(str) < 3 {
-		return ``
-	} else if str[1:2] != `/` {
-		return str[1 : len(str)-1]
-	} else {
-		return str[2 : len(str)-1]
 	}
 }

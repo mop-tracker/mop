@@ -49,19 +49,19 @@ func (self *Layout) Initialize() *Layout {
 func (self *Layout) Market(m *Market) string {
 	markup := `{{.Dow.name}}: `
 	if m.Dow[`change`][0:1] != `-` {
-		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</green> at {{.Dow.latest}}, `
+		markup += `<green>{{.Dow.change}} ({{.Dow.percent}})</> at {{.Dow.latest}}, `
 	} else {
 		markup += `{{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, `
 	}
 	markup += `{{.Sp500.name}}: `
 	if m.Sp500[`change`][0:1] != `-` {
-		markup += `<green>{{.Sp500.change}} ({{.Sp500.percent}})</green> at {{.Sp500.latest}}, `
+		markup += `<green>{{.Sp500.change}} ({{.Sp500.percent}})</> at {{.Sp500.latest}}, `
 	} else {
 		markup += `{{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, `
 	}
 	markup += `{{.Nasdaq.name}}: `
 	if m.Nasdaq[`change`][0:1] != `-` {
-		markup += `<green>{{.Nasdaq.change}} ({{.Nasdaq.percent}})</green> at {{.Nasdaq.latest}}`
+		markup += `<green>{{.Nasdaq.change}} ({{.Nasdaq.percent}})</> at {{.Nasdaq.latest}}`
 	} else {
 		markup += `{{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}`
 	}
@@ -100,7 +100,7 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 		self.prettify(quotes),
 	}
 
-	markup := `<right><white>{{.Now}}</white></right>
+	markup := `<right><white>{{.Now}}</></right>
 
 
 
@@ -253,26 +253,6 @@ func percent(str string) string {
 		return `-`
 	} else {
 		return str + `%`
-	}
-}
-
-//-----------------------------------------------------------------------------
-func colorize(str string) string {
-	if str == `N/A` {
-		return `-`
-	} else if str[0:1] == `-` {
-		return `<red>` + str + `</red>`
-	} else {
-		return `<green>` + str + `</green>`
-	}
-}
-
-//-----------------------------------------------------------------------------
-func ticker(str string, change string) string {
-	if change[0:1] == `-` {
-		return `<red>` + str + `</red>`
-	} else {
-		return `<green>` + str + `</green>`
 	}
 }
 
