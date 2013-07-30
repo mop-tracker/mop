@@ -105,7 +105,7 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 
 
 {{.Header}}
-{{range.Stocks}}{{.Color}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}
+{{range.Stocks}}{{.Color}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}{{.ResetColor}}
 {{end}}`
 	//markup += fmt.Sprintf("[%v]", quotes.profile.Grouped)
 	template, err := template.New(`quotes`).Parse(markup)

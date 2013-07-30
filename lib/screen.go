@@ -12,14 +12,15 @@ type Screen struct {
 	width	 int
 	height	 int
 	cleared  bool
+	markup   *Markup
 }
 
 //-----------------------------------------------------------------------------
 func (self *Screen) Initialize() *Screen {
-	err := termbox.Init()
-	if err != nil {
+	if err := termbox.Init(); err != nil {
 		panic(err)
 	}
+	self.markup = new(Markup).Initialize()
 
 	return self.Resize()
 }
@@ -80,17 +81,16 @@ func (self *Screen) ClearLine(x int, y int) {
 func (self *Screen) DrawLine(x int, y int, str string) {
 	start, column := 0, 0
 
-	markup := new(Markup).Initialize()
-	for _, token := range markup.Tokenize(str) {
-		if !markup.IsTag(token) {
+	for _, token := range self.markup.Tokenize(str) {
+		if !self.markup.IsTag(token) {
 			for i, char := range token {
-				if !markup.RightAligned {
+				if !self.markup.RightAligned {
 					start = x + column
 					column++
 				} else {
 					start = self.width - len(token) + i
 				}
-				termbox.SetCell(start, y, char, markup.Foreground, markup.Background)
+				termbox.SetCell(start, y, char, self.markup.Foreground, self.markup.Background)
 			}
 		}
 	}
