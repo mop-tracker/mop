@@ -8,14 +8,30 @@ import (
 	`time`
 )
 
+const help = `Mop v0.1.0 -- Copyright (c) 2013 Michael Dvorkin. All Rights Reserved.
+NO WARRANTIES OF ANY KIND WHATSOEVER. USE AT YOUR OWN DISCRETION.
+
+<u>Command</u>    <u>Description                                </u>
+   +       Add stocks to the list.
+   -       Remove stocks from the list.
+   o       Change default sorting order.
+   g       Group stocks by advancing/declining issues.
+   ?       Display this help screen.
+  esc      Quit mop.
+
+<r> Press any key to continue </r>
+`
+
 //-----------------------------------------------------------------------------
-func mainLoop(screen *mop.Screen, profile *mop.Profile) {
+func main_loop(screen *mop.Screen, profile *mop.Profile) {
 	var line_editor *mop.LineEditor
 	var column_editor *mop.ColumnEditor
+
 	keyboard_queue := make(chan termbox.Event)
 	timestamp_queue := time.NewTicker(1 * time.Second)
 	quotes_queue := time.NewTicker(5 * time.Second)
 	market_queue := time.NewTicker(12 * time.Second)
+	showing_help := false
 
 	go func() {
 		for {
@@ -23,7 +39,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 		}
 	}()
 
-	market := new(mop.Market).Initialize().Fetch()
+	market := new(mop.Market).Initialize()
 	quotes := new(mop.Quotes).Initialize(market, profile)
 	screen.Draw(market, quotes)
 
@@ -33,7 +49,7 @@ loop:
 		case event := <-keyboard_queue:
 			switch event.Type {
 			case termbox.EventKey:
-				if line_editor == nil && column_editor == nil {
+				if line_editor == nil && column_editor == nil && !showing_help {
 					if event.Key == termbox.KeyEsc {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
@@ -44,6 +60,9 @@ loop:
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						profile.Regroup()
 						screen.Draw(quotes)
+					} else if event.Ch == '?' || event.Ch == 'h' || event.Ch == 'H' {
+						showing_help = true
+						screen.Clear().Draw(help)
 					}
 				} else if line_editor != nil {
 					done := line_editor.Handle(event)
@@ -55,20 +74,33 @@ loop:
 					if done {
 						column_editor = nil
 					}
+				} else if showing_help {
+					showing_help = false
+					screen.Clear().Draw(market, quotes)
 				}
 			case termbox.EventResize:
 				screen.Resize()
-				screen.Draw(market, quotes)
+				if !showing_help {
+					screen.Draw(market, quotes)
+				} else {
+					screen.Draw(help)
+				}
 			}
 
 		case <-timestamp_queue.C:
-			screen.DrawTime()
+			if !showing_help {
+				screen.DrawTime()
+			}
 
 		case <-quotes_queue.C:
-			screen.Draw(quotes)
+			if !showing_help {
+				screen.Draw(quotes)
+			}
 
 		case <-market_queue.C:
-			screen.Draw(market)
+			if !showing_help {
+				screen.Draw(market)
+			}
 		}
 	}
 }
@@ -79,5 +111,5 @@ func main() {
 	defer screen.Close()
 
 	profile := new(mop.Profile).Initialize()
-	mainLoop(screen, profile)
+	main_loop(screen, profile)
 }

@@ -58,6 +58,8 @@ func (self *Screen) Draw(objects ...interface{}) {
 		case *Quotes:
 			object := ptr.(*Quotes)
 			self.draw(object.Fetch().Format())
+		default:
+			self.draw(ptr.(string))
 		}
 	}
 }
