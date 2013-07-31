@@ -26,7 +26,7 @@ func (self *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) Prompt(command rune) {
+func (self *LineEditor) Prompt(command rune) *LineEditor {
 	prompts := map[rune]string{'+': `Add tickers: `, '-': `Remove tickers: `}
 	if prompt, ok := prompts[command]; ok {
 		self.prompt = prompt
@@ -36,6 +36,8 @@ func (self *LineEditor) Prompt(command rune) {
 		termbox.SetCursor(len(self.prompt), 3)
 		termbox.Flush()
 	}
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
@@ -44,13 +46,10 @@ func (self *LineEditor) Handle(ev termbox.Event) bool {
 
 	switch ev.Key {
 	case termbox.KeyEsc:
-		self.done()
-		return true
+		return self.done()
 
 	case termbox.KeyEnter:
-		self.execute()
-		self.done()
-		return true
+		return self.execute().done()
 
         case termbox.KeyBackspace, termbox.KeyBackspace2:
 		self.delete_previous_character()
@@ -75,12 +74,12 @@ func (self *LineEditor) Handle(ev termbox.Event) bool {
 			self.insert_character(ev.Ch)
 		}
 	}
-	//self.screen.DrawLine(20,20, fmt.Sprintf(`cursor: %02d [%s] %08d`, self.cursor, self.input, ev.Ch))
+
 	return false
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) delete_previous_character() {
+func (self *LineEditor) delete_previous_character() *LineEditor {
 	if self.cursor > 0 {
 		if self.cursor < len(self.input) {
 			// Remove character in the middle of the input string.
@@ -92,10 +91,12 @@ func (self *LineEditor) delete_previous_character() {
 		self.screen.DrawLine(len(self.prompt), 3, self.input + ` `) // Erase last character.
 		self.move_left()
 	}
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) insert_character(ch rune) {
+func (self *LineEditor) insert_character(ch rune) *LineEditor {
 	if self.cursor < len(self.input) {
 		// Insert the character in the middle of the input string.
 		self.input = self.input[0 : self.cursor] + string(ch) + self.input[self.cursor : len(self.input)]
@@ -105,44 +106,48 @@ func (self *LineEditor) insert_character(ch rune) {
 	}
 	self.screen.DrawLine(len(self.prompt), 3, self.input)
 	self.move_right()
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) move_left() {
+func (self *LineEditor) move_left() *LineEditor {
 	if self.cursor > 0 {
-		self.cursor -= 1
+		self.cursor--
 		termbox.SetCursor(len(self.prompt) + self.cursor, 3)
 	}
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) move_right() {
+func (self *LineEditor) move_right() *LineEditor {
 	if self.cursor < len(self.input) {
-		self.cursor += 1
+		self.cursor++
 		termbox.SetCursor(len(self.prompt) + self.cursor, 3)
 	}
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) jump_to_beginning() {
+func (self *LineEditor) jump_to_beginning() *LineEditor {
 	self.cursor = 0
 	termbox.SetCursor(len(self.prompt) + self.cursor, 3)
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) jump_to_end() {
+func (self *LineEditor) jump_to_end() *LineEditor {
 	self.cursor = len(self.input)
 	termbox.SetCursor(len(self.prompt) + self.cursor, 3)
+
+	return self
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) done() {
-	self.screen.ClearLine(0, 3)
-	termbox.HideCursor()
-}
-
-//-----------------------------------------------------------------------------
-func (self *LineEditor) execute() {
+func (self *LineEditor) execute() *LineEditor {
 	switch self.command {
 	case '+':
 		tickers := self.tokenize()
@@ -164,6 +169,16 @@ func (self *LineEditor) execute() {
 			}
 		}
 	}
+
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *LineEditor) done() bool {
+	self.screen.ClearLine(0, 3)
+	termbox.HideCursor()
+
+	return true
 }
 
 //-----------------------------------------------------------------------------

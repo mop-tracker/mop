@@ -65,13 +65,11 @@ loop:
 						screen.Clear().Draw(help)
 					}
 				} else if line_editor != nil {
-					done := line_editor.Handle(event)
-					if done {
+					if done := line_editor.Handle(event); done {
 						line_editor = nil
 					}
 				} else if column_editor != nil {
-					done := column_editor.Handle(event)
-					if done {
+					if done := column_editor.Handle(event); done {
 						column_editor = nil
 					}
 				} else if showing_help {
