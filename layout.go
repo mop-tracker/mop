@@ -82,7 +82,7 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 
 
 {{.Header}}
-{{range.Stocks}}{{.Color}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}{{.ResetColor}}
+{{range.Stocks}}{{if .Advancing}}<green>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}</>
 {{end}}`
 	//markup += fmt.Sprintf("[%v]", quotes.profile.Grouped)
 	template, err := template.New(`quotes`).Parse(markup)
@@ -135,6 +135,7 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 		pretty[i].Dividend  = pad(blank_currency(q.Dividend), self.columns[12].width)
 		pretty[i].Yield     = pad(percent(q.Yield),           self.columns[13].width)
 		pretty[i].MarketCap = pad(currency(q.MarketCapX),     self.columns[14].width)
+		pretty[i].Advancing = q.Advancing
 	}
 
 	profile := quotes.profile

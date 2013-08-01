@@ -7,7 +7,6 @@ import (
 	`fmt`
 	`io/ioutil`
 	`net/http`
-	`strings`
 )
 
 // See http://www.gummy-stuff.org/Yahoo-stocks.htm
@@ -54,6 +53,7 @@ type Stock struct {
 	Yield       string
 	MarketCap   string
 	MarketCapX  string
+	Advancing   bool
 }
 
 type Quotes struct {
@@ -138,6 +138,7 @@ func (self *Quotes) parse(body []byte) *Quotes {
 		self.stocks[i].Yield       = string(columns[14])
 		self.stocks[i].MarketCap   = string(columns[15])
 		self.stocks[i].MarketCapX  = string(columns[16])
+		self.stocks[i].Advancing   = self.stocks[i].Change[0:1] != `-`
 	}
 
 	return self
@@ -147,21 +148,3 @@ func (self *Quotes) parse(body []byte) *Quotes {
 func (self *Quotes) sanitize(body []byte) []byte {
 	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
 }
-
-//-----------------------------------------------------------------------------
-func (stock *Stock) Color() string {
-	if strings.Index(stock.Change, "-") == -1 {
-		return `<green>`
-	} else {
-		return ``
-	}
-}
-
-func (stock *Stock) ResetColor() string {
-	if strings.Index(stock.Change, "-") == -1 {
-		return `</>`
-	} else {
-		return ``
-	}
-}
-
