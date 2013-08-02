@@ -70,9 +70,10 @@ func (self *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
 	return self
 }
 
-//-----------------------------------------------------------------------------
+// Fetch the latest stock quotes and parse raw fetched data into array of
+// []Stock structs.
 func (self *Quotes) Fetch() *Quotes {
-	if !self.market.IsClosed || self.stocks == nil {
+	if self.Ready() {
 		// Format the URL and send the request.
 		url := fmt.Sprintf(yahoo_quotes_url, self.profile.ListOfTickers())
 		response, err := http.Get(url)
@@ -92,6 +93,14 @@ func (self *Quotes) Fetch() *Quotes {
 
 	return self
 }
+
+// Return true if we haven't fetched the quotes yet *or* the stock market is
+// still open and we might want to grab the latest quotes. In both cases we
+// make sure the list of requested tickers is not empty.
+func (self *Quotes) Ready() bool {
+	return (self.stocks == nil || !self.market.IsClosed) && len(self.profile.Tickers) > 0
+}
+
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Format() string {

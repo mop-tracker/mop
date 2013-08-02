@@ -49,7 +49,7 @@ func (self *Screen) Close() *Screen {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Screen) Draw(objects ...interface{}) {
+func (self *Screen) Draw(objects ...interface{}) *Screen {
 	for _, ptr := range objects {
 		switch ptr.(type) {
 		case *Market:
@@ -57,11 +57,15 @@ func (self *Screen) Draw(objects ...interface{}) {
 			self.draw(object.Fetch().Format())
 		case *Quotes:
 			object := ptr.(*Quotes)
-			self.draw(object.Fetch().Format())
+			if object.Ready() {
+				self.draw(object.Fetch().Format())
+			}
 		default:
 			self.draw(ptr.(string))
 		}
 	}
+
+	return self
 }
 
 //-----------------------------------------------------------------------------

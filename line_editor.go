@@ -166,6 +166,9 @@ func (self *LineEditor) execute() *LineEditor {
 				for i := before; i > after; i-- {
 					self.screen.ClearLine(0, i + 4)
 				}
+				if after == 0 {	// Hide quotes header is the are no tickers left.
+					self.screen.ClearLine(0, 4)
+				}
 			}
 		}
 	}
