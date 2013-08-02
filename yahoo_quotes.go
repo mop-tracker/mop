@@ -124,6 +124,14 @@ func (self *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 }
 
 //-----------------------------------------------------------------------------
+func (self *Quotes) UpdateSortOrder() (updated bool, err error) {
+	if updated, err = self.profile.UpdateSortOrder(); updated {
+		self.stocks = nil	// Force fetch.
+	}
+	return
+}
+
+//-----------------------------------------------------------------------------
 func (self *Quotes) parse(body []byte) *Quotes {
 	lines := bytes.Split(body, []byte{'\n'})
 	self.stocks = make([]Stock, len(lines))

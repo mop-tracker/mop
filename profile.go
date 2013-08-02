@@ -97,6 +97,18 @@ func (self *Profile) RemoveTickers(tickers []string) (removed int, err error) {
 	return
 }
 
+//-----------------------------------------------------------------------------
+func (self *Profile) UpdateSortOrder() (updated bool, err error) {
+	if self.selected_column == self.SortColumn {
+		self.Ascending = !self.Ascending
+	} else {
+		self.SortColumn = self.selected_column
+	}
+	err = self.Save()
+	updated = (err == nil)
+	return
+}
+
 // private
 //-----------------------------------------------------------------------------
 func (self *Profile) default_file_name() string {

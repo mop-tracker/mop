@@ -132,7 +132,7 @@ func extract_tag_name(str string) string {
 		return str[1 : len(str)-1]
 	} else if len(str) > 3 {
 		return str[2 : len(str)-1]
-	} else {
-		return `/`
 	}
+
+	return `/`
 }

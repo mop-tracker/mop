@@ -36,9 +36,9 @@ func (self *Layout) Initialize() *Layout {
 		{ 10, `52w High` },
 		{ 11, `Volume` },
 		{ 11, `AvgVolume` },
-		{ 10, `P/E` },
-		{ 10, `Dividend` },
-		{ 10, `Yield` },
+		{  9, `P/E` },
+		{  9, `Dividend` },
+		{  9, `Yield` },
 		{ 11, `MktCap` },
 	}
 
@@ -186,9 +186,8 @@ func arrow_for(column int, profile *Profile) string {
 	if column == profile.SortColumn {
 		if profile.Ascending {
 			return string('\U00002191')
-		} else {
-			return string('\U00002193')
 		}
+		return string('\U00002193')
 	}
 	return ``
 }
@@ -197,50 +196,48 @@ func arrow_for(column int, profile *Profile) string {
 func blank(str string) string {
 	if len(str) == 3 && str[0:3] == `N/A` {
 		return `-`
-	} else {
-		return str
 	}
+
+	return str
 }
 
 //-----------------------------------------------------------------------------
 func blank_currency(str string) string {
 	if str == `0.00` {
 		return `-`
-	} else {
-		return currency(str)
 	}
+
+	return currency(str)
 }
 
 //-----------------------------------------------------------------------------
 func last(str string) string {
 	if len(str) >= 6 && str[0:6] != `N/A - ` {
 		return str
-	} else {
-		return str[6:]
 	}
+
+	return str[6:]
 }
 
 //-----------------------------------------------------------------------------
 func currency(str string) string {
 	if str == `N/A` {
 		return `-`
-	} else {
-		switch str[0:1] {
-		case `+`, `-`:
-			return str[0:1] + `$` + str[1:]
-		default:
-			return `$` + str
-		}
 	}
+	if sign := str[0:1]; sign == `+` || sign == `-` {
+		return sign + `$` + str[1:]
+	}
+
+	return `$` + str
 }
 
 //-----------------------------------------------------------------------------
 func percent(str string) string {
 	if str == `N/A` {
 		return `-`
-	} else {
-		return str + `%`
 	}
+
+	return str + `%`
 }
 
 //-----------------------------------------------------------------------------

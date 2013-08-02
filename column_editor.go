@@ -72,13 +72,10 @@ func (self *ColumnEditor) select_right_column() *ColumnEditor {
 
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) execute() *ColumnEditor {
-	if self.profile.selected_column == self.profile.SortColumn {
-		self.profile.Ascending = !self.profile.Ascending
-	} else {
-		self.profile.SortColumn = self.profile.selected_column
+	if updated,_ := self.quotes.UpdateSortOrder(); updated {
+		self.screen.Draw(self.quotes)
 	}
-	self.profile.Save()
-	self.screen.Draw(self.quotes)
+
 	return self
 }
 
