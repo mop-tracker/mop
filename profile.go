@@ -57,12 +57,6 @@ func (self *Profile) ListOfTickers() string {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Profile) Regroup() error {
-	self.Grouped = !self.Grouped
-	return self.Save()
-}
-
-//-----------------------------------------------------------------------------
 func (self *Profile) AddTickers(tickers []string) (added int, err error) {
 	added = 0
 	existing := make(map[string]bool)
@@ -98,15 +92,19 @@ func (self *Profile) RemoveTickers(tickers []string) (removed int, err error) {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Profile) UpdateSortOrder() (updated bool, err error) {
+func (self *Profile) Reorder() error {
 	if self.selected_column == self.SortColumn {
 		self.Ascending = !self.Ascending
 	} else {
 		self.SortColumn = self.selected_column
 	}
-	err = self.Save()
-	updated = (err == nil)
-	return
+	return self.Save()
+}
+
+//-----------------------------------------------------------------------------
+func (self *Profile) Regroup() error {
+	self.Grouped = !self.Grouped
+	return self.Save()
 }
 
 // private

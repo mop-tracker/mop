@@ -109,7 +109,7 @@ func (self *Quotes) Format() string {
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) AddTickers(tickers []string) (added int, err error) {
-	if added, err = self.profile.AddTickers(tickers); added > 0 {
+	if added, err = self.profile.AddTickers(tickers); err == nil && added > 0 {
 		self.stocks = nil	// Force fetch.
 	}
 	return
@@ -117,18 +117,28 @@ func (self *Quotes) AddTickers(tickers []string) (added int, err error) {
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
-	if removed, err = self.profile.RemoveTickers(tickers); removed > 0 {
+	if removed, err = self.profile.RemoveTickers(tickers); err == nil && removed > 0 {
 		self.stocks = nil	// Force fetch.
 	}
 	return
 }
 
 //-----------------------------------------------------------------------------
-func (self *Quotes) UpdateSortOrder() (updated bool, err error) {
-	if updated, err = self.profile.UpdateSortOrder(); updated {
+func (self *Quotes) Reorder() *Quotes {
+	if self.profile.Reorder() == nil {
 		self.stocks = nil	// Force fetch.
 	}
-	return
+
+	return self
+}
+
+//-----------------------------------------------------------------------------
+func (self *Quotes) Regroup() *Quotes {
+	if self.profile.Regroup() == nil {
+		self.stocks = nil	// Force fetch.
+	}
+
+	return self
 }
 
 //-----------------------------------------------------------------------------

@@ -72,9 +72,7 @@ func (self *ColumnEditor) select_right_column() *ColumnEditor {
 
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) execute() *ColumnEditor {
-	if updated,_ := self.quotes.UpdateSortOrder(); updated {
-		self.screen.Draw(self.quotes)
-	}
+	self.screen.Draw(self.quotes.Reorder())
 
 	return self
 }
