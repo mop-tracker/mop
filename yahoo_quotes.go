@@ -124,24 +124,6 @@ func (self *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Quotes) Reorder() *Quotes {
-	if self.profile.Reorder() == nil {
-		self.stocks = nil	// Force fetch.
-	}
-
-	return self
-}
-
-//-----------------------------------------------------------------------------
-func (self *Quotes) Regroup() *Quotes {
-	if self.profile.Regroup() == nil {
-		self.stocks = nil	// Force fetch.
-	}
-
-	return self
-}
-
-//-----------------------------------------------------------------------------
 func (self *Quotes) parse(body []byte) *Quotes {
 	lines := bytes.Split(body, []byte{'\n'})
 	self.stocks = make([]Stock, len(lines))

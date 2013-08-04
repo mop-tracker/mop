@@ -57,9 +57,7 @@ func (self *Screen) Draw(objects ...interface{}) *Screen {
 			self.draw(object.Fetch().Format())
 		case *Quotes:
 			object := ptr.(*Quotes)
-			if object.Ready() {
-				self.draw(object.Fetch().Format())
-			}
+			self.draw(object.Fetch().Format())
 		default:
 			self.draw(ptr.(string))
 		}

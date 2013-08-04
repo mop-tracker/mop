@@ -58,7 +58,9 @@ loop:
 					} else if event.Ch == 'o' || event.Ch == 'O' {
 						column_editor = new(mop.ColumnEditor).Initialize(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
-						screen.Draw(quotes.Regroup())
+						if profile.Regroup() == nil {
+							screen.Draw(quotes)
+						}
 					} else if event.Ch == '?' || event.Ch == 'h' || event.Ch == 'H' {
 						showing_help = true
 						screen.Clear().Draw(help)
