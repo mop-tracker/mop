@@ -1,5 +1,7 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 package main
 
 import (
@@ -9,7 +11,7 @@ import (
 )
 
 const help = `Mop v0.1.0 -- Copyright (c) 2013 Michael Dvorkin. All Rights Reserved.
-NO WARRANTIES OF ANY KIND WHATSOEVER. USE AT YOUR OWN DISCRETION.
+NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 
 <u>Command</u>    <u>Description                                </u>
    +       Add stocks to the list.
@@ -18,6 +20,8 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. USE AT YOUR OWN DISCRETION.
    g       Group stocks by advancing/declining issues.
    ?       Display this help screen.
   esc      Quit mop.
+
+Enter comma-delimited list of stock tickers when prompted.
 
 <r> Press any key to continue </r>
 `
