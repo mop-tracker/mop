@@ -1,5 +1,5 @@
 run:
-				go run ./mop/mop.go
+	go run ./cmd/mop.go
 
 install:
-				go install github.com/michaeldv/mop/mop
+	go install github.com/michaeldv/cmd/mop

@@ -4,7 +4,7 @@ package main
 
 import (
 	`github.com/michaeldv/mop`
-	`github.com/nsf/termbox-go`
+	`github.com/michaeldv/termbox-go`
 	`time`
 )
 

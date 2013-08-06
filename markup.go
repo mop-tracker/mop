@@ -3,7 +3,7 @@
 package mop
 
 import (
-	`github.com/nsf/termbox-go`
+	`github.com/michaeldv/termbox-go`
 	`regexp`
 	`strings`
 )

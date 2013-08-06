@@ -5,7 +5,7 @@ package mop
 import (
 	`regexp`
 	`strings`
-	`github.com/nsf/termbox-go`
+	`github.com/michaeldv/termbox-go`
 )
 
 type LineEditor struct {
