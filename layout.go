@@ -48,7 +48,11 @@ func (self *Layout) Initialize() *Layout {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Layout) Market(m *Market) string {
+func (self *Layout) Market(market *Market) string {
+	if ok, err := market.Ok(); !ok {
+		return err
+	}
+
 	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, {{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, {{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
 {{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. {{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
 New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
@@ -59,8 +63,8 @@ New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. New lows: {{
 	}
 
 	buffer := new(bytes.Buffer)
-	highlight(m.Dow, m.Sp500, m.Nasdaq)
-	if err = template.Execute(buffer, m); err != nil {
+	highlight(market.Dow, market.Sp500, market.Nasdaq)
+	if err := template.Execute(buffer, market); err != nil {
 		panic(err)
 	}
 

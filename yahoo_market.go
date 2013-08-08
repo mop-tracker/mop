@@ -5,6 +5,7 @@
 package mop
 
 import (
+	`fmt`
 	`bytes`
 	`io/ioutil`
 	`net/http`
@@ -12,8 +13,9 @@ import (
 	`strings`
 )
 
+const url = `http://finance.yahoo.com/marketupdate/overview`
+
 type Market struct {
-	regex      *regexp.Regexp
 	IsClosed   bool
 	Dow        map[string]string
 	Nasdaq     map[string]string
@@ -23,6 +25,8 @@ type Market struct {
 	Unchanged  map[string]string
 	Highs      map[string]string
 	Lows       map[string]string
+	regex      *regexp.Regexp
+	errors     string
 }
 
 //-----------------------------------------------------------------------------
@@ -36,6 +40,7 @@ func (self *Market) Initialize() *Market {
 	self.Unchanged  = make(map[string]string)
 	self.Highs      = make(map[string]string)
 	self.Lows       = make(map[string]string)
+	self.errors     = ``
 
 	const any = `\s*<.+?>`
 	const some = `<.+?`
@@ -61,13 +66,19 @@ func (self *Market) Initialize() *Market {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Market) Fetch() *Market {
-	response, err := http.Get(`http://finance.yahoo.com/marketupdate/overview`)
+func (self *Market) Fetch() (this *Market) {
+	this = self	// <-- This ensures we return correct self in case of panic attack.
+	defer func() {
+		if err := recover(); err != nil {
+			self.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
+		}
+	}()
+
+	response, err := http.Get(url)
 	if err != nil {
 		panic(err)
 	}
 
-	// Fetch response and get its body.
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -81,6 +92,11 @@ func (self *Market) Fetch() *Market {
 //-----------------------------------------------------------------------------
 func (self *Market) Format() string {
 	return new(Layout).Initialize().Market(self)
+}
+
+//-----------------------------------------------------------------------------
+func (self *Market) Ok() (bool, string) {
+	return self.errors == ``, self.errors
 }
 
 // private
@@ -107,15 +123,9 @@ func (self *Market) trim(body []byte) []byte {
 //-----------------------------------------------------------------------------
 func (self *Market) extract(snippet []byte) *Market {
 	matches := self.regex.FindAllStringSubmatch(string(snippet), -1)
-
-	// if len(matches) > 0 {
-	//         fmt.Printf("%d matches\n", len(matches[0]))
-	//         for i, str := range matches[0][1:] {
-	//                 fmt.Printf("%d) [%s]\n", i, str)
-	//         }
-	// } else {
-	//         println(`No matches`)
-	// }
+	if len(matches) < 1 || len(matches[0]) < 37 {
+		panic(`Unable to parse ` + url)
+	}
 
 	self.Dow[`name`] = matches[0][1]
 	self.Dow[`latest`] = matches[0][2]
