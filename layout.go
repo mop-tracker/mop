@@ -22,6 +22,7 @@ type Column struct {
 
 type Layout struct {
 	columns []Column
+	regex   *regexp.Regexp
 }
 
 //-----------------------------------------------------------------------------
@@ -43,6 +44,7 @@ func (self *Layout) Initialize() *Layout {
 		{  9, `Yield` },
 		{ 11, `MktCap` },
 	}
+	self.regex = regexp.MustCompile(`(\.\d+)[MB]?$`)
 
 	return self
 }
@@ -117,21 +119,21 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 	pretty := make([]Stock, len(quotes.stocks))
 
 	for i, q := range quotes.stocks {
-		pretty[i].Ticker    = pad(q.Ticker,                   self.columns[0].width)
-		pretty[i].LastTrade = pad(currency(q.LastTrade),      self.columns[1].width)
-		pretty[i].Change    = pad(currency(q.Change),         self.columns[2].width)
-		pretty[i].ChangePct = pad(last(q.ChangePct),          self.columns[3].width)
-		pretty[i].Open      = pad(currency(q.Open),           self.columns[4].width)
-		pretty[i].Low       = pad(currency(q.Low),            self.columns[5].width)
-		pretty[i].High      = pad(currency(q.High),           self.columns[6].width)
-		pretty[i].Low52     = pad(currency(q.Low52),          self.columns[7].width)
-		pretty[i].High52    = pad(currency(q.High52),         self.columns[8].width)
-		pretty[i].Volume    = pad(q.Volume,                   self.columns[9].width)
-		pretty[i].AvgVolume = pad(q.AvgVolume,                self.columns[10].width)
-		pretty[i].PeRatio   = pad(blank(q.PeRatioX),          self.columns[11].width)
-		pretty[i].Dividend  = pad(blank_currency(q.Dividend), self.columns[12].width)
-		pretty[i].Yield     = pad(percent(q.Yield),           self.columns[13].width)
-		pretty[i].MarketCap = pad(currency(q.MarketCapX),     self.columns[14].width)
+		pretty[i].Ticker    = self.pad(q.Ticker,                    0)
+		pretty[i].LastTrade = self.pad(currency(q.LastTrade),       1)
+		pretty[i].Change    = self.pad(currency(q.Change),          2)
+		pretty[i].ChangePct = self.pad(last(q.ChangePct),           3)
+		pretty[i].Open      = self.pad(currency(q.Open),            4)
+		pretty[i].Low       = self.pad(currency(q.Low),             5)
+		pretty[i].High      = self.pad(currency(q.High),            6)
+		pretty[i].Low52     = self.pad(currency(q.Low52),           7)
+		pretty[i].High52    = self.pad(currency(q.High52),          8)
+		pretty[i].Volume    = self.pad(q.Volume,                    9)
+		pretty[i].AvgVolume = self.pad(q.AvgVolume,                10)
+		pretty[i].PeRatio   = self.pad(blank(q.PeRatioX),          11)
+		pretty[i].Dividend  = self.pad(blank_currency(q.Dividend), 12)
+		pretty[i].Yield     = self.pad(percent(q.Yield),           13)
+		pretty[i].MarketCap = self.pad(currency(q.MarketCapX),     14)
 		pretty[i].Advancing = q.Advancing
 	}
 
@@ -149,6 +151,21 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 }
 
 //-----------------------------------------------------------------------------
+func (self *Layout) pad(str string, col int) string {
+	match := self.regex.FindStringSubmatch(str)
+	if len(match) > 0 {
+		switch len(match[1]) {
+		case 2:
+			str = strings.Replace(str, match[1], match[1] + `0`, 1)
+		case 4, 5:
+			str = strings.Replace(str, match[1], match[1][0:3], 1)
+		}
+	}
+
+	return fmt.Sprintf(`%*s`, self.columns[col].width, str)
+}
+
+//-----------------------------------------------------------------------------
 func highlight(collections ...map[string]string) {
 	for _, collection := range collections {
 		if collection[`change`][0:1] != `-` {
@@ -163,13 +180,13 @@ func group(stocks []Stock) []Stock {
 	current := 0
 
 	for _,stock := range stocks {
-		if strings.Index(stock.Change, "-") == -1 {
+		if stock.Advancing {
 			grouped[current] = stock
 			current++
 		}
 	}
 	for _,stock := range stocks {
-		if strings.Index(stock.Change, "-") != -1 {
+		if !stock.Advancing {
 			grouped[current] = stock
 			current++
 		}
@@ -235,20 +252,4 @@ func percent(str string) string {
 	}
 
 	return str + `%`
-}
-
-//-----------------------------------------------------------------------------
-func pad(str string, width int) string {
-	re := regexp.MustCompile(`(\.\d+)[MB]?$`)
-	match := re.FindStringSubmatch(str)
-	if len(match) > 0 {
-		switch len(match[1]) {
-		case 2:
-			str = strings.Replace(str, match[1], match[1] + `0`, 1)
-		case 4, 5:
-			str = strings.Replace(str, match[1], match[1][0:3], 1)
-		}
-	}
-
-	return fmt.Sprintf(`%*s`, width, str)
 }
