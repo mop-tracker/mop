@@ -1,6 +1,7 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
+//-----------------------------------------------------------------------------
 
 package mop
 
@@ -10,73 +11,73 @@ import (
 	`strconv`
 )
 
-type Sortable []Stock
-func (list Sortable) Len() int { return len(list) }
-func (list Sortable) Swap(i, j int) { list[i], list[j] = list[j], list[i] }
+type sortable []Stock
+func (list sortable) Len() int { return len(list) }
+func (list sortable) Swap(i, j int) { list[i], list[j] = list[j], list[i] }
 
-type ByTickerAsc       struct { Sortable }
-type ByLastTradeAsc    struct { Sortable }
-type ByChangeAsc       struct { Sortable }
-type ByChangePctAsc    struct { Sortable }
-type ByOpenAsc         struct { Sortable }
-type ByLowAsc          struct { Sortable }
-type ByHighAsc         struct { Sortable }
-type ByLow52Asc        struct { Sortable }
-type ByHigh52Asc       struct { Sortable }
-type ByVolumeAsc       struct { Sortable }
-type ByAvgVolumeAsc    struct { Sortable }
-type ByPeRatioAsc      struct { Sortable }
-type ByDividendAsc     struct { Sortable }
-type ByYieldAsc        struct { Sortable }
-type ByMarketCapAsc    struct { Sortable }
+type byTickerAsc       struct { sortable }
+type byLastTradeAsc    struct { sortable }
+type byChangeAsc       struct { sortable }
+type byChangePctAsc    struct { sortable }
+type byOpenAsc         struct { sortable }
+type byLowAsc          struct { sortable }
+type byHighAsc         struct { sortable }
+type byLow52Asc        struct { sortable }
+type byHigh52Asc       struct { sortable }
+type byVolumeAsc       struct { sortable }
+type byAvgVolumeAsc    struct { sortable }
+type byPeRatioAsc      struct { sortable }
+type byDividendAsc     struct { sortable }
+type byYieldAsc        struct { sortable }
+type byMarketCapAsc    struct { sortable }
                        
-type ByTickerDesc      struct { Sortable }
-type ByLastTradeDesc   struct { Sortable }
-type ByChangeDesc      struct { Sortable }
-type ByChangePctDesc   struct { Sortable }
-type ByOpenDesc        struct { Sortable }
-type ByLowDesc         struct { Sortable }
-type ByHighDesc        struct { Sortable }
-type ByLow52Desc       struct { Sortable }
-type ByHigh52Desc      struct { Sortable }
-type ByVolumeDesc      struct { Sortable }
-type ByAvgVolumeDesc   struct { Sortable }
-type ByPeRatioDesc     struct { Sortable }
-type ByDividendDesc    struct { Sortable }
-type ByYieldDesc       struct { Sortable }
-type ByMarketCapDesc   struct { Sortable }
+type byTickerDesc      struct { sortable }
+type byLastTradeDesc   struct { sortable }
+type byChangeDesc      struct { sortable }
+type byChangePctDesc   struct { sortable }
+type byOpenDesc        struct { sortable }
+type byLowDesc         struct { sortable }
+type byHighDesc        struct { sortable }
+type byLow52Desc       struct { sortable }
+type byHigh52Desc      struct { sortable }
+type byVolumeDesc      struct { sortable }
+type byAvgVolumeDesc   struct { sortable }
+type byPeRatioDesc     struct { sortable }
+type byDividendDesc    struct { sortable }
+type byYieldDesc       struct { sortable }
+type byMarketCapDesc   struct { sortable }
 
-func (list ByTickerAsc)       Less(i, j int) bool { return list.Sortable[i].Ticker        < list.Sortable[j].Ticker }
-func (list ByLastTradeAsc)    Less(i, j int) bool { return list.Sortable[i].LastTrade     < list.Sortable[j].LastTrade }
-func (list ByChangeAsc)       Less(i, j int) bool { return c(list.Sortable[i].Change)     < c(list.Sortable[j].Change) }
-func (list ByChangePctAsc)    Less(i, j int) bool { return c(list.Sortable[i].ChangePct)  < c(list.Sortable[j].ChangePct) }
-func (list ByOpenAsc)         Less(i, j int) bool { return list.Sortable[i].Open          < list.Sortable[j].Open }
-func (list ByLowAsc)          Less(i, j int) bool { return list.Sortable[i].Low           < list.Sortable[j].Low }
-func (list ByHighAsc)         Less(i, j int) bool { return list.Sortable[i].High          < list.Sortable[j].High }
-func (list ByLow52Asc)        Less(i, j int) bool { return list.Sortable[i].Low52         < list.Sortable[j].Low52 }
-func (list ByHigh52Asc)       Less(i, j int) bool { return list.Sortable[i].High52        < list.Sortable[j].High52 }
-func (list ByVolumeAsc)       Less(i, j int) bool { return list.Sortable[i].Volume        < list.Sortable[j].Volume }
-func (list ByAvgVolumeAsc)    Less(i, j int) bool { return list.Sortable[i].AvgVolume     < list.Sortable[j].AvgVolume }
-func (list ByPeRatioAsc)      Less(i, j int) bool { return list.Sortable[i].PeRatio       < list.Sortable[j].PeRatio }
-func (list ByDividendAsc)     Less(i, j int) bool { return list.Sortable[i].Dividend      < list.Sortable[j].Dividend }
-func (list ByYieldAsc)        Less(i, j int) bool { return list.Sortable[i].Yield         < list.Sortable[j].Yield }
-func (list ByMarketCapAsc)    Less(i, j int) bool { return m(list.Sortable[i].MarketCap)  < m(list.Sortable[j].MarketCap) }
+func (list byTickerAsc)       Less(i, j int) bool { return list.sortable[i].Ticker        < list.sortable[j].Ticker }
+func (list byLastTradeAsc)    Less(i, j int) bool { return list.sortable[i].LastTrade     < list.sortable[j].LastTrade }
+func (list byChangeAsc)       Less(i, j int) bool { return c(list.sortable[i].Change)     < c(list.sortable[j].Change) }
+func (list byChangePctAsc)    Less(i, j int) bool { return c(list.sortable[i].ChangePct)  < c(list.sortable[j].ChangePct) }
+func (list byOpenAsc)         Less(i, j int) bool { return list.sortable[i].Open          < list.sortable[j].Open }
+func (list byLowAsc)          Less(i, j int) bool { return list.sortable[i].Low           < list.sortable[j].Low }
+func (list byHighAsc)         Less(i, j int) bool { return list.sortable[i].High          < list.sortable[j].High }
+func (list byLow52Asc)        Less(i, j int) bool { return list.sortable[i].Low52         < list.sortable[j].Low52 }
+func (list byHigh52Asc)       Less(i, j int) bool { return list.sortable[i].High52        < list.sortable[j].High52 }
+func (list byVolumeAsc)       Less(i, j int) bool { return list.sortable[i].Volume        < list.sortable[j].Volume }
+func (list byAvgVolumeAsc)    Less(i, j int) bool { return list.sortable[i].AvgVolume     < list.sortable[j].AvgVolume }
+func (list byPeRatioAsc)      Less(i, j int) bool { return list.sortable[i].PeRatio       < list.sortable[j].PeRatio }
+func (list byDividendAsc)     Less(i, j int) bool { return list.sortable[i].Dividend      < list.sortable[j].Dividend }
+func (list byYieldAsc)        Less(i, j int) bool { return list.sortable[i].Yield         < list.sortable[j].Yield }
+func (list byMarketCapAsc)    Less(i, j int) bool { return m(list.sortable[i].MarketCap)  < m(list.sortable[j].MarketCap) }
                                   
-func (list ByTickerDesc)      Less(i, j int) bool { return list.Sortable[j].Ticker        < list.Sortable[i].Ticker }
-func (list ByLastTradeDesc)   Less(i, j int) bool { return list.Sortable[j].LastTrade     < list.Sortable[i].LastTrade }
-func (list ByChangeDesc)      Less(i, j int) bool { return c(list.Sortable[j].ChangePct)  < c(list.Sortable[i].ChangePct) }
-func (list ByChangePctDesc)   Less(i, j int) bool { return c(list.Sortable[j].ChangePct)  < c(list.Sortable[i].ChangePct) }
-func (list ByOpenDesc)        Less(i, j int) bool { return list.Sortable[j].Open          < list.Sortable[i].Open }
-func (list ByLowDesc)         Less(i, j int) bool { return list.Sortable[j].Low           < list.Sortable[i].Low }
-func (list ByHighDesc)        Less(i, j int) bool { return list.Sortable[j].High          < list.Sortable[i].High }
-func (list ByLow52Desc)       Less(i, j int) bool { return list.Sortable[j].Low52         < list.Sortable[i].Low52 }
-func (list ByHigh52Desc)      Less(i, j int) bool { return list.Sortable[j].High52        < list.Sortable[i].High52 }
-func (list ByVolumeDesc)      Less(i, j int) bool { return list.Sortable[j].Volume        < list.Sortable[i].Volume }
-func (list ByAvgVolumeDesc)   Less(i, j int) bool { return list.Sortable[j].AvgVolume     < list.Sortable[i].AvgVolume }
-func (list ByPeRatioDesc)     Less(i, j int) bool { return list.Sortable[j].PeRatio       < list.Sortable[i].PeRatio }
-func (list ByDividendDesc)    Less(i, j int) bool { return list.Sortable[j].Dividend      < list.Sortable[i].Dividend }
-func (list ByYieldDesc)       Less(i, j int) bool { return list.Sortable[j].Yield         < list.Sortable[i].Yield }
-func (list ByMarketCapDesc)   Less(i, j int) bool { return m(list.Sortable[j].MarketCap)  < m(list.Sortable[i].MarketCap) }
+func (list byTickerDesc)      Less(i, j int) bool { return list.sortable[j].Ticker        < list.sortable[i].Ticker }
+func (list byLastTradeDesc)   Less(i, j int) bool { return list.sortable[j].LastTrade     < list.sortable[i].LastTrade }
+func (list byChangeDesc)      Less(i, j int) bool { return c(list.sortable[j].ChangePct)  < c(list.sortable[i].ChangePct) }
+func (list byChangePctDesc)   Less(i, j int) bool { return c(list.sortable[j].ChangePct)  < c(list.sortable[i].ChangePct) }
+func (list byOpenDesc)        Less(i, j int) bool { return list.sortable[j].Open          < list.sortable[i].Open }
+func (list byLowDesc)         Less(i, j int) bool { return list.sortable[j].Low           < list.sortable[i].Low }
+func (list byHighDesc)        Less(i, j int) bool { return list.sortable[j].High          < list.sortable[i].High }
+func (list byLow52Desc)       Less(i, j int) bool { return list.sortable[j].Low52         < list.sortable[i].Low52 }
+func (list byHigh52Desc)      Less(i, j int) bool { return list.sortable[j].High52        < list.sortable[i].High52 }
+func (list byVolumeDesc)      Less(i, j int) bool { return list.sortable[j].Volume        < list.sortable[i].Volume }
+func (list byAvgVolumeDesc)   Less(i, j int) bool { return list.sortable[j].AvgVolume     < list.sortable[i].AvgVolume }
+func (list byPeRatioDesc)     Less(i, j int) bool { return list.sortable[j].PeRatio       < list.sortable[i].PeRatio }
+func (list byDividendDesc)    Less(i, j int) bool { return list.sortable[j].Dividend      < list.sortable[i].Dividend }
+func (list byYieldDesc)       Less(i, j int) bool { return list.sortable[j].Yield         < list.sortable[i].Yield }
+func (list byMarketCapDesc)   Less(i, j int) bool { return m(list.sortable[j].MarketCap)  < m(list.sortable[i].MarketCap) }
 
 type Sorter struct {
 	profile  *Profile
@@ -93,39 +94,39 @@ func (self *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 
 	if self.profile.Ascending {
 		interfaces = []sort.Interface{
-			ByTickerAsc       { stocks },
-			ByLastTradeAsc    { stocks },
-			ByChangeAsc       { stocks },
-			ByChangePctAsc    { stocks },
-			ByOpenAsc         { stocks },
-			ByLowAsc          { stocks },
-			ByHighAsc         { stocks },
-			ByLow52Asc        { stocks },
-			ByHigh52Asc       { stocks },
-			ByVolumeAsc       { stocks },
-			ByAvgVolumeAsc    { stocks },
-			ByPeRatioAsc      { stocks },
-			ByDividendAsc     { stocks },
-			ByYieldAsc        { stocks },
-			ByMarketCapAsc    { stocks },
+			byTickerAsc       { stocks },
+			byLastTradeAsc    { stocks },
+			byChangeAsc       { stocks },
+			byChangePctAsc    { stocks },
+			byOpenAsc         { stocks },
+			byLowAsc          { stocks },
+			byHighAsc         { stocks },
+			byLow52Asc        { stocks },
+			byHigh52Asc       { stocks },
+			byVolumeAsc       { stocks },
+			byAvgVolumeAsc    { stocks },
+			byPeRatioAsc      { stocks },
+			byDividendAsc     { stocks },
+			byYieldAsc        { stocks },
+			byMarketCapAsc    { stocks },
 		}
 	} else {
 		interfaces = []sort.Interface{
-			ByTickerDesc      { stocks },
-			ByLastTradeDesc   { stocks },
-			ByChangeDesc      { stocks },
-			ByChangePctDesc   { stocks },
-			ByOpenDesc        { stocks },
-			ByLowDesc         { stocks },
-			ByHighDesc        { stocks },
-			ByLow52Desc       { stocks },
-			ByHigh52Desc      { stocks },
-			ByVolumeDesc      { stocks },
-			ByAvgVolumeDesc   { stocks },
-			ByPeRatioDesc     { stocks },
-			ByDividendDesc    { stocks },
-			ByYieldDesc       { stocks },
-			ByMarketCapDesc   { stocks },
+			byTickerDesc      { stocks },
+			byLastTradeDesc   { stocks },
+			byChangeDesc      { stocks },
+			byChangePctDesc   { stocks },
+			byOpenDesc        { stocks },
+			byLowDesc         { stocks },
+			byHighDesc        { stocks },
+			byLow52Desc       { stocks },
+			byHigh52Desc      { stocks },
+			byVolumeDesc      { stocks },
+			byAvgVolumeDesc   { stocks },
+			byPeRatioDesc     { stocks },
+			byDividendDesc    { stocks },
+			byYieldDesc       { stocks },
+			byMarketCapDesc   { stocks },
 		}
 	}
 
