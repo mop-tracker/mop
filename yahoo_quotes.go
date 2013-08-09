@@ -1,6 +1,7 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
+//-----------------------------------------------------------------------------
 
 package mop
 
@@ -35,7 +36,7 @@ import (
 // j3: market cap rt
 // j1: market cap
 
-const yahoo_quotes_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
+const quotes_url = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
 
 type Stock struct {
 	Ticker      string
@@ -59,50 +60,55 @@ type Stock struct {
 }
 
 type Quotes struct {
-	market	      *Market
-	profile	      *Profile
-	stocks	      []Stock
+	market	    *Market
+	profile	    *Profile
+	stocks	    []Stock
+	errors      string
 }
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
 	self.market = market
 	self.profile = profile
+	self.errors = ``
 
 	return self
 }
 
 // Fetch the latest stock quotes and parse raw fetched data into array of
 // []Stock structs.
-func (self *Quotes) Fetch() *Quotes {
-	if self.Ready() {
-		// Format the URL and send the request.
-		url := fmt.Sprintf(yahoo_quotes_url, self.profile.ListOfTickers())
+//-----------------------------------------------------------------------------
+func (self *Quotes) Fetch() (this *Quotes) {
+	this = self // <-- This ensures we return correct self after recover() from panic() attack.
+	if self.is_ready() {
+		defer func() {
+			if err := recover(); err != nil {
+				self.errors = fmt.Sprintf("\n\n\n\nError fetching stock quotes...\n%s", err)
+			}
+		}()
+
+		url := fmt.Sprintf(quotes_url, self.profile.ListOfTickers())
 		response, err := http.Get(url)
 		if err != nil {
 			panic(err)
 		}
 
-		// Fetch response and get its body.
 		defer response.Body.Close()
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			panic(err)
 		}
 
-		self.parse(self.sanitize(body))
+		self.parse(sanitize(body))
 	}
 
 	return self
 }
 
-// Return true if we haven't fetched the quotes yet *or* the stock market is
-// still open and we might want to grab the latest quotes. In both cases we
-// make sure the list of requested tickers is not empty.
-func (self *Quotes) Ready() bool {
-	return (self.stocks == nil || !self.market.IsClosed) && len(self.profile.Tickers) > 0
+//-----------------------------------------------------------------------------
+func (self *Quotes) Ok() (bool, string) {
+	return self.errors == ``, self.errors
 }
-
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) Format() string {
@@ -124,6 +130,17 @@ func (self *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 	}
 	return
 }
+
+// "Private" methods.
+
+// Return true if we haven't fetched the quotes yet *or* the stock market is
+// still open and we might want to grab the latest quotes. In both cases we
+// make sure the list of requested tickers is not empty.
+//-----------------------------------------------------------------------------
+func (self *Quotes) is_ready() bool {
+	return (self.stocks == nil || !self.market.IsClosed) && len(self.profile.Tickers) > 0
+}
+
 
 //-----------------------------------------------------------------------------
 func (self *Quotes) parse(body []byte) *Quotes {
@@ -155,7 +172,9 @@ func (self *Quotes) parse(body []byte) *Quotes {
 	return self
 }
 
+// Utility methods.
+
 //-----------------------------------------------------------------------------
-func (self *Quotes) sanitize(body []byte) []byte {
+func sanitize(body []byte) []byte {
 	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
 }

@@ -53,26 +53,24 @@ func (self *Layout) Market(market *Market) string {
 		return err
 	}
 
+	buffer := new(bytes.Buffer)
 	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, {{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, {{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
 {{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. {{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
 New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
 
-	template, err := template.New(`market`).Parse(markup)
-	if err != nil {
-		panic(err)
-	}
-
-	buffer := new(bytes.Buffer)
 	highlight(market.Dow, market.Sp500, market.Nasdaq)
-	if err := template.Execute(buffer, market); err != nil {
-		panic(err)
-	}
+	template,_ := template.New(`market`).Parse(markup)
+	template.Execute(buffer, market)
 
 	return buffer.String()
 }
 
 //-----------------------------------------------------------------------------
 func (self *Layout) Quotes(quotes *Quotes) string {
+	if ok, err := quotes.Ok(); !ok {
+		return err
+	}
+
 	vars := struct {
 		Now    string
 		Header string
@@ -83,6 +81,7 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 		self.prettify(quotes),
 	}
 
+	buffer := new(bytes.Buffer)
 	markup := `<right><white>{{.Now}}</></right>
 
 
@@ -90,17 +89,9 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 {{.Header}}
 {{range.Stocks}}{{if .Advancing}}<green>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}</>
 {{end}}`
-	//markup += fmt.Sprintf("[%v]", quotes.profile.Grouped)
-	template, err := template.New(`quotes`).Parse(markup)
-	if err != nil {
-		panic(err)
-	}
 
-	buffer := new(bytes.Buffer)
-	err = template.Execute(buffer, vars)
-	if err != nil {
-		panic(err)
-	}
+	template,_ := template.New(`quotes`).Parse(markup)
+	template.Execute(buffer, vars)
 
 	return buffer.String()
 }

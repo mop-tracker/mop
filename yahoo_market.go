@@ -1,6 +1,7 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
+//-----------------------------------------------------------------------------
 
 package mop
 
@@ -13,7 +14,7 @@ import (
 	`strings`
 )
 
-const url = `http://finance.yahoo.com/marketupdate/overview`
+const market_url = `http://finance.yahoo.com/marketupdate/overview`
 
 type Market struct {
 	IsClosed   bool
@@ -67,14 +68,14 @@ func (self *Market) Initialize() *Market {
 
 //-----------------------------------------------------------------------------
 func (self *Market) Fetch() (this *Market) {
-	this = self	// <-- This ensures we return correct self in case of panic attack.
+	this = self // <-- This ensures we return correct self after recover() from panic() attack.
 	defer func() {
 		if err := recover(); err != nil {
 			self.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
 		}
 	}()
 
-	response, err := http.Get(url)
+	response, err := http.Get(market_url)
 	if err != nil {
 		panic(err)
 	}
@@ -124,7 +125,7 @@ func (self *Market) trim(body []byte) []byte {
 func (self *Market) extract(snippet []byte) *Market {
 	matches := self.regex.FindAllStringSubmatch(string(snippet), -1)
 	if len(matches) < 1 || len(matches[0]) < 37 {
-		panic(`Unable to parse ` + url)
+		panic(`Unable to parse ` + market_url)
 	}
 
 	self.Dow[`name`] = matches[0][1]
