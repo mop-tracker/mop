@@ -21,8 +21,10 @@ type Column struct {
 }
 
 type Layout struct {
-	columns []Column
-	regex   *regexp.Regexp
+	columns          []Column
+	regex            *regexp.Regexp
+	market_template  *template.Template
+	quotes_template  *template.Template
 }
 
 //-----------------------------------------------------------------------------
@@ -45,6 +47,8 @@ func (self *Layout) Initialize() *Layout {
 		{ 11, `MktCap` },
 	}
 	self.regex = regexp.MustCompile(`(\.\d+)[MB]?$`)
+	self.market_template = build_market_template()
+	self.quotes_template = build_quotes_template()
 
 	return self
 }
@@ -55,14 +59,9 @@ func (self *Layout) Market(market *Market) string {
 		return err
 	}
 
-	buffer := new(bytes.Buffer)
-	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, {{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, {{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
-{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. {{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
-New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
-
 	highlight(market.Dow, market.Sp500, market.Nasdaq)
-	template,_ := template.New(`market`).Parse(markup)
-	template.Execute(buffer, market)
+	buffer := new(bytes.Buffer)
+	self.market_template.Execute(buffer, market)
 
 	return buffer.String()
 }
@@ -84,16 +83,7 @@ func (self *Layout) Quotes(quotes *Quotes) string {
 	}
 
 	buffer := new(bytes.Buffer)
-	markup := `<right><white>{{.Now}}</></right>
-
-
-
-{{.Header}}
-{{range.Stocks}}{{if .Advancing}}<green>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}</>
-{{end}}`
-
-	template,_ := template.New(`quotes`).Parse(markup)
-	template.Execute(buffer, vars)
+	self.quotes_template.Execute(buffer, vars)
 
 	return buffer.String()
 }
@@ -163,6 +153,28 @@ func (self *Layout) pad(str string, col int) string {
 	}
 
 	return fmt.Sprintf(`%*s`, self.columns[col].width, str)
+}
+
+//-----------------------------------------------------------------------------
+func build_market_template() *template.Template {
+	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, {{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, {{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
+{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. {{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
+New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
+
+	return template.Must(template.New(`market`).Parse(markup))
+}
+
+//-----------------------------------------------------------------------------
+func build_quotes_template() *template.Template {
+	markup := `<right><white>{{.Now}}</></right>
+
+
+
+{{.Header}}
+{{range.Stocks}}{{if .Advancing}}<green>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}</>
+{{end}}`
+
+	return template.Must(template.New(`quotes`).Parse(markup))
 }
 
 //-----------------------------------------------------------------------------

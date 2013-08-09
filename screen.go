@@ -14,6 +14,7 @@ type Screen struct {
 	width	 int
 	height	 int
 	cleared  bool
+	layout   *Layout
 	markup   *Markup
 }
 
@@ -22,6 +23,7 @@ func (self *Screen) Initialize() *Screen {
 	if err := termbox.Init(); err != nil {
 		panic(err)
 	}
+	self.layout = new(Layout).Initialize()
 	self.markup = new(Markup).Initialize()
 
 	return self.Resize()
@@ -56,10 +58,10 @@ func (self *Screen) Draw(objects ...interface{}) *Screen {
 		switch ptr.(type) {
 		case *Market:
 			object := ptr.(*Market)
-			self.draw(object.Fetch().Format())
+			self.draw(self.layout.Market(object.Fetch()))
 		case *Quotes:
 			object := ptr.(*Quotes)
-			self.draw(object.Fetch().Format())
+			self.draw(self.layout.Quotes(object.Fetch()))
 		default:
 			self.draw(ptr.(string))
 		}

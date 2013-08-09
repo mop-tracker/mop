@@ -111,11 +111,6 @@ func (self *Quotes) Ok() (bool, string) {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Quotes) Format() string {
-	return new(Layout).Initialize().Quotes(self)
-}
-
-//-----------------------------------------------------------------------------
 func (self *Quotes) AddTickers(tickers []string) (added int, err error) {
 	if added, err = self.profile.AddTickers(tickers); err == nil && added > 0 {
 		self.stocks = nil	// Force fetch.

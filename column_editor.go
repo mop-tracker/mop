@@ -10,7 +10,6 @@ import (
 
 type ColumnEditor struct {
 	screen     *Screen
-	layout     *Layout
 	quotes     *Quotes
 	profile    *Profile
 }
@@ -20,7 +19,6 @@ func (self *ColumnEditor) Initialize(screen *Screen, quotes *Quotes) *ColumnEdit
 	self.screen = screen
 	self.quotes = quotes
 	self.profile = quotes.profile
-	self.layout = new(Layout).Initialize()
 
 	self.select_current_column()
 	return self
@@ -89,7 +87,7 @@ func (self *ColumnEditor) done() bool {
 
 //-----------------------------------------------------------------------------
 func (self *ColumnEditor) redraw_header() {
-	self.screen.DrawLine(0, 4, self.layout.Header(self.profile))
+	self.screen.DrawLine(0, 4, self.screen.layout.Header(self.profile))
 	termbox.Flush()
 }
 

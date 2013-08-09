@@ -91,11 +91,6 @@ func (self *Market) Fetch() (this *Market) {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Market) Format() string {
-	return new(Layout).Initialize().Market(self)
-}
-
-//-----------------------------------------------------------------------------
 func (self *Market) Ok() (bool, string) {
 	return self.errors == ``, self.errors
 }
