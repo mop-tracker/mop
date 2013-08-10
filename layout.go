@@ -25,6 +25,7 @@ type Column struct {
 
 type Layout struct {
 	columns          []Column
+	sorter           *Sorter
 	regex            *regexp.Regexp
 	market_template  *template.Template
 	quotes_template  *template.Template
@@ -134,10 +135,13 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 	}
 
 	profile := quotes.profile
-	new(Sorter).Initialize(profile).SortByCurrentColumn(pretty)
+	if self.sorter == nil { // Initialize sorter on first invocation.
+		self.sorter = new(Sorter).Initialize(profile)
+	}
+	self.sorter.SortByCurrentColumn(pretty)
 	//
 	// Group stocks by advancing/declining unless sorted by Chanage or Change%
-	// in which case the grouping is done already.
+	// in which case the grouping has been done already.
 	//
 	if profile.Grouped && (profile.SortColumn < 2 || profile.SortColumn > 3) {
 		pretty = group(pretty)
