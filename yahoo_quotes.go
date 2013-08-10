@@ -161,7 +161,16 @@ func (self *Quotes) parse(body []byte) *Quotes {
 		self.stocks[i].Yield       = string(columns[14])
 		self.stocks[i].MarketCap   = string(columns[15])
 		self.stocks[i].MarketCapX  = string(columns[16])
-		self.stocks[i].Advancing   = self.stocks[i].Change[0:1] != `-`
+		//
+		// Try realtime and revert to last known if realtime is not available.
+		//
+		if self.stocks[i].PeRatio == `N/A` && self.stocks[i].PeRatioX != `N/A` {
+			self.stocks[i].PeRatio = self.stocks[i].PeRatioX
+		}
+		if self.stocks[i].MarketCap == `N/A` && self.stocks[i].MarketCapX != `N/A` {
+			self.stocks[i].MarketCap = self.stocks[i].MarketCapX
+		}
+		self.stocks[i].Advancing = (self.stocks[i].Change[0:1] != `-`)
 	}
 
 	return self

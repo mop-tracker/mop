@@ -7,6 +7,7 @@ package mop
 import (
 	`bytes`
 	`fmt`
+	`reflect`
 	`regexp`
 	`strings`
 	`text/template`
@@ -16,8 +17,10 @@ import (
 const TotalColumns = 15
 
 type Column struct {
-	width	int
-	title	string
+	width	   int
+	name       string
+	title	   string
+	formatter  func(string)string
 }
 
 type Layout struct {
@@ -30,21 +33,21 @@ type Layout struct {
 //-----------------------------------------------------------------------------
 func (self *Layout) Initialize() *Layout {
 	self.columns = []Column{
-		{ -7, `Ticker` },
-		{ 10, `Last` },
-		{ 10, `Change` },
-		{ 10, `Change%` },
-		{ 10, `Open` },
-		{ 10, `Low` },
-		{ 10, `High` },
-		{ 10, `52w Low` },
-		{ 10, `52w High` },
-		{ 11, `Volume` },
-		{ 11, `AvgVolume` },
-		{  9, `P/E` },
-		{  9, `Dividend` },
-		{  9, `Yield` },
-		{ 11, `MktCap` },
+		{ -7, `Ticker`,    `Ticker`,    nil            },
+		{ 10, `LastTrade`, `Last`,      currency       },
+		{ 10, `Change`,    `Change`,    currency       },
+		{ 10, `ChangePct`, `Change%`,   last           },
+		{ 10, `Open`,      `Open`,      currency       },
+		{ 10, `Low`,       `Low`,       currency       },
+		{ 10, `High`,      `High`,      currency       },
+		{ 10, `Low52`,     `52w Low`,   currency       },
+		{ 10, `High52`,    `52w High`,  currency       },
+		{ 11, `Volume`,    `Volume`,    nil            },
+		{ 11, `AvgVolume`, `AvgVolume`, nil            },
+		{  9, `PeRatio`,   `P/E`,       blank          },
+		{  9, `Dividend`,  `Dividend`,  blank_currency },
+		{  9, `Yield`,     `Yield`,     percent        },
+		{ 11, `MarketCap`, `MktCap`,    currency       },
 	}
 	self.regex = regexp.MustCompile(`(\.\d+)[MB]?$`)
 	self.market_template = build_market_template()
@@ -107,24 +110,27 @@ func (self *Layout) Header(profile *Profile) string {
 //-----------------------------------------------------------------------------
 func (self *Layout) prettify(quotes *Quotes) []Stock {
 	pretty := make([]Stock, len(quotes.stocks))
-
-	for i, q := range quotes.stocks {
-		pretty[i].Ticker    = self.pad(q.Ticker,                    0)
-		pretty[i].LastTrade = self.pad(currency(q.LastTrade),       1)
-		pretty[i].Change    = self.pad(currency(q.Change),          2)
-		pretty[i].ChangePct = self.pad(last(q.ChangePct),           3)
-		pretty[i].Open      = self.pad(currency(q.Open),            4)
-		pretty[i].Low       = self.pad(currency(q.Low),             5)
-		pretty[i].High      = self.pad(currency(q.High),            6)
-		pretty[i].Low52     = self.pad(currency(q.Low52),           7)
-		pretty[i].High52    = self.pad(currency(q.High52),          8)
-		pretty[i].Volume    = self.pad(q.Volume,                    9)
-		pretty[i].AvgVolume = self.pad(q.AvgVolume,                10)
-		pretty[i].PeRatio   = self.pad(blank(q.PeRatioX),          11)
-		pretty[i].Dividend  = self.pad(blank_currency(q.Dividend), 12)
-		pretty[i].Yield     = self.pad(percent(q.Yield),           13)
-		pretty[i].MarketCap = self.pad(currency(q.MarketCapX),     14)
-		pretty[i].Advancing = q.Advancing
+	//
+	// Iterate over the list of stocks and properly format all its columns.
+	//
+	for i, stock := range quotes.stocks {
+		pretty[i].Advancing = stock.Advancing
+		//
+		// Iterate over the list of stock columns. For each column name:
+		// - Get current column value.
+		// - If the column has the formatter method then call it.
+		// - Set the column value padding it to the given width.
+		//
+		for _,column := range self.columns {
+			// ex. value = stock.Change
+			value := reflect.ValueOf(&stock).Elem().FieldByName(column.name).String()
+			if column.formatter != nil {
+				// ex. value = currency(value)
+				value = column.formatter(value)
+			}
+			// ex. pretty[i].Change = self.pad(value, 10)
+			reflect.ValueOf(&pretty[i]).Elem().FieldByName(column.name).SetString(self.pad(value, column.width))
+		}
 	}
 
 	profile := quotes.profile
@@ -141,7 +147,7 @@ func (self *Layout) prettify(quotes *Quotes) []Stock {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Layout) pad(str string, col int) string {
+func (self *Layout) pad(str string, width int) string {
 	match := self.regex.FindStringSubmatch(str)
 	if len(match) > 0 {
 		switch len(match[1]) {
@@ -152,7 +158,7 @@ func (self *Layout) pad(str string, col int) string {
 		}
 	}
 
-	return fmt.Sprintf(`%*s`, self.columns[col].width, str)
+	return fmt.Sprintf(`%*s`, width, str)
 }
 
 //-----------------------------------------------------------------------------
