@@ -10,6 +10,7 @@ import (
 	`fmt`
 	`io/ioutil`
 	`net/http`
+	`reflect`
 )
 
 // See http://www.gummy-stuff.org/Yahoo-stocks.htm
@@ -141,28 +142,24 @@ func (self *Quotes) is_ready() bool {
 func (self *Quotes) parse(body []byte) *Quotes {
 	lines := bytes.Split(body, []byte{'\n'})
 	self.stocks = make([]Stock, len(lines))
-
+	//
+	// Get the total number of fields in the Stock struct. Skip the last
+	// Advanicing field which is not fetched.
+	//
+	number_of_fields := reflect.ValueOf(self.stocks[0]).NumField() - 1
+	//
+	// Split each line into columns, then iterate over the Stock struct
+	// fields to assign column values.
+	//
 	for i, line := range lines {
 		columns := bytes.Split(bytes.TrimSpace(line), []byte{','})
-		self.stocks[i].Ticker      = string(columns[0])
-		self.stocks[i].LastTrade   = string(columns[1])
-		self.stocks[i].Change      = string(columns[2])
-		self.stocks[i].ChangePct   = string(columns[3])
-		self.stocks[i].Open        = string(columns[4])
-		self.stocks[i].Low         = string(columns[5])
-		self.stocks[i].High        = string(columns[6])
-		self.stocks[i].Low52       = string(columns[7])
-		self.stocks[i].High52      = string(columns[8])
-		self.stocks[i].Volume      = string(columns[9])
-		self.stocks[i].AvgVolume   = string(columns[10])
-		self.stocks[i].PeRatio     = string(columns[11])
-		self.stocks[i].PeRatioX    = string(columns[12])
-		self.stocks[i].Dividend    = string(columns[13])
-		self.stocks[i].Yield       = string(columns[14])
-		self.stocks[i].MarketCap   = string(columns[15])
-		self.stocks[i].MarketCapX  = string(columns[16])
+		for j := 0; j < number_of_fields; j++ {
+			// ex. self.stocks[i].Ticker = string(columns[0])
+			reflect.ValueOf(&self.stocks[i]).Elem().Field(j).SetString(string(columns[j]))
+		}
 		//
-		// Try realtime and revert to last known if realtime is not available.
+		// Try realtime value and revert to the last known if the
+		// realtime is not available.
 		//
 		if self.stocks[i].PeRatio == `N/A` && self.stocks[i].PeRatioX != `N/A` {
 			self.stocks[i].PeRatio = self.stocks[i].PeRatioX
@@ -170,6 +167,10 @@ func (self *Quotes) parse(body []byte) *Quotes {
 		if self.stocks[i].MarketCap == `N/A` && self.stocks[i].MarketCapX != `N/A` {
 			self.stocks[i].MarketCap = self.stocks[i].MarketCapX
 		}
+		//
+		// Stock is advancing if the change is not negative (i.e. $0.00
+		// is also "advancing").
+		//
 		self.stocks[i].Advancing = (self.stocks[i].Change[0:1] != `-`)
 	}
 
