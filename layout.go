@@ -50,7 +50,7 @@ func (self *Layout) Initialize() *Layout {
 		{  9, `Yield`,     `Yield`,     percent        },
 		{ 11, `MarketCap`, `MktCap`,    currency       },
 	}
-	self.regex = regexp.MustCompile(`(\.\d+)[MB]?$`)
+	self.regex = regexp.MustCompile(`(\.\d+)[BMK]?$`)
 	self.market_template = build_market_template()
 	self.quotes_template = build_quotes_template()
 
