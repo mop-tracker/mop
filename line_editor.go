@@ -11,18 +11,20 @@ import (
 )
 
 type LineEditor struct {
-	command   rune
-	prompt    string
-	cursor    int
-	input     string
-	screen   *Screen
-	quotes   *Quotes
+	command  rune		// Keyboard command such as '+' or '-'.
+	cursor   int 		// Current cursor position within the input line.
+	prompt   string		// Prompt string for the command.
+	input    string		// User typed input string.
+	screen  *Screen		// Pointer to Screen.
+	quotes  *Quotes		// Pointer to Quotes.
+	regex   *regexp.Regexp	// Regex to split comma-delimited input string.
 }
 
 //-----------------------------------------------------------------------------
 func (self *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
 	self.screen = screen
 	self.quotes = quotes
+	self.regex = regexp.MustCompile(`[,\s]+`)
 
 	return self
 }
@@ -168,9 +170,6 @@ func (self *LineEditor) execute() *LineEditor {
 				for i := before; i > after; i-- {
 					self.screen.ClearLine(0, i + 4)
 				}
-				if after == 0 {	// Hide quotes header is the are no tickers left.
-					self.screen.ClearLine(0, 4)
-				}
 			}
 		}
 	}
@@ -186,8 +185,11 @@ func (self *LineEditor) done() bool {
 	return true
 }
 
-//-----------------------------------------------------------------------------
+//
+// Split by whitespace/comma to convert a string to array of tickers. Make sure
+// the string is trimmed to avoid empty tickers in the array.
+//
 func (self *LineEditor) tokenize() []string {
-	input := strings.ToUpper(strings.TrimSpace(self.input))
-	return regexp.MustCompile(`[,\s]+`).Split(input, -1)
+	input := strings.ToUpper(strings.Trim(self.input, `, `))
+	return self.regex.Split(input, -1)
 }
