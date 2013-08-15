@@ -16,7 +16,7 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 <u>Command</u>    <u>Description                                </u>
    +       Add stocks to the list.
    -       Remove stocks from the list.
-   o       Change default sorting order.
+   o       Change column sort order.
    g       Group stocks by advancing/declining issues.
    ?       Display this help screen.
   esc      Quit mop.
