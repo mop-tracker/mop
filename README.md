@@ -1,14 +1,16 @@
 ## Welcome to Mop ##
-Mop is a command-line utility that displays up-to-date information about
-the U.S. markets and individual stocks. One picture is worth a thousand
-words:
+Mop is a command-line utility that displays continuous up-to-date
+information about the U.S. markets and individual stocks. One picture
+is worth a thousand words:
 
+TBD.
 
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
 
-    $ git clone git://github.com/michaeldv/mop.git
-    $ cd mop
+    $ cd $GOPATH
+    $ git clone git://github.com/michaeldv/mop.git src/github.com/michaeldv/mop
+    $ cd src/github.com/michaeldv/mop
     $ go get          # <-- Download dependencies.
     $ make run        # <-- Compile and runs mop.
     $ make build      # <-- Build mop in current directory.
@@ -16,7 +18,7 @@ Mop is implemented in Go and compiles down to a single executable file.
 
 
 ### Using Mop ###
-For demonstartion purposes Mop comes preconfigured to track a number of
+For demonstartion purposes Mop comes preconfigured with a number of
 stock tickers. You can easily change the default list by using the
 following keyboard commands:
 
@@ -27,13 +29,14 @@ following keyboard commands:
     ?       Display help screen.
     esc     Quit mop.
 
-When prompted please enter comma-delimited list of stock tickers. The list
-and other settings are stored in ``.moprc`` file in your ``$HOME`` directory.
+When prompted please enter comma-delimited list of stock tickers. The
+list and other settings are stored in ``.moprc`` file in your ``$HOME``
+directory.
 
 
 ### Contributing ###
 Mop is my personal project that I've came up with to learn Go programming.
-Your comments, suggestions, and contributions are always welcome.
+Your comments, suggestions, and contributions are welcome.
 
 * Fork the project on Github.
 * Make your feature addition or bug fix.
@@ -43,6 +46,7 @@ Your comments, suggestions, and contributions are always welcome.
 
 ### License ###
 Copyright (c) 2013 Michael Dvorkin. All Rights Reserved.
+
 `mike` + `@dvorkin` + `.net` || `twitter.com/mid`
 
 Permission is hereby granted, free of charge, to any person obtaining
