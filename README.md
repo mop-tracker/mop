@@ -1,9 +1,9 @@
-## Welcome to Mop ##
+### Welcome to Mop ###
 Mop is a command-line utility that displays continuous up-to-date
 information about the U.S. markets and individual stocks. One picture
 is worth a thousand words:
 
-TBD.
+![Screenshot](https://raw.github.com/michaeldv/mop/master/doc/screenshot.png "Mop Screenshot")
 
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
@@ -12,7 +12,7 @@ Mop is implemented in Go and compiles down to a single executable file.
     $ git clone git://github.com/michaeldv/mop.git src/github.com/michaeldv/mop
     $ cd src/github.com/michaeldv/mop
     $ go get          # <-- Download dependencies.
-    $ make run        # <-- Compile and runs mop.
+    $ make            # <-- Compile and run mop.
     $ make build      # <-- Build mop in current directory.
     $ make install    # <-- Build mop and install it in $GOPATH/bin.
 
@@ -45,9 +45,8 @@ Your comments, suggestions, and contributions are welcome.
 
 
 ### License ###
-Copyright (c) 2013 Michael Dvorkin. All Rights Reserved.
-
-`mike` + `@dvorkin` + `.net` || `twitter.com/mid`
+Copyright (c) 2013 Michael Dvorkin. All Rights Reserved.    
+"mike" + "@dvorkin" + ".net" || "twitter.com/mid"
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
