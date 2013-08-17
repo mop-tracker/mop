@@ -1,93 +1,97 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
-// Use of this source code is governed by a MIT-style
-// license that can be found in the LICENSE file.
+// Use of this source code is governed by a MIT-style license that can
+// be found in the LICENSE file.
 
 package mop
 
-import (
-	`github.com/michaeldv/termbox-go`
-)
+import `github.com/michaeldv/termbox-go`
 
+// ColumnEditor handles column sort order. When activated it highlights
+// current column name in the header, then waits for arrow keys (choose
+// another column), Enter (reverse sort order), or Esc (exit).
 type ColumnEditor struct {
-	screen     *Screen
-	quotes     *Quotes
-	profile    *Profile
+	screen   *Screen	// Pointer to Screen so we could use screen.Draw().
+	quotes   *Quotes	// Pointer to Quotes to redraw them when the sort order changes.
+	profile	 *Profile	// Pointer to Profile where we save newly selected sort order.
 }
 
-//-----------------------------------------------------------------------------
-func (self *ColumnEditor) Initialize(screen *Screen, quotes *Quotes) *ColumnEditor {
-	self.screen = screen
-	self.quotes = quotes
-	self.profile = quotes.profile
+// Initialize sets internal variables and highlights current column name
+// (as stored in Profile).
+func (editor *ColumnEditor) Initialize(screen *Screen, quotes *Quotes) *ColumnEditor {
+	editor.screen = screen
+	editor.quotes = quotes
+	editor.profile = quotes.profile
 
-	self.select_current_column()
-	return self
+	editor.selectCurrentColumn()
+
+	return editor
 }
 
-//-----------------------------------------------------------------------------
-func (self *ColumnEditor) Handle(ev termbox.Event) bool {
-	defer self.redraw_header()
+// Handle takes over the keyboard events and dispatches them to appropriate
+// column editor handlers. It returns true when user presses Esc.
+func (editor *ColumnEditor) Handle(event termbox.Event) bool {
+	defer editor.redrawHeader()
 
-	switch ev.Key {
+	switch event.Key {
 	case termbox.KeyEsc:
-		return self.done()
+		return editor.done()
 
 	case termbox.KeyEnter:
-		self.execute()
+		editor.execute()
 
         case termbox.KeyArrowLeft:
-		self.select_left_column()
+		editor.selectLeftColumn()
 
 	case termbox.KeyArrowRight:
-		self.select_right_column()
+		editor.selectRightColumn()
 	}
 
 	return false
 }
 
 //-----------------------------------------------------------------------------
-func (self *ColumnEditor) select_current_column() *ColumnEditor {
-	self.profile.selected_column = self.profile.SortColumn
-	self.redraw_header()
-	return self
+func (editor *ColumnEditor) selectCurrentColumn() *ColumnEditor {
+	editor.profile.selected_column = editor.profile.SortColumn
+	editor.redrawHeader()
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *ColumnEditor) select_left_column() *ColumnEditor {
-	self.profile.selected_column--
-	if self.profile.selected_column < 0 {
-		self.profile.selected_column = TotalColumns - 1
+func (editor *ColumnEditor) selectLeftColumn() *ColumnEditor {
+	editor.profile.selected_column--
+	if editor.profile.selected_column < 0 {
+		editor.profile.selected_column = TotalColumns - 1
 	}
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *ColumnEditor) select_right_column() *ColumnEditor {
-	self.profile.selected_column++
-	if self.profile.selected_column > TotalColumns - 1 {
-		self.profile.selected_column = 0
+func (editor *ColumnEditor) selectRightColumn() *ColumnEditor {
+	editor.profile.selected_column++
+	if editor.profile.selected_column > TotalColumns - 1 {
+		editor.profile.selected_column = 0
 	}
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *ColumnEditor) execute() *ColumnEditor {
-	if self.profile.Reorder() == nil {
-		self.screen.Draw(self.quotes)
+func (editor *ColumnEditor) execute() *ColumnEditor {
+	if editor.profile.Reorder() == nil {
+		editor.screen.Draw(editor.quotes)
 	}
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *ColumnEditor) done() bool {
-	self.profile.selected_column = -1
+func (editor *ColumnEditor) done() bool {
+	editor.profile.selected_column = -1
 	return true
 }
 
 //-----------------------------------------------------------------------------
-func (self *ColumnEditor) redraw_header() {
-	self.screen.DrawLine(0, 4, self.screen.layout.Header(self.profile))
+func (editor *ColumnEditor) redrawHeader() {
+	editor.screen.DrawLine(0, 4, editor.screen.layout.Header(editor.profile))
 	termbox.Flush()
 }
 

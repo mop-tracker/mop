@@ -1,6 +1,6 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
-// Use of this source code is governed by a MIT-style
-// license that can be found in the LICENSE file.
+// Use of this source code is governed by a MIT-style license that can
+// be found in the LICENSE file.
 
 package main
 
@@ -27,19 +27,19 @@ Enter comma-delimited list of stock tickers when prompted.
 `
 
 //-----------------------------------------------------------------------------
-func main_loop(screen *mop.Screen, profile *mop.Profile) {
-	var line_editor *mop.LineEditor
-	var column_editor *mop.ColumnEditor
+func mainLoop(screen *mop.Screen, profile *mop.Profile) {
+	var lineEditor *mop.LineEditor
+	var columnEditor *mop.ColumnEditor
 
-	keyboard_queue := make(chan termbox.Event)
-	timestamp_queue := time.NewTicker(1 * time.Second)
-	quotes_queue := time.NewTicker(5 * time.Second)
-	market_queue := time.NewTicker(12 * time.Second)
-	showing_help := false
+	keyboardQueue := make(chan termbox.Event)
+	timestampQueue := time.NewTicker(1 * time.Second)
+	quotesQueue := time.NewTicker(5 * time.Second)
+	marketQueue := time.NewTicker(12 * time.Second)
+	showingHelp := false
 
 	go func() {
 		for {
-			keyboard_queue <- termbox.PollEvent()
+			keyboardQueue <- termbox.PollEvent()
 		}
 	}()
 
@@ -50,58 +50,58 @@ func main_loop(screen *mop.Screen, profile *mop.Profile) {
 loop:
 	for {
 		select {
-		case event := <-keyboard_queue:
+		case event := <-keyboardQueue:
 			switch event.Type {
 			case termbox.EventKey:
-				if line_editor == nil && column_editor == nil && !showing_help {
+				if lineEditor == nil && columnEditor == nil && !showingHelp {
 					if event.Key == termbox.KeyEsc {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
-						line_editor = new(mop.LineEditor).Initialize(screen, quotes)
-						line_editor.Prompt(event.Ch)
+						lineEditor = new(mop.LineEditor).Initialize(screen, quotes)
+						lineEditor.Prompt(event.Ch)
 					} else if event.Ch == 'o' || event.Ch == 'O' {
-						column_editor = new(mop.ColumnEditor).Initialize(screen, quotes)
+						columnEditor = new(mop.ColumnEditor).Initialize(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						if profile.Regroup() == nil {
 							screen.Draw(quotes)
 						}
 					} else if event.Ch == '?' || event.Ch == 'h' || event.Ch == 'H' {
-						showing_help = true
+						showingHelp = true
 						screen.Clear().Draw(help)
 					}
-				} else if line_editor != nil {
-					if done := line_editor.Handle(event); done {
-						line_editor = nil
+				} else if lineEditor != nil {
+					if done := lineEditor.Handle(event); done {
+						lineEditor = nil
 					}
-				} else if column_editor != nil {
-					if done := column_editor.Handle(event); done {
-						column_editor = nil
+				} else if columnEditor != nil {
+					if done := columnEditor.Handle(event); done {
+						columnEditor = nil
 					}
-				} else if showing_help {
-					showing_help = false
+				} else if showingHelp {
+					showingHelp = false
 					screen.Clear().Draw(market, quotes)
 				}
 			case termbox.EventResize:
 				screen.Resize()
-				if !showing_help {
+				if !showingHelp {
 					screen.Draw(market, quotes)
 				} else {
 					screen.Draw(help)
 				}
 			}
 
-		case <-timestamp_queue.C:
-			if !showing_help {
+		case <-timestampQueue.C:
+			if !showingHelp {
 				screen.DrawTime()
 			}
 
-		case <-quotes_queue.C:
-			if !showing_help {
+		case <-quotesQueue.C:
+			if !showingHelp {
 				screen.Draw(quotes)
 			}
 
-		case <-market_queue.C:
-			if !showing_help {
+		case <-marketQueue.C:
+			if !showingHelp {
 				screen.Draw(market)
 			}
 		}
@@ -114,5 +114,5 @@ func main() {
 	defer screen.Close()
 
 	profile := new(mop.Profile).Initialize()
-	main_loop(screen, profile)
+	mainLoop(screen, profile)
 }
