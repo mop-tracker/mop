@@ -8,10 +8,9 @@ is worth a thousand words:
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
 
-    $ cd $GOPATH
-    $ git clone git://github.com/michaeldv/mop.git src/github.com/michaeldv/mop
-    $ cd src/github.com/michaeldv/mop
-    $ go get          # <-- Download dependencies.
+    # Make sure your $GOPATH is set.
+    $ go get github.com/michaeldv/mop
+    $ cd $GOPATH/src/github.com/michaeldv/mop
     $ make            # <-- Compile and run mop.
     $ make build      # <-- Build mop in current directory.
     $ make install    # <-- Build mop and install it in $GOPATH/bin.
