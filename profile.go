@@ -21,7 +21,7 @@ type Profile struct {
 	Tickers          []string
 	SortColumn       int
 	Ascending        bool
-	selected_column	 int
+	selectedColumn	 int
 }
 
 //-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ func (self *Profile) Initialize() *Profile {
 	} else {
 		json.Unmarshal(data, self)
 	}
-	self.selected_column = -1
+	self.selectedColumn = -1
 
 	return self
 }
@@ -95,10 +95,10 @@ func (self *Profile) RemoveTickers(tickers []string) (removed int, err error) {
 
 //-----------------------------------------------------------------------------
 func (self *Profile) Reorder() error {
-	if self.selected_column == self.SortColumn {
+	if self.selectedColumn == self.SortColumn {
 		self.Ascending = !self.Ascending
 	} else {
-		self.SortColumn = self.selected_column
+		self.SortColumn = self.selectedColumn
 	}
 	return self.Save()
 }
