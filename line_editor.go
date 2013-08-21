@@ -1,13 +1,13 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
-// Use of this source code is governed by a MIT-style
-// license that can be found in the LICENSE file.
+// Use of this source code is governed by a MIT-style license that can
+// be found in the LICENSE file.
 
 package mop
 
 import (
+	`github.com/michaeldv/termbox-go`
 	`regexp`
 	`strings`
-	`github.com/michaeldv/termbox-go`
 )
 
 type LineEditor struct {
@@ -21,61 +21,61 @@ type LineEditor struct {
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
-	self.screen = screen
-	self.quotes = quotes
-	self.regex = regexp.MustCompile(`[,\s]+`)
+func (editor *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
+	editor.screen = screen
+	editor.quotes = quotes
+	editor.regex = regexp.MustCompile(`[,\s]+`)
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) Prompt(command rune) *LineEditor {
+func (editor *LineEditor) Prompt(command rune) *LineEditor {
 	prompts := map[rune]string{'+': `Add tickers: `, '-': `Remove tickers: `}
 	if prompt, ok := prompts[command]; ok {
-		self.prompt = prompt
-		self.command = command
+		editor.prompt = prompt
+		editor.command = command
 
-		self.screen.DrawLine(0, 3, `<white>` + self.prompt + `</>`)
-		termbox.SetCursor(len(self.prompt), 3)
+		editor.screen.DrawLine(0, 3, `<white>` + editor.prompt + `</>`)
+		termbox.SetCursor(len(editor.prompt), 3)
 		termbox.Flush()
 	}
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) Handle(ev termbox.Event) bool {
+func (editor *LineEditor) Handle(ev termbox.Event) bool {
 	defer termbox.Flush()
 
 	switch ev.Key {
 	case termbox.KeyEsc:
-		return self.done()
+		return editor.done()
 
 	case termbox.KeyEnter:
-		return self.execute().done()
+		return editor.execute().done()
 
         case termbox.KeyBackspace, termbox.KeyBackspace2:
-		self.delete_previous_character()
+		editor.deletePreviousCharacter()
 
 	case termbox.KeyCtrlB, termbox.KeyArrowLeft:
-		self.move_left()
+		editor.moveLeft()
 
 	case termbox.KeyCtrlF, termbox.KeyArrowRight:
-		self.move_right()
+		editor.moveRight()
 
 	case termbox.KeyCtrlA:
-		self.jump_to_beginning()
+		editor.jumpToBeginning()
 
 	case termbox.KeyCtrlE:
-		self.jump_to_end()
+		editor.jumpToEnd()
 
 	case termbox.KeySpace:
-		self.insert_character(' ')
+		editor.insertCharacter(' ')
 
 	default:
 		if ev.Ch != 0 {
-			self.insert_character(ev.Ch)
+			editor.insertCharacter(ev.Ch)
 		}
 	}
 
@@ -83,103 +83,103 @@ func (self *LineEditor) Handle(ev termbox.Event) bool {
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) delete_previous_character() *LineEditor {
-	if self.cursor > 0 {
-		if self.cursor < len(self.input) {
+func (editor *LineEditor) deletePreviousCharacter() *LineEditor {
+	if editor.cursor > 0 {
+		if editor.cursor < len(editor.input) {
 			// Remove character in the middle of the input string.
-			self.input = self.input[0 : self.cursor-1] + self.input[self.cursor : len(self.input)]
+			editor.input = editor.input[0 : editor.cursor-1] + editor.input[editor.cursor : len(editor.input)]
 		} else {
 			// Remove last input character.
-			self.input = self.input[ : len(self.input)-1]
+			editor.input = editor.input[ : len(editor.input)-1]
 		}
-		self.screen.DrawLine(len(self.prompt), 3, self.input + ` `) // Erase last character.
-		self.move_left()
+		editor.screen.DrawLine(len(editor.prompt), 3, editor.input + ` `) // Erase last character.
+		editor.moveLeft()
 	}
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) insert_character(ch rune) *LineEditor {
-	if self.cursor < len(self.input) {
+func (editor *LineEditor) insertCharacter(ch rune) *LineEditor {
+	if editor.cursor < len(editor.input) {
 		// Insert the character in the middle of the input string.
-		self.input = self.input[0 : self.cursor] + string(ch) + self.input[self.cursor : len(self.input)]
+		editor.input = editor.input[0 : editor.cursor] + string(ch) + editor.input[editor.cursor : len(editor.input)]
 	} else {
 		// Append the character to the end of the input string.
-		self.input += string(ch)
+		editor.input += string(ch)
 	}
-	self.screen.DrawLine(len(self.prompt), 3, self.input)
-	self.move_right()
+	editor.screen.DrawLine(len(editor.prompt), 3, editor.input)
+	editor.moveRight()
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) move_left() *LineEditor {
-	if self.cursor > 0 {
-		self.cursor--
-		termbox.SetCursor(len(self.prompt) + self.cursor, 3)
-	}
-
-	return self
-}
-
-//-----------------------------------------------------------------------------
-func (self *LineEditor) move_right() *LineEditor {
-	if self.cursor < len(self.input) {
-		self.cursor++
-		termbox.SetCursor(len(self.prompt) + self.cursor, 3)
+func (editor *LineEditor) moveLeft() *LineEditor {
+	if editor.cursor > 0 {
+		editor.cursor--
+		termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
 	}
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) jump_to_beginning() *LineEditor {
-	self.cursor = 0
-	termbox.SetCursor(len(self.prompt) + self.cursor, 3)
+func (editor *LineEditor) moveRight() *LineEditor {
+	if editor.cursor < len(editor.input) {
+		editor.cursor++
+		termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
+	}
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) jump_to_end() *LineEditor {
-	self.cursor = len(self.input)
-	termbox.SetCursor(len(self.prompt) + self.cursor, 3)
+func (editor *LineEditor) jumpToBeginning() *LineEditor {
+	editor.cursor = 0
+	termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) execute() *LineEditor {
-	switch self.command {
+func (editor *LineEditor) jumpToEnd() *LineEditor {
+	editor.cursor = len(editor.input)
+	termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
+
+	return editor
+}
+
+//-----------------------------------------------------------------------------
+func (editor *LineEditor) execute() *LineEditor {
+	switch editor.command {
 	case '+':
-		tickers := self.tokenize()
+		tickers := editor.tokenize()
 		if len(tickers) > 0 {
-			if added,_ := self.quotes.AddTickers(tickers); added > 0 {
-				self.screen.Draw(self.quotes)
+			if added,_ := editor.quotes.AddTickers(tickers); added > 0 {
+				editor.screen.Draw(editor.quotes)
 			}
 		}
 	case '-':
-		tickers := self.tokenize()
+		tickers := editor.tokenize()
 		if len(tickers) > 0 {
-			before := len(self.quotes.profile.Tickers)
-			if removed,_ := self.quotes.RemoveTickers(tickers); removed > 0 {
-				self.screen.Draw(self.quotes)
+			before := len(editor.quotes.profile.Tickers)
+			if removed,_ := editor.quotes.RemoveTickers(tickers); removed > 0 {
+				editor.screen.Draw(editor.quotes)
 				after := before - removed
 				for i := before; i > after; i-- {
-					self.screen.ClearLine(0, i + 4)
+					editor.screen.ClearLine(0, i + 4)
 				}
 			}
 		}
 	}
 
-	return self
+	return editor
 }
 
 //-----------------------------------------------------------------------------
-func (self *LineEditor) done() bool {
-	self.screen.ClearLine(0, 3)
+func (editor *LineEditor) done() bool {
+	editor.screen.ClearLine(0, 3)
 	termbox.HideCursor()
 
 	return true
@@ -189,7 +189,7 @@ func (self *LineEditor) done() bool {
 // Split by whitespace/comma to convert a string to array of tickers. Make sure
 // the string is trimmed to avoid empty tickers in the array.
 //
-func (self *LineEditor) tokenize() []string {
-	input := strings.ToUpper(strings.Trim(self.input, `, `))
-	return self.regex.Split(input, -1)
+func (editor *LineEditor) tokenize() []string {
+	input := strings.ToUpper(strings.Trim(editor.input, `, `))
+	return editor.regex.Split(input, -1)
 }
