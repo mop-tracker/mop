@@ -10,6 +10,10 @@ import (
 	`strings`
 )
 
+// LineEditor kicks in when user presses '+' or '-' to add or delete stock
+// tickers. The data structure and methods are used to collect the input
+// data and keep track of cursor movements (left, right, beginning of the
+// line, end of the line, and backspace).
 type LineEditor struct {
 	command  rune		// Keyboard command such as '+' or '-'.
 	cursor   int 		// Current cursor position within the input line.
@@ -20,7 +24,7 @@ type LineEditor struct {
 	regex   *regexp.Regexp	// Regex to split comma-delimited input string.
 }
 
-//-----------------------------------------------------------------------------
+// Initialize sets internal pointers and compiles the regular expression.
 func (editor *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
 	editor.screen = screen
 	editor.quotes = quotes
@@ -29,7 +33,9 @@ func (editor *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// Prompt displays a prompt in response to '+' or '-' commands. Unknown commands
+// are simply ignored. The prompt is displayed on the 3rd line (between the market
+// data and the stock quotes).
 func (editor *LineEditor) Prompt(command rune) *LineEditor {
 	prompts := map[rune]string{'+': `Add tickers: `, '-': `Remove tickers: `}
 	if prompt, ok := prompts[command]; ok {
@@ -44,7 +50,11 @@ func (editor *LineEditor) Prompt(command rune) *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// Handle takes over the keyboard events and dispatches them to appropriate
+// line editor handlers. As user types or edits the text cursor movements
+// are tracked in `editor.cursor` while the text itself is stored in
+// `editor.input`. The method returns true when user presses Esc (discard)
+// or Enter (process).
 func (editor *LineEditor) Handle(ev termbox.Event) bool {
 	defer termbox.Flush()
 
@@ -166,6 +176,8 @@ func (editor *LineEditor) execute() *LineEditor {
 			before := len(editor.quotes.profile.Tickers)
 			if removed,_ := editor.quotes.RemoveTickers(tickers); removed > 0 {
 				editor.screen.Draw(editor.quotes)
+
+				// Clear the lines at the bottom of the list, if any.
 				after := before - removed
 				for i := before; i > after; i-- {
 					editor.screen.ClearLine(0, i + 4)
@@ -185,10 +197,8 @@ func (editor *LineEditor) done() bool {
 	return true
 }
 
-//
 // Split by whitespace/comma to convert a string to array of tickers. Make sure
 // the string is trimmed to avoid empty tickers in the array.
-//
 func (editor *LineEditor) tokenize() []string {
 	input := strings.ToUpper(strings.Trim(editor.input, `, `))
 	return editor.regex.Split(input, -1)
