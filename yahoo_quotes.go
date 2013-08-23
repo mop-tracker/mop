@@ -11,6 +11,7 @@ import (
 	`io/ioutil`
 	`net/http`
 	`reflect`
+	`strings`
 )
 
 // See http://www.gummy-stuff.org/Yahoo-stocks.htm
@@ -88,7 +89,7 @@ func (self *Quotes) Fetch() (this *Quotes) {
 			}
 		}()
 
-		url := fmt.Sprintf(quotes_url, self.profile.ListOfTickers())
+		url := fmt.Sprintf(quotes_url, strings.Join(self.profile.Tickers, `+`))
 		response, err := http.Get(url)
 		if err != nil {
 			panic(err)
