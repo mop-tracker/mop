@@ -92,7 +92,7 @@ loop:
 
 		case <-timestampQueue.C:
 			if !showingHelp {
-				screen.DrawTime()
+				screen.Draw(time.Now())
 			}
 
 		case <-quotesQueue.C:

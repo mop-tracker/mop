@@ -72,6 +72,9 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 		case *Quotes:
 			object := ptr.(*Quotes)
 			screen.draw(screen.layout.Quotes(object.Fetch()))
+		case time.Time:
+			timestamp := ptr.(time.Time).Format(`3:04:05pm PST`)
+			screen.DrawLine(0, 0, `<right>` + timestamp + `</right>`)
 		default:
 			screen.draw(ptr.(string))
 		}
@@ -99,13 +102,6 @@ func (screen *Screen) DrawLine(x int, y int, str string) {
 	}
 	termbox.Flush()
 }
-
-// DrawTime ...
-func (screen *Screen) DrawTime() {
-	now := time.Now().Format(`3:04:05pm PST`)
-	screen.DrawLine(0, 0, `<right>` + now + `</right>`)
-}
-
 
 //-----------------------------------------------------------------------------
 func (screen *Screen) draw(str string) {
