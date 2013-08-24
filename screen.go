@@ -10,16 +10,19 @@ import (
 	`time`
 )
 
-// Screen ...
+// Screen is thin wrapper aroung Termbox library to provide basic display
+// capabilities as requied by Mop.
 type Screen struct {
-	width	  int
-	height	  int
-	cleared   bool
-	layout   *Layout
-	markup   *Markup
+	width	  int     // Current number of columns.
+	height	  int     // Current number of rows.
+	cleared   bool    // True after the screens gets cleared.
+	layout   *Layout  // Pointer to layout (gets created by screen).
+	markup   *Markup  // Pointer to markup processor (gets created by screen).
 }
 
-// Initialize ...
+// Initialize loads the Termbox, allocates and initializes layout and markup,
+// and calculates current screen dimensions. Once initialized the screen is
+// ready for display.
 func (screen *Screen) Initialize() *Screen {
 	if err := termbox.Init(); err != nil {
 		panic(err)
@@ -30,14 +33,15 @@ func (screen *Screen) Initialize() *Screen {
 	return screen.Resize()
 }
 
-// Close ...
+// Close gets called upon program termination to close the Termbox.
 func (screen *Screen) Close() *Screen {
 	termbox.Close()
 
 	return screen
 }
 
-// Resize ...
+// Resize gets called when the screen is being resized. It recalculates screen
+// dimensions and requests to clear the screen on next update.
 func (screen *Screen) Resize() *Screen {
 	screen.width, screen.height = termbox.Size()
 	screen.cleared = false
@@ -45,7 +49,7 @@ func (screen *Screen) Resize() *Screen {
 	return screen
 }
 
-// Clear ...
+// Clear makes the entire screen blank using default background color.
 func (screen *Screen) Clear() *Screen {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	screen.cleared = true
@@ -53,16 +57,19 @@ func (screen *Screen) Clear() *Screen {
 	return screen
 }
 
-// ClearLine ...
-func (screen *Screen) ClearLine(x int, y int) {
+// ClearLine erases the contents of the line starting from (x,y) coordinate
+// till the end of the line.
+func (screen *Screen) ClearLine(x int, y int) *Screen {
 	for i := x; i < screen.width; i++ {
 		termbox.SetCell(i, y, ' ', termbox.ColorDefault, termbox.ColorDefault)
 	}
-
 	termbox.Flush()
+
+	return screen
 }
 
-// Draw ...
+// Draw accepts variable number of arguments and knows how to display the
+// market data, stock quotes, current time, and an arbitrary string.
 func (screen *Screen) Draw(objects ...interface{}) *Screen {
 	for _, ptr := range objects {
 		switch ptr.(type) {
@@ -83,27 +90,33 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 	return screen
 }
 
-// DrawLine ...
+// DrawLine takes the incoming string, tokenizes it to extract markup
+// elements, and displays it all starting at (x,y) location.
 func (screen *Screen) DrawLine(x int, y int, str string) {
 	start, column := 0, 0
 
 	for _, token := range screen.markup.Tokenize(str) {
-		if !screen.markup.IsTag(token) {
-			for i, char := range token {
-				if !screen.markup.RightAligned {
-					start = x + column
-					column++
-				} else {
-					start = screen.width - len(token) + i
-				}
-				termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
+		// First check if it's a tag. Tags are eaten up and not displayed.
+		if screen.markup.IsTag(token) {
+			continue
+		}
+
+		// Here comes the actual text: display it one character at a time.
+		for i, char := range token {
+			if !screen.markup.RightAligned {
+				start = x + column
+				column++
+			} else {
+				start = screen.width - len(token) + i
 			}
+			termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
 		}
 	}
 	termbox.Flush()
 }
 
-//-----------------------------------------------------------------------------
+// Underlying workhorse function that takes multiline string, splits it into
+// lines, and displays them row by row.
 func (screen *Screen) draw(str string) {
 	if !screen.cleared {
 		screen.Clear()
