@@ -1,15 +1,21 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
-// Use of this source code is governed by a MIT-style
-// license that can be found in the LICENSE file.
-//-----------------------------------------------------------------------------
+// Use of this source code is governed by a MIT-style license that can
+// be found in the LICENSE file.
 
 package mop
 
 import (
 	`sort`
-	`strings`
 	`strconv`
+	`strings`
 )
+
+// Sorter gets called to sort stock quotes by one of the columns. The
+// setup is rather lengthy; there should probably be more concise way
+// that uses reflection and avoids hardcoding the column names.
+type Sorter struct {
+	profile  *Profile  // Pointer to where we store sort column and order.
+}
 
 type sortable []Stock
 func (list sortable) Len() int { return len(list) }
@@ -79,20 +85,19 @@ func (list byDividendDesc)    Less(i, j int) bool { return list.sortable[j].Divi
 func (list byYieldDesc)       Less(i, j int) bool { return list.sortable[j].Yield         < list.sortable[i].Yield }
 func (list byMarketCapDesc)   Less(i, j int) bool { return m(list.sortable[j].MarketCap)  < m(list.sortable[i].MarketCap) }
 
-type Sorter struct {
-	profile  *Profile
+// Initialize simply saves the pointer to Profile for later use.
+func (sorter *Sorter) Initialize(profile *Profile) *Sorter {
+	sorter.profile = profile
+
+	return sorter
 }
 
-func (self *Sorter) Initialize(profile *Profile) *Sorter {
-	self.profile = profile
-
-	return self
-}
-
-func (self *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
+// SortByCurrentColumn builds a list of sort interface based on current sort
+// order, then calls sort.Sort to do the actual job.
+func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 	var interfaces []sort.Interface
 
-	if self.profile.Ascending {
+	if sorter.profile.Ascending {
 		interfaces = []sort.Interface{
 			byTickerAsc       { stocks },
 			byLastTradeAsc    { stocks },
@@ -130,22 +135,25 @@ func (self *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 		}
 	}
 
-	sort.Sort(interfaces[self.profile.SortColumn])
+	sort.Sort(interfaces[sorter.profile.SortColumn])
 
-	return self
+	return sorter
 }
 
-// The same exact method is used to sort by Change and Change%. In both cases
-// we sort by the value of Change% so that $0.00 change gets sorted proferly.
+// The same exact method is used to sort by $Change and Change%. In both cases
+// we sort by the value of Change% so that multiple $0.00s get sorted proferly.
 func c(str string) float32 {
 	trimmed := strings.Replace(strings.Trim(str, ` %`), `$`, ``, 1)
 	value, _ := strconv.ParseFloat(trimmed, 32)
 	return float32(value)
 }
 
+// When sorting by the market value we must first convert 42B etc. notations
+// to proper numeric values.
 func m(str string) float32 {
 	multiplier := 1.0
-	switch str[len(str)-1:len(str)] {
+
+	switch str[len(str)-1:len(str)] {	// Check the last character.
 	case `B`:
 		multiplier = 1000000000.0
 	case `M`:
@@ -153,7 +161,9 @@ func m(str string) float32 {
 	case `K`:
 		multiplier = 1000.0
 	}
-	trimmed := strings.Trim(str, ` $BMK`)
+
+	trimmed := strings.Trim(str, ` $BMK`)	// Get rid of non-numeric characters.
 	value, _ := strconv.ParseFloat(trimmed, 32)
+
 	return float32(value * multiplier)
 }
