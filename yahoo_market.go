@@ -1,47 +1,46 @@
 // Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
-// Use of this source code is governed by a MIT-style
-// license that can be found in the LICENSE file.
-//-----------------------------------------------------------------------------
+// Use of this source code is governed by a MIT-style license that can
+// be found in the LICENSE file.
 
 package mop
 
 import (
-	`fmt`
 	`bytes`
+	`fmt`
 	`io/ioutil`
 	`net/http`
 	`regexp`
 	`strings`
 )
 
-const market_url = `http://finance.yahoo.com/marketupdate/overview`
+const marketURL = `http://finance.yahoo.com/marketupdate/overview`
 
 type Market struct {
-	IsClosed   bool
-	Dow        map[string]string
-	Nasdaq     map[string]string
-	Sp500      map[string]string
-	Advances   map[string]string
-	Declines   map[string]string
-	Unchanged  map[string]string
-	Highs      map[string]string
-	Lows       map[string]string
-	regex      *regexp.Regexp
-	errors     string
+	IsClosed   bool		      // True when U.S. markets are closed.
+	Dow        map[string]string  // Hash of Dow Jones indicators.
+	Nasdaq     map[string]string  // Hash of NASDAQ indicators.
+	Sp500      map[string]string  // Hash of S&P 500 indicators.
+	Advances   map[string]string  //
+	Declines   map[string]string  //
+	Unchanged  map[string]string  //
+	Highs      map[string]string  //
+	Lows       map[string]string  //
+	regex      *regexp.Regexp     //
+	errors     string	      //
 }
 
 //-----------------------------------------------------------------------------
-func (self *Market) Initialize() *Market {
-	self.IsClosed   = false
-	self.Dow        = make(map[string]string)
-	self.Nasdaq     = make(map[string]string)
-	self.Sp500      = make(map[string]string)
-	self.Advances   = make(map[string]string)
-	self.Declines   = make(map[string]string)
-	self.Unchanged  = make(map[string]string)
-	self.Highs      = make(map[string]string)
-	self.Lows       = make(map[string]string)
-	self.errors     = ``
+func (market *Market) Initialize() *Market {
+	market.IsClosed   = false
+	market.Dow        = make(map[string]string)
+	market.Nasdaq     = make(map[string]string)
+	market.Sp500      = make(map[string]string)
+	market.Advances   = make(map[string]string)
+	market.Declines   = make(map[string]string)
+	market.Unchanged  = make(map[string]string)
+	market.Highs      = make(map[string]string)
+	market.Lows       = make(map[string]string)
+	market.errors     = ``
 
 	const any = `\s*<.+?>`
 	const some = `<.+?`
@@ -61,21 +60,21 @@ func (self *Market) Initialize() *Market {
 		`(New Lo's)`, any, price, any, price, any,
 	}
 
-	self.regex = regexp.MustCompile(strings.Join(rules, ``))
+	market.regex = regexp.MustCompile(strings.Join(rules, ``))
 
-	return self
+	return market
 }
 
 //-----------------------------------------------------------------------------
-func (self *Market) Fetch() (this *Market) {
-	this = self // <-- This ensures we return correct self after recover() from panic() attack.
+func (market *Market) Fetch() (this *Market) {
+	this = market // <-- This ensures we return correct market after recover() from panic() attack.
 	defer func() {
 		if err := recover(); err != nil {
-			self.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
+			market.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
 		}
 	}()
 
-	response, err := http.Get(market_url)
+	response, err := http.Get(marketURL)
 	if err != nil {
 		panic(err)
 	}
@@ -86,28 +85,28 @@ func (self *Market) Fetch() (this *Market) {
 		panic(err)
 	}
 
-	body = self.check_if_market_open(body)
-	return self.extract(self.trim(body))
+	body = market.checkIfMarketIsOpen(body)
+	return market.extract(market.trim(body))
 }
 
 //-----------------------------------------------------------------------------
-func (self *Market) Ok() (bool, string) {
-	return self.errors == ``, self.errors
+func (market *Market) Ok() (bool, string) {
+	return market.errors == ``, market.errors
 }
 
 // private
 //-----------------------------------------------------------------------------
-func (self *Market) check_if_market_open(body []byte) []byte {
+func (market *Market) checkIfMarketIsOpen(body []byte) []byte {
 	start := bytes.Index(body, []byte(`id="yfs_market_time"`))
 	finish := start + bytes.Index(body[start:], []byte(`</span>`))
 	snippet := body[start:finish]
-	self.IsClosed = bytes.Contains(snippet, []byte(`closed`)) || bytes.Contains(snippet, []byte(`open in`))
+	market.IsClosed = bytes.Contains(snippet, []byte(`closed`)) || bytes.Contains(snippet, []byte(`open in`))
 
 	return body[finish:]
 }
 
 //-----------------------------------------------------------------------------
-func (self *Market) trim(body []byte) []byte {
+func (market *Market) trim(body []byte) []byte {
 	start := bytes.Index(body, []byte(`<table id="yfimktsumm"`))
 	finish := bytes.LastIndex(body, []byte(`<table id="yfimktsumm"`))
 	snippet := bytes.Replace(body[start:finish], []byte{'\n'}, []byte{}, -1)
@@ -117,79 +116,79 @@ func (self *Market) trim(body []byte) []byte {
 }
 
 //-----------------------------------------------------------------------------
-func (self *Market) extract(snippet []byte) *Market {
-	matches := self.regex.FindAllStringSubmatch(string(snippet), -1)
+func (market *Market) extract(snippet []byte) *Market {
+	matches := market.regex.FindAllStringSubmatch(string(snippet), -1)
 	if len(matches) < 1 || len(matches[0]) < 37 {
-		panic(`Unable to parse ` + market_url)
+		panic(`Unable to parse ` + marketURL)
 	}
 
-	self.Dow[`name`] = matches[0][1]
-	self.Dow[`latest`] = matches[0][2]
-	self.Dow[`change`] = matches[0][4]
+	market.Dow[`name`] = matches[0][1]
+	market.Dow[`latest`] = matches[0][2]
+	market.Dow[`change`] = matches[0][4]
 	switch matches[0][3] {
 	case `008800`:
-		self.Dow[`change`] = `+` + matches[0][4]
-		self.Dow[`percent`] = `+` + matches[0][5]
+		market.Dow[`change`] = `+` + matches[0][4]
+		market.Dow[`percent`] = `+` + matches[0][5]
 	case `cc0000`:
-		self.Dow[`change`] = `-` + matches[0][4]
-		self.Dow[`percent`] = `-` + matches[0][5]
+		market.Dow[`change`] = `-` + matches[0][4]
+		market.Dow[`percent`] = `-` + matches[0][5]
 	default:
-		self.Dow[`change`] = matches[0][4]
-		self.Dow[`percent`] = matches[0][5]
+		market.Dow[`change`] = matches[0][4]
+		market.Dow[`percent`] = matches[0][5]
 	}
 
-	self.Nasdaq[`name`] = matches[0][6]
-	self.Nasdaq[`latest`] = matches[0][7]
+	market.Nasdaq[`name`] = matches[0][6]
+	market.Nasdaq[`latest`] = matches[0][7]
 	switch matches[0][8] {
 	case `008800`:
-		self.Nasdaq[`change`] = `+` + matches[0][9]
-		self.Nasdaq[`percent`] = `+` + matches[0][10]
+		market.Nasdaq[`change`] = `+` + matches[0][9]
+		market.Nasdaq[`percent`] = `+` + matches[0][10]
 	case `cc0000`:
-		self.Nasdaq[`change`] = `-` + matches[0][9]
-		self.Nasdaq[`percent`] = `-` + matches[0][10]
+		market.Nasdaq[`change`] = `-` + matches[0][9]
+		market.Nasdaq[`percent`] = `-` + matches[0][10]
 	default:
-		self.Nasdaq[`change`] = matches[0][9]
-		self.Nasdaq[`percent`] = matches[0][10]
+		market.Nasdaq[`change`] = matches[0][9]
+		market.Nasdaq[`percent`] = matches[0][10]
 	}
 
-	self.Sp500[`name`] = matches[0][11]
-	self.Sp500[`latest`] = matches[0][12]
+	market.Sp500[`name`] = matches[0][11]
+	market.Sp500[`latest`] = matches[0][12]
 	switch matches[0][13] {
 	case `008800`:
-		self.Sp500[`change`] = `+` + matches[0][14]
-		self.Sp500[`percent`] = `+` + matches[0][15]
+		market.Sp500[`change`] = `+` + matches[0][14]
+		market.Sp500[`percent`] = `+` + matches[0][15]
 	case `cc0000`:
-		self.Sp500[`change`] = `-` + matches[0][14]
-		self.Sp500[`percent`] = `-` + matches[0][15]
+		market.Sp500[`change`] = `-` + matches[0][14]
+		market.Sp500[`percent`] = `-` + matches[0][15]
 	default:
-		self.Sp500[`change`] = matches[0][14]
-		self.Sp500[`percent`] = matches[0][15]
+		market.Sp500[`change`] = matches[0][14]
+		market.Sp500[`percent`] = matches[0][15]
 	}
 
-	self.Advances[`name`] = matches[0][16]
-	self.Advances[`nyse`] = matches[0][17]
-	self.Advances[`nysep`] = matches[0][18]
-	self.Advances[`nasdaq`] = matches[0][19]
-	self.Advances[`nasdaqp`] = matches[0][20]
+	market.Advances[`name`] = matches[0][16]
+	market.Advances[`nyse`] = matches[0][17]
+	market.Advances[`nysep`] = matches[0][18]
+	market.Advances[`nasdaq`] = matches[0][19]
+	market.Advances[`nasdaqp`] = matches[0][20]
 
-	self.Declines[`name`] = matches[0][21]
-	self.Declines[`nyse`] = matches[0][22]
-	self.Declines[`nysep`] = matches[0][23]
-	self.Declines[`nasdaq`] = matches[0][24]
-	self.Declines[`nasdaqp`] = matches[0][25]
+	market.Declines[`name`] = matches[0][21]
+	market.Declines[`nyse`] = matches[0][22]
+	market.Declines[`nysep`] = matches[0][23]
+	market.Declines[`nasdaq`] = matches[0][24]
+	market.Declines[`nasdaqp`] = matches[0][25]
 
-	self.Unchanged[`name`] = matches[0][26]
-	self.Unchanged[`nyse`] = matches[0][27]
-	self.Unchanged[`nysep`] = matches[0][28]
-	self.Unchanged[`nasdaq`] = matches[0][29]
-	self.Unchanged[`nasdaqp`] = matches[0][30]
+	market.Unchanged[`name`] = matches[0][26]
+	market.Unchanged[`nyse`] = matches[0][27]
+	market.Unchanged[`nysep`] = matches[0][28]
+	market.Unchanged[`nasdaq`] = matches[0][29]
+	market.Unchanged[`nasdaqp`] = matches[0][30]
 
-	self.Highs[`name`] = matches[0][31]
-	self.Highs[`nyse`] = matches[0][32]
-	self.Highs[`nasdaq`] = matches[0][33]
-	self.Lows[`name`] = matches[0][34]
-	self.Lows[`nyse`] = matches[0][35]
-	self.Lows[`nasdaq`] = matches[0][36]
+	market.Highs[`name`] = matches[0][31]
+	market.Highs[`nyse`] = matches[0][32]
+	market.Highs[`nasdaq`] = matches[0][33]
+	market.Lows[`name`] = matches[0][34]
+	market.Lows[`nyse`] = matches[0][35]
+	market.Lows[`nasdaq`] = matches[0][36]
 
-	return self
+	return market
 }
