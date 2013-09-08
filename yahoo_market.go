@@ -15,21 +15,24 @@ import (
 
 const marketURL = `http://finance.yahoo.com/marketupdate/overview`
 
+// Market stores current market information displayed in the top three lines of
+// the screen. The market data is fetched and parsed from the HTML page above.
 type Market struct {
 	IsClosed   bool		      // True when U.S. markets are closed.
 	Dow        map[string]string  // Hash of Dow Jones indicators.
 	Nasdaq     map[string]string  // Hash of NASDAQ indicators.
 	Sp500      map[string]string  // Hash of S&P 500 indicators.
-	Advances   map[string]string  //
-	Declines   map[string]string  //
-	Unchanged  map[string]string  //
-	Highs      map[string]string  //
-	Lows       map[string]string  //
-	regex      *regexp.Regexp     //
-	errors     string	      //
+	Advances   map[string]string  // Number of advanced stocks on NYSE and NASDAQ.
+	Declines   map[string]string  // Ditto for declines.
+	Unchanged  map[string]string  // Ditto for unchanged.
+	Highs      map[string]string  // Number of new highs on NYSE and NASDAQ.
+	Lows       map[string]string  // Ditto for new lows.
+	regex      *regexp.Regexp     // Regex to parse market data from HTML.
+	errors     string	      // Error(s), if any.
 }
 
-//-----------------------------------------------------------------------------
+// Initialize creates empty hashes and builds regular expression used to parse
+// market data from HTML page.
 func (market *Market) Initialize() *Market {
 	market.IsClosed   = false
 	market.Dow        = make(map[string]string)
@@ -65,9 +68,10 @@ func (market *Market) Initialize() *Market {
 	return market
 }
 
-//-----------------------------------------------------------------------------
-func (market *Market) Fetch() (this *Market) {
-	this = market // <-- This ensures we return correct market after recover() from panic() attack.
+// Fetch downloads HTML page from the 'marketURL', parses it, and stores resulting data
+// in internal hashes. If download or data parsing fails Fetch populates 'market.errors'.
+func (market *Market) Fetch() (self *Market) {
+	self = market // <-- This ensures we return correct market after recover() from panic().
 	defer func() {
 		if err := recover(); err != nil {
 			market.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
@@ -89,12 +93,12 @@ func (market *Market) Fetch() (this *Market) {
 	return market.extract(market.trim(body))
 }
 
-//-----------------------------------------------------------------------------
+// Ok returns two values: 1) boolean indicating whether the error has occured,
+// and 2) the error text itself.
 func (market *Market) Ok() (bool, string) {
 	return market.errors == ``, market.errors
 }
 
-// private
 //-----------------------------------------------------------------------------
 func (market *Market) checkIfMarketIsOpen(body []byte) []byte {
 	start := bytes.Index(body, []byte(`id="yfs_market_time"`))
