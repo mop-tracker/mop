@@ -18,9 +18,11 @@ import (
 // Also http://query.yahooapis.com/v1/public/yql
 // ?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in(%22ALU%22,%22AAPL%22)
 // &env=http%3A%2F%2Fstockstables.org%2Falltables.env&format=json'
-//
+
 const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
 
+// Stock stores quote information for the particular stock ticker. The data
+// for all the fields except 'Advancing' is fetched using Yahoo market API.
 type Stock struct {
 	Ticker      string  // Stock ticker.
 	LastTrade   string  // l1: last trade.
@@ -42,14 +44,17 @@ type Stock struct {
 	Advancing   bool    // True when change is >= $0.
 }
 
+// Quotes stores relevant pointers as well as the array of stock quotes for
+// the tickers we are tracking.
 type Quotes struct {
-	market	    *Market
-	profile	    *Profile
-	stocks	    []Stock
-	errors      string
+	market	  *Market   // Pointer to Market.
+	profile	  *Profile  // Pointer to Profile.
+	stocks	   []Stock  // Array of stock quote data.
+	errors     string   // Error string if any.
 }
 
-//-----------------------------------------------------------------------------
+// Initialize sets the initial values for the Quotes struct. It returns "self"
+// so that the next function call could be chained.
 func (quotes *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
 	quotes.market = market
 	quotes.profile = profile
@@ -60,8 +65,8 @@ func (quotes *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
 
 // Fetch the latest stock quotes and parse raw fetched data into array of
 // []Stock structs.
-func (quotes *Quotes) Fetch() (this *Quotes) {
-	this = quotes // <-- This ensures we return correct quotes after recover() from panic() attack.
+func (quotes *Quotes) Fetch() (self *Quotes) {
+	self = quotes // <-- This ensures we return correct quotes after recover() from panic().
 	if quotes.isReady() {
 		defer func() {
 			if err := recover(); err != nil {
@@ -87,12 +92,15 @@ func (quotes *Quotes) Fetch() (this *Quotes) {
 	return quotes
 }
 
-//-----------------------------------------------------------------------------
+// Ok returns two values: 1) boolean indicating whether the error has occured,
+// and 2) the error text itself.
 func (quotes *Quotes) Ok() (bool, string) {
 	return quotes.errors == ``, quotes.errors
 }
 
-//-----------------------------------------------------------------------------
+// AddTickers saves the list of tickers and refreshes the stock data if new
+// tickers have been added. The function gets called from the line editor
+// when user adds new stock tickers.
 func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
 	if added, err = quotes.profile.AddTickers(tickers); err == nil && added > 0 {
 		quotes.stocks = nil	// Force fetch.
@@ -100,7 +108,9 @@ func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
 	return
 }
 
-//-----------------------------------------------------------------------------
+// RemoveTickers saves the list of tickers and refreshes the stock data if some
+// tickers have been removed. The function gets called from the line editor
+// when user removes existing stock tickers.
 func (quotes *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 	if removed, err = quotes.profile.RemoveTickers(tickers); err == nil && removed > 0 {
 		quotes.stocks = nil	// Force fetch.
@@ -115,8 +125,8 @@ func (quotes *Quotes) isReady() bool {
 	return (quotes.stocks == nil || !quotes.market.IsClosed) && len(quotes.profile.Tickers) > 0
 }
 
-
-//-----------------------------------------------------------------------------
+// Use reflection to parse and assign the quotes data fetched using the Yahoo
+// market API.
 func (quotes *Quotes) parse(body []byte) *Quotes {
 	lines := bytes.Split(body, []byte{'\n'})
 	quotes.stocks = make([]Stock, len(lines))
