@@ -1,7 +1,7 @@
-### Welcome to Mop ###
+### Mop: track stocks the hacker way ###
 Mop is a command-line utility that displays continuous up-to-date
-information about the U.S. markets and individual stocks. One picture
-is worth a thousand words:
+information about the U.S. markets and individual stocks. One
+screenhot is worth a thousand words:
 
 ![Screenshot](https://raw.github.com/michaeldv/mop/master/doc/screenshot.png "Mop Screenshot")
 
@@ -34,13 +34,13 @@ directory.
 
 
 ### Contributing ###
-Mop is my personal project that I've came up with to learn Go programming.
-Your comments, suggestions, and contributions are welcome.
+Mop is my personal project I came up with to learn Go programming. Your
+comments, suggestions, and contributions are welcome.
 
 * Fork the project on Github.
 * Make your feature addition or bug fix.
 * Commit, do not change program version, or commit history.
-* Send me commit URL (*do not* send pull requests).
+* Email me commit URL (*do not* send pull requests).
 
 
 ### License ###
