@@ -18,32 +18,32 @@ const marketURL = `http://finance.yahoo.com/marketupdate/overview`
 // Market stores current market information displayed in the top three lines of
 // the screen. The market data is fetched and parsed from the HTML page above.
 type Market struct {
-	IsClosed   bool		      // True when U.S. markets are closed.
-	Dow        map[string]string  // Hash of Dow Jones indicators.
-	Nasdaq     map[string]string  // Hash of NASDAQ indicators.
-	Sp500      map[string]string  // Hash of S&P 500 indicators.
-	Advances   map[string]string  // Number of advanced stocks on NYSE and NASDAQ.
-	Declines   map[string]string  // Ditto for declines.
-	Unchanged  map[string]string  // Ditto for unchanged.
-	Highs      map[string]string  // Number of new highs on NYSE and NASDAQ.
-	Lows       map[string]string  // Ditto for new lows.
-	regex      *regexp.Regexp     // Regex to parse market data from HTML.
-	errors     string	      // Error(s), if any.
+	IsClosed  bool              // True when U.S. markets are closed.
+	Dow       map[string]string // Hash of Dow Jones indicators.
+	Nasdaq    map[string]string // Hash of NASDAQ indicators.
+	Sp500     map[string]string // Hash of S&P 500 indicators.
+	Advances  map[string]string // Number of advanced stocks on NYSE and NASDAQ.
+	Declines  map[string]string // Ditto for declines.
+	Unchanged map[string]string // Ditto for unchanged.
+	Highs     map[string]string // Number of new highs on NYSE and NASDAQ.
+	Lows      map[string]string // Ditto for new lows.
+	regex     *regexp.Regexp    // Regex to parse market data from HTML.
+	errors    string            // Error(s), if any.
 }
 
 // Initialize creates empty hashes and builds regular expression used to parse
 // market data from HTML page.
 func (market *Market) Initialize() *Market {
-	market.IsClosed   = false
-	market.Dow        = make(map[string]string)
-	market.Nasdaq     = make(map[string]string)
-	market.Sp500      = make(map[string]string)
-	market.Advances   = make(map[string]string)
-	market.Declines   = make(map[string]string)
-	market.Unchanged  = make(map[string]string)
-	market.Highs      = make(map[string]string)
-	market.Lows       = make(map[string]string)
-	market.errors     = ``
+	market.IsClosed = false
+	market.Dow = make(map[string]string)
+	market.Nasdaq = make(map[string]string)
+	market.Sp500 = make(map[string]string)
+	market.Advances = make(map[string]string)
+	market.Declines = make(map[string]string)
+	market.Unchanged = make(map[string]string)
+	market.Highs = make(map[string]string)
+	market.Lows = make(map[string]string)
+	market.errors = ``
 
 	const any = `\s*<.+?>`
 	const some = `<.+?`
