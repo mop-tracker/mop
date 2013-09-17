@@ -1,7 +1,7 @@
 ### Mop: track stocks the hacker way ###
 Mop is a command-line utility that displays continuous up-to-date
 information about the U.S. markets and individual stocks. One
-screenhot is worth a thousand words:
+screenshot is worth a thousand words:
 
 ![Screenshot](https://raw.github.com/michaeldv/mop/master/doc/screenshot.png "Mop Screenshot")
 
