@@ -15,13 +15,13 @@ import (
 // data and keep track of cursor movements (left, right, beginning of the
 // line, end of the line, and backspace).
 type LineEditor struct {
-	command  rune		// Keyboard command such as '+' or '-'.
-	cursor   int 		// Current cursor position within the input line.
-	prompt   string		// Prompt string for the command.
-	input    string		// User typed input string.
-	screen  *Screen		// Pointer to Screen.
-	quotes  *Quotes		// Pointer to Quotes.
-	regex   *regexp.Regexp	// Regex to split comma-delimited input string.
+	command rune           // Keyboard command such as '+' or '-'.
+	cursor  int            // Current cursor position within the input line.
+	prompt  string         // Prompt string for the command.
+	input   string         // User typed input string.
+	screen  *Screen        // Pointer to Screen.
+	quotes  *Quotes        // Pointer to Quotes.
+	regex   *regexp.Regexp // Regex to split comma-delimited input string.
 }
 
 // Initialize sets internal pointers and compiles the regular expression.
@@ -42,7 +42,7 @@ func (editor *LineEditor) Prompt(command rune) *LineEditor {
 		editor.prompt = prompt
 		editor.command = command
 
-		editor.screen.DrawLine(0, 3, `<white>` + editor.prompt + `</>`)
+		editor.screen.DrawLine(0, 3, `<white>`+editor.prompt+`</>`)
 		termbox.SetCursor(len(editor.prompt), 3)
 		termbox.Flush()
 	}
@@ -65,7 +65,7 @@ func (editor *LineEditor) Handle(ev termbox.Event) bool {
 	case termbox.KeyEnter:
 		return editor.execute().done()
 
-        case termbox.KeyBackspace, termbox.KeyBackspace2:
+	case termbox.KeyBackspace, termbox.KeyBackspace2:
 		editor.deletePreviousCharacter()
 
 	case termbox.KeyCtrlB, termbox.KeyArrowLeft:
@@ -97,12 +97,12 @@ func (editor *LineEditor) deletePreviousCharacter() *LineEditor {
 	if editor.cursor > 0 {
 		if editor.cursor < len(editor.input) {
 			// Remove character in the middle of the input string.
-			editor.input = editor.input[0 : editor.cursor-1] + editor.input[editor.cursor : len(editor.input)]
+			editor.input = editor.input[0:editor.cursor-1] + editor.input[editor.cursor:len(editor.input)]
 		} else {
 			// Remove last input character.
-			editor.input = editor.input[ : len(editor.input)-1]
+			editor.input = editor.input[:len(editor.input)-1]
 		}
-		editor.screen.DrawLine(len(editor.prompt), 3, editor.input + ` `) // Erase last character.
+		editor.screen.DrawLine(len(editor.prompt), 3, editor.input+` `) // Erase last character.
 		editor.moveLeft()
 	}
 
@@ -113,7 +113,7 @@ func (editor *LineEditor) deletePreviousCharacter() *LineEditor {
 func (editor *LineEditor) insertCharacter(ch rune) *LineEditor {
 	if editor.cursor < len(editor.input) {
 		// Insert the character in the middle of the input string.
-		editor.input = editor.input[0 : editor.cursor] + string(ch) + editor.input[editor.cursor : len(editor.input)]
+		editor.input = editor.input[0:editor.cursor] + string(ch) + editor.input[editor.cursor:len(editor.input)]
 	} else {
 		// Append the character to the end of the input string.
 		editor.input += string(ch)
@@ -128,7 +128,7 @@ func (editor *LineEditor) insertCharacter(ch rune) *LineEditor {
 func (editor *LineEditor) moveLeft() *LineEditor {
 	if editor.cursor > 0 {
 		editor.cursor--
-		termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
+		termbox.SetCursor(len(editor.prompt)+editor.cursor, 3)
 	}
 
 	return editor
@@ -138,7 +138,7 @@ func (editor *LineEditor) moveLeft() *LineEditor {
 func (editor *LineEditor) moveRight() *LineEditor {
 	if editor.cursor < len(editor.input) {
 		editor.cursor++
-		termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
+		termbox.SetCursor(len(editor.prompt)+editor.cursor, 3)
 	}
 
 	return editor
@@ -147,7 +147,7 @@ func (editor *LineEditor) moveRight() *LineEditor {
 //-----------------------------------------------------------------------------
 func (editor *LineEditor) jumpToBeginning() *LineEditor {
 	editor.cursor = 0
-	termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
+	termbox.SetCursor(len(editor.prompt)+editor.cursor, 3)
 
 	return editor
 }
@@ -155,7 +155,7 @@ func (editor *LineEditor) jumpToBeginning() *LineEditor {
 //-----------------------------------------------------------------------------
 func (editor *LineEditor) jumpToEnd() *LineEditor {
 	editor.cursor = len(editor.input)
-	termbox.SetCursor(len(editor.prompt) + editor.cursor, 3)
+	termbox.SetCursor(len(editor.prompt)+editor.cursor, 3)
 
 	return editor
 }
@@ -166,7 +166,7 @@ func (editor *LineEditor) execute() *LineEditor {
 	case '+':
 		tickers := editor.tokenize()
 		if len(tickers) > 0 {
-			if added,_ := editor.quotes.AddTickers(tickers); added > 0 {
+			if added, _ := editor.quotes.AddTickers(tickers); added > 0 {
 				editor.screen.Draw(editor.quotes)
 			}
 		}
@@ -174,13 +174,13 @@ func (editor *LineEditor) execute() *LineEditor {
 		tickers := editor.tokenize()
 		if len(tickers) > 0 {
 			before := len(editor.quotes.profile.Tickers)
-			if removed,_ := editor.quotes.RemoveTickers(tickers); removed > 0 {
+			if removed, _ := editor.quotes.RemoveTickers(tickers); removed > 0 {
 				editor.screen.Draw(editor.quotes)
 
 				// Clear the lines at the bottom of the list, if any.
 				after := before - removed
 				for i := before; i > after; i-- {
-					editor.screen.ClearLine(0, i + 4)
+					editor.screen.ClearLine(0, i+4)
 				}
 			}
 		}

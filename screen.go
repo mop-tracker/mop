@@ -13,11 +13,11 @@ import (
 // Screen is thin wrapper aroung Termbox library to provide basic display
 // capabilities as requied by Mop.
 type Screen struct {
-	width	  int     // Current number of columns.
-	height	  int     // Current number of rows.
-	cleared   bool    // True after the screens gets cleared.
-	layout   *Layout  // Pointer to layout (gets created by screen).
-	markup   *Markup  // Pointer to markup processor (gets created by screen).
+	width   int     // Current number of columns.
+	height  int     // Current number of rows.
+	cleared bool    // True after the screens gets cleared.
+	layout  *Layout // Pointer to layout (gets created by screen).
+	markup  *Markup // Pointer to markup processor (gets created by screen).
 }
 
 // Initialize loads the Termbox, allocates and initializes layout and markup,
@@ -81,7 +81,7 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 			screen.draw(screen.layout.Quotes(object.Fetch()))
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm PST`)
-			screen.DrawLine(0, 0, `<right>` + timestamp + `</right>`)
+			screen.DrawLine(0, 0, `<right>`+timestamp+`</right>`)
 		default:
 			screen.draw(ptr.(string))
 		}
