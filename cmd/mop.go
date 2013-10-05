@@ -36,6 +36,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	quotesQueue := time.NewTicker(5 * time.Second)
 	marketQueue := time.NewTicker(12 * time.Second)
 	showingHelp := false
+	paused := false
 
 	go func() {
 		for {
@@ -54,7 +55,7 @@ loop:
 			switch event.Type {
 			case termbox.EventKey:
 				if lineEditor == nil && columnEditor == nil && !showingHelp {
-					if event.Key == termbox.KeyEsc || event.Ch == 'q' {
+					if event.Key == termbox.KeyEsc || event.Ch == 'q' || event.Ch == 'Q' {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
 						lineEditor = new(mop.LineEditor).Initialize(screen, quotes)
@@ -64,6 +65,13 @@ loop:
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						if profile.Regroup() == nil {
 							screen.Draw(quotes)
+						}
+					} else if event.Ch == 'p' || event.Ch == 'P' {
+						paused = !paused
+						if paused {
+							screen.Draw("\n<right><r> Paused </r></right>")
+						} else {
+							screen.Draw("\n<right>        </right>")
 						}
 					} else if event.Ch == '?' || event.Ch == 'h' || event.Ch == 'H' {
 						showingHelp = true
@@ -91,17 +99,17 @@ loop:
 			}
 
 		case <-timestampQueue.C:
-			if !showingHelp {
+			if !showingHelp && !paused {
 				screen.Draw(time.Now())
 			}
 
 		case <-quotesQueue.C:
-			if !showingHelp {
+			if !showingHelp && !paused {
 				screen.Draw(quotes)
 			}
 
 		case <-marketQueue.C:
-			if !showingHelp {
+			if !showingHelp && !paused {
 				screen.Draw(market)
 			}
 		}
