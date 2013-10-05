@@ -82,7 +82,7 @@ loop:
 						columnEditor = nil
 					}
 				} else if showingHelp {
-					showingHelp = false
+					showingHelp, paused = false, false
 					screen.Clear().Draw(market, quotes)
 				}
 			case termbox.EventResize:
