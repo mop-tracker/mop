@@ -82,6 +82,14 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm PST`)
 			screen.DrawLine(0, 0, `<right>` + timestamp + `</right>`)
+                case bool:
+			timestamp := time.Now().Format(`3:04:05pm PST`)
+                        if ptr.(bool) {
+                                timestamp = `<r>Paused ` + timestamp + `</r>`
+                        } else {
+                                timestamp = `       ` + timestamp
+                        }
+			screen.DrawLine(0, 0, `<right>` + timestamp + `</right>`)
 		default:
 			screen.draw(ptr.(string))
 		}

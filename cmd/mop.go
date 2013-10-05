@@ -68,11 +68,7 @@ loop:
 						}
 					} else if event.Ch == 'p' || event.Ch == 'P' {
 						paused = !paused
-						if paused {
-							screen.Draw("\n<right><r> Paused </r></right>")
-						} else {
-							screen.Draw("\n<right>        </right>")
-						}
+						screen.Draw(paused)
 					} else if event.Ch == '?' || event.Ch == 'h' || event.Ch == 'H' {
 						showingHelp = true
 						screen.Clear().Draw(help)
