@@ -54,7 +54,7 @@ loop:
 			switch event.Type {
 			case termbox.EventKey:
 				if lineEditor == nil && columnEditor == nil && !showingHelp {
-					if event.Key == termbox.KeyEsc {
+					if event.Key == termbox.KeyEsc || event.Ch == 'q' {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
 						lineEditor = new(mop.LineEditor).Initialize(screen, quotes)
