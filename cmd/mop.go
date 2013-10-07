@@ -16,10 +16,12 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 <u>Command</u>    <u>Description                                </u>
    +       Add stocks to the list.
    -       Remove stocks from the list.
-   o       Change column sort order.
-   g       Group stocks by advancing/declining issues.
    ?       Display this help screen.
-  esc      Quit mop.
+   g       Group stocks by advancing/declining issues.
+   o       Change column sort order.
+   p       Pause market data and stock updates.
+   q       Quit mop.
+  esc      Ditto.
 
 Enter comma-delimited list of stock tickers when prompted.
 

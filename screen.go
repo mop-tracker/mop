@@ -50,6 +50,8 @@ func (screen *Screen) Resize() *Screen {
 	return screen
 }
 
+// Pause is a toggle function that either creates a timestamp of the pause
+// request or resets it to nil.
 func (screen *Screen) Pause(pause bool) *Screen {
         if pause {
                 screen.pausedAt = new(time.Time)
