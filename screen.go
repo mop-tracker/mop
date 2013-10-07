@@ -13,11 +13,12 @@ import (
 // Screen is thin wrapper aroung Termbox library to provide basic display
 // capabilities as requied by Mop.
 type Screen struct {
-	width	  int     // Current number of columns.
-	height	  int     // Current number of rows.
-	cleared   bool    // True after the screens gets cleared.
-	layout   *Layout  // Pointer to layout (gets created by screen).
-	markup   *Markup  // Pointer to markup processor (gets created by screen).
+	width	   int        // Current number of columns.
+	height	   int        // Current number of rows.
+	cleared    bool       // True after the screens gets cleared.
+	layout    *Layout     // Pointer to layout (gets created by screen).
+	markup    *Markup     // Pointer to markup processor (gets created by screen).
+	pausedAt  *time.Time  // Timestamp of the pause request or nil if none.
 }
 
 // Initialize loads the Termbox, allocates and initializes layout and markup,
@@ -49,6 +50,17 @@ func (screen *Screen) Resize() *Screen {
 	return screen
 }
 
+func (screen *Screen) Pause(pause bool) *Screen {
+        if pause {
+                screen.pausedAt = new(time.Time)
+                *screen.pausedAt = time.Now()
+        } else {
+                screen.pausedAt = nil
+        }
+
+        return screen
+}
+
 // Clear makes the entire screen blank using default background color.
 func (screen *Screen) Clear() *Screen {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
@@ -71,6 +83,9 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 // Draw accepts variable number of arguments and knows how to display the
 // market data, stock quotes, current time, and an arbitrary string.
 func (screen *Screen) Draw(objects ...interface{}) *Screen {
+        if screen.pausedAt != nil {
+                defer screen.DrawLine(0, 0, `<right><r>` + screen.pausedAt.Format(`3:04:05pm PST`) + `</r></right>`)
+        }
 	for _, ptr := range objects {
 		switch ptr.(type) {
 		case *Market:
@@ -81,14 +96,6 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 			screen.draw(screen.layout.Quotes(object.Fetch()))
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm PST`)
-			screen.DrawLine(0, 0, `<right>` + timestamp + `</right>`)
-                case bool:
-			timestamp := time.Now().Format(`3:04:05pm PST`)
-                        if ptr.(bool) {
-                                timestamp = `<r>Paused ` + timestamp + `</r>`
-                        } else {
-                                timestamp = `       ` + timestamp
-                        }
 			screen.DrawLine(0, 0, `<right>` + timestamp + `</right>`)
 		default:
 			screen.draw(ptr.(string))

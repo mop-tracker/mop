@@ -68,7 +68,7 @@ loop:
 						}
 					} else if event.Ch == 'p' || event.Ch == 'P' {
 						paused = !paused
-						screen.Draw(paused)
+						screen.Pause(paused).Draw(time.Now())
 					} else if event.Ch == '?' || event.Ch == 'h' || event.Ch == 'H' {
 						showingHelp = true
 						screen.Clear().Draw(help)
@@ -82,7 +82,7 @@ loop:
 						columnEditor = nil
 					}
 				} else if showingHelp {
-					showingHelp, paused = false, false
+					showingHelp = false
 					screen.Clear().Draw(market, quotes)
 				}
 			case termbox.EventResize:
