@@ -67,7 +67,8 @@ func (layout *Layout) Market(market *Market) string {
 		return err		  // then simply return the error string.
 	}
 
-	highlight(market.Dow, market.Sp500, market.Nasdaq)
+	highlight(market.Dow, market.Sp500, market.Nasdaq, market.London, market.Frankfurt,
+		  market.Paris, market.Tokyo, market.HongKong, market.Shanghai)
 	buffer := new(bytes.Buffer)
 	layout.marketTemplate.Execute(buffer, market)
 
@@ -183,8 +184,8 @@ func (layout *Layout) pad(str string, width int) string {
 //-----------------------------------------------------------------------------
 func buildMarketTemplate() *template.Template {
 	markup := `{{.Dow.name}}: {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}}, {{.Sp500.name}}: {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}}, {{.Nasdaq.name}}: {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
-{{.Advances.name}}: {{.Advances.nyse}} ({{.Advances.nysep}}) on NYSE and {{.Advances.nasdaq}} ({{.Advances.nasdaqp}}) on Nasdaq. {{.Declines.name}}: {{.Declines.nyse}} ({{.Declines.nysep}}) on NYSE and {{.Declines.nasdaq}} ({{.Declines.nasdaqp}}) on Nasdaq {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
-New highs: {{.Highs.nyse}} on NYSE and {{.Highs.nasdaq}} on Nasdaq. New lows: {{.Lows.nyse}} on NYSE and {{.Lows.nasdaq}} on Nasdaq.`
+{{.London.name}}: {{.London.change}} ({{.London.percent}}) at {{.London.latest}}, {{.Frankfurt.name}}: {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}}, {{.Paris.name}}: {{.Paris.change}} ({{.Paris.percent}}) at {{.Paris.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
+{{.Tokyo.name}}: {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}}, {{.HongKong.name}}: {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}}, {{.Shanghai.name}}: {{.Shanghai.change}} ({{.Shanghai.percent}}) at {{.Shanghai.latest}}`
 
 	return template.Must(template.New(`market`).Parse(markup))
 }
