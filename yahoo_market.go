@@ -36,9 +36,9 @@ type Market struct {
 // market data from HTML page.
 func (market *Market) Initialize() *Market {
 	market.IsClosed  = false
+	market.Sp500     = make(map[string]string)
 	market.Dow       = make(map[string]string)
 	market.Nasdaq    = make(map[string]string)
-	market.Sp500     = make(map[string]string)
 	market.London    = make(map[string]string)
 	market.Frankfurt = make(map[string]string)
 	market.Paris     = make(map[string]string)
@@ -128,40 +128,40 @@ func (market *Market) extract(snippet []byte) *Market {
 		panic(`Unable to parse ` + marketURL)
 	}
 
-	market.Dow[`name`] = `Dow`
-	market.Dow[`latest`] = matches[0][1]
-	market.Dow[`change`] = matches[0][3]
-	market.Dow[`percent`] = matches[0][4]
+	market.Sp500[`name`] = `S&P 500`
+	market.Sp500[`latest`] = matches[0][1]
+	market.Sp500[`change`] = matches[0][3]
+	market.Sp500[`percent`] = matches[0][4]
 	if matches[0][2] == `green` {
+		market.Sp500[`change`] = `+` + market.Sp500[`change`]
+		market.Sp500[`percent`] = `+` + market.Sp500[`percent`]
+	} else if matches[0][2] == `red` {
+		market.Sp500[`change`] = `-` + market.Sp500[`change`]
+		market.Sp500[`percent`] = `-` + market.Sp500[`percent`]
+	}
+
+	market.Dow[`name`] = `Dow`
+	market.Dow[`latest`] = matches[0][5]
+	market.Dow[`change`] = matches[0][7]
+	market.Dow[`percent`] = matches[0][8]
+	if matches[0][6] == `green` {
 		market.Dow[`change`] = `+` + market.Dow[`change`]
 		market.Dow[`percent`] = `+` + market.Dow[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][6] == `red` {
 		market.Dow[`change`] = `-` + market.Dow[`change`]
 		market.Dow[`percent`] = `-` + market.Dow[`percent`]
 	}
 
 	market.Nasdaq[`name`] = `NASDAQ`
-	market.Nasdaq[`latest`] = matches[0][5]
-	market.Nasdaq[`change`] = matches[0][7]
-	market.Nasdaq[`percent`] = matches[0][8]
-	if matches[0][6] == `green` {
+	market.Nasdaq[`latest`] = matches[0][9]
+	market.Nasdaq[`change`] = matches[0][11]
+	market.Nasdaq[`percent`] = matches[0][12]
+	if matches[0][10] == `green` {
 		market.Nasdaq[`change`] = `+` + market.Nasdaq[`change`]
 		market.Nasdaq[`percent`] = `+` + market.Nasdaq[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][10] == `red` {
 		market.Nasdaq[`change`] = `-` + market.Nasdaq[`change`]
 		market.Nasdaq[`percent`] = `-` + market.Nasdaq[`percent`]
-	}
-
-	market.Sp500[`name`] = `S&P 500`
-	market.Sp500[`latest`] = matches[0][9]
-	market.Sp500[`change`] = matches[0][11]
-	market.Sp500[`percent`] = matches[0][12]
-	if matches[0][10] == `green` {
-		market.Sp500[`change`] = `+` + market.Sp500[`change`]
-		market.Sp500[`percent`] = `+` + market.Sp500[`percent`]
-	} else if matches[0][2] == `?` {
-		market.Sp500[`change`] = `-` + market.Sp500[`change`]
-		market.Sp500[`percent`] = `-` + market.Sp500[`percent`]
 	}
 
 	market.London[`name`] = `London`
@@ -171,7 +171,7 @@ func (market *Market) extract(snippet []byte) *Market {
 	if matches[0][14] == `green` {
 		market.London[`change`] = `+` + market.London[`change`]
 		market.London[`percent`] = `+` + market.London[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][14] == `red` {
 		market.London[`change`] = `-` + market.London[`change`]
 		market.London[`percent`] = `-` + market.London[`percent`]
 	}
@@ -183,7 +183,7 @@ func (market *Market) extract(snippet []byte) *Market {
 	if matches[0][18] == `green` {
 		market.Frankfurt[`change`] = `+` + market.Frankfurt[`change`]
 		market.Frankfurt[`percent`] = `+` + market.Frankfurt[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][18] == `red` {
 		market.Frankfurt[`change`] = `-` + market.Frankfurt[`change`]
 		market.Frankfurt[`percent`] = `-` + market.Frankfurt[`percent`]
 	}
@@ -195,7 +195,7 @@ func (market *Market) extract(snippet []byte) *Market {
 	if matches[0][22] == `green` {
 		market.Paris[`change`] = `+` + market.Paris[`change`]
 		market.Paris[`percent`] = `+` + market.Paris[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][22] == `red` {
 		market.Paris[`change`] = `-` + market.Paris[`change`]
 		market.Paris[`percent`] = `-` + market.Paris[`percent`]
 	}
@@ -207,7 +207,7 @@ func (market *Market) extract(snippet []byte) *Market {
 	if matches[0][26] == `green` {
 		market.Tokyo[`change`] = `+` + market.Tokyo[`change`]
 		market.Tokyo[`percent`] = `+` + market.Tokyo[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][26] == `red` {
 		market.Tokyo[`change`] = `-` + market.Tokyo[`change`]
 		market.Tokyo[`percent`] = `-` + market.Tokyo[`percent`]
 	}
@@ -219,19 +219,19 @@ func (market *Market) extract(snippet []byte) *Market {
 	if matches[0][30] == `green` {
 		market.HongKong[`change`] = `+` + market.HongKong[`change`]
 		market.HongKong[`percent`] = `+` + market.HongKong[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][30] == `red` {
 		market.HongKong[`change`] = `-` + market.HongKong[`change`]
 		market.HongKong[`percent`] = `-` + market.HongKong[`percent`]
 	}
 
 	market.Shanghai[`name`] = `Shanghai`
 	market.Shanghai[`latest`] = matches[0][33]
-	market.Shanghai[`change`] = matches[0][36]
+	market.Shanghai[`change`] = matches[0][35]
 	market.Shanghai[`percent`] = matches[0][36]
 	if matches[0][34] == `green` {
 		market.Shanghai[`change`] = `+` + market.Shanghai[`change`]
 		market.Shanghai[`percent`] = `+` + market.Shanghai[`percent`]
-	} else if matches[0][2] == `?` {
+	} else if matches[0][34] == `red` {
 		market.Shanghai[`change`] = `-` + market.Shanghai[`change`]
 		market.Shanghai[`percent`] = `-` + market.Shanghai[`percent`]
 	}
