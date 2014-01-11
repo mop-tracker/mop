@@ -7,6 +7,8 @@ package mop
 import (
 	`bytes`
 	`fmt`
+	`log`
+	"math"
 	`reflect`
 	`regexp`
 	`strings`
@@ -14,44 +16,44 @@ import (
 	`time`
 )
 
-// Column describes formatting rules for individual column within the list
-// of stock quotes.
+// Column describes formatting rules for individual column within
+// the list of stock quotes.
 type Column struct {
-	width	   int 		       // Column width.
-	name       string	       // The name of the field in the Stock struct.
-	title	   string	       // Column title to display in the header.
-	formatter  func(string)string  // Optional function to format the contents of the column.
+	width     int                 // Column width.
+	name      string              // The name of the field in the Stock struct.
+	title     string              // Column title to display in the header.
+	formatter func(string) string // Optional function to format the contents of the column.
 }
 
-// Layout is used to format and display all the collected data, i.e. market
-// updates and the list of stock quotes.
+// Layout is used to format and display all the collected data,
+// i.e. market updates and the list of stock quotes.
 type Layout struct {
-	columns         []Column	    // List of stock quotes columns.
-	sorter          *Sorter		    // Pointer to sorting receiver.
-	regex           *regexp.Regexp	    // Pointer to regular expression to align decimal points.
-	marketTemplate  *template.Template  // Pointer to template to format market data.
-	quotesTemplate  *template.Template  // Pointer to template to format the list of stock quotes.
+	columns        []Column           // List of stock quotes columns.
+	sorter         *Sorter            // Pointer to sorting receiver.
+	regex          *regexp.Regexp     // Pointer to regular expression to align decimal points.
+	marketTemplate *template.Template // Pointer to template to format market data.
+	quotesTemplate *template.Template // Pointer to template to format the list of stock quotes.
 }
 
-// Initialize assigns the default values that stay unchanged for the life of
-// allocated Layout struct.
+// Initialize assigns the default values that stay unchanged for
+// the life of allocated Layout struct.
 func (layout *Layout) Initialize() *Layout {
 	layout.columns = []Column{
-		{ -7, `Ticker`,    `Ticker`,    nil      },
-		{ 10, `LastTrade`, `Last`,      currency },
-		{ 10, `Change`,    `Change`,    currency },
-		{ 10, `ChangePct`, `Change%`,   last     },
-		{ 10, `Open`,      `Open`,      currency },
-		{ 10, `Low`,       `Low`,       currency },
-		{ 10, `High`,      `High`,      currency },
-		{ 10, `Low52`,     `52w Low`,   currency },
-		{ 10, `High52`,    `52w High`,  currency },
-		{ 11, `Volume`,    `Volume`,    nil      },
-		{ 11, `AvgVolume`, `AvgVolume`, nil      },
-		{  9, `PeRatio`,   `P/E`,       blank    },
-		{  9, `Dividend`,  `Dividend`,  zero     },
-		{  9, `Yield`,     `Yield`,     percent  },
-		{ 11, `MarketCap`, `MktCap`,    currency },
+		{-7, `Ticker`, `Ticker`, nil},
+		{10, `LastTrade`, `Last`, currency},
+		{10, `Change`, `Change`, currency},
+		{10, `ChangePct`, `Change%`, last},
+		{10, `Open`, `Open`, currency},
+		{10, `Low`, `Low`, currency},
+		{10, `High`, `High`, currency},
+		{10, `Low52`, `52w Low`, currency},
+		{10, `High52`, `52w High`, currency},
+		{11, `Volume`, `Volume`, nil},
+		{11, `AvgVolume`, `AvgVolume`, nil},
+		{9, `PeRatio`, `P/E`, blank},
+		{9, `Dividend`, `Dividend`, zero},
+		{9, `Yield`, `Yield`, percent},
+		{11, `MarketCap`, `MktCap`, currency},
 	}
 	layout.regex = regexp.MustCompile(`(\.\d+)[BMK]?$`)
 	layout.marketTemplate = buildMarketTemplate()
@@ -60,36 +62,38 @@ func (layout *Layout) Initialize() *Layout {
 	return layout
 }
 
-// Market merges given market data structure with the market template and
-// returns formatted string that includes highlighting markup.
+// Market merges given market data structure with the market
+// template and returns formatted string that includes
+// highlighting markup.
 func (layout *Layout) Market(market *Market) string {
-	if ok, err := market.Ok(); !ok {  // If there was an error fetching market data...
-		return err		  // then simply return the error string.
+	if ok, err := market.Ok(); !ok { // If there was an error fetching market data...
+		return err // then simply return the error string.
 	}
 
 	highlight(market.Dow, market.Sp500, market.Nasdaq, market.London, market.Frankfurt,
-		  market.Paris, market.Tokyo, market.HongKong, market.Shanghai)
+		market.Paris, market.Tokyo, market.HongKong, market.Shanghai)
 	buffer := new(bytes.Buffer)
 	layout.marketTemplate.Execute(buffer, market)
 
 	return buffer.String()
 }
 
-// Quotes uses quotes template to format timestamp, stock quotes header,
-// and the list of given stock quotes. It returns formatted string with
-// all the necessary markup.
-func (layout *Layout) Quotes(quotes *Quotes) string {
-	if ok, err := quotes.Ok(); !ok {  // If there was an error fetching stock quotes...
-		return err		  // then simply return the error string.
+// Quotes uses quotes template to format timestamp, stock quotes
+// header, and the list of given stock quotes. It returns
+// formatted string with all the necessary markup.
+func (layout *Layout) Quotes(quotes Quoter) string {
+	if ok, err := quotes.Ok(); !ok { // If there was an error
+		//fetching stock quotes...
+		return err // then simply return the error string.
 	}
 
 	vars := struct {
-		Now    string	// Current timestamp.
-		Header string	// Formatted header line.
-		Stocks []Stock	// List of formatted stock quotes.
+		Now    string  // Current timestamp.
+		Header string  // Formatted header line.
+		Stocks []Stock // List of formatted stock quotes.
 	}{
 		time.Now().Format(`3:04:05pm PST`),
-		layout.Header(quotes.profile),
+		layout.Header(quotes.GetProfile()),
 		layout.prettify(quotes),
 	}
 
@@ -99,46 +103,49 @@ func (layout *Layout) Quotes(quotes *Quotes) string {
 	return buffer.String()
 }
 
-// Header iterates over column titles and formats the header line. The
-// formatting includes placing an arrow next to the sorted column title.
-// When the column editor is active it knows how to highlight currently
-// selected column title.
+// Header iterates over column titles and formats the header line.
+// The formatting includes placing an arrow next to the sorted
+// column title. When the column editor is active it knows how to
+// highlight currently selected column title.
 func (layout *Layout) Header(profile *Profile) string {
 	str, selectedColumn := ``, profile.selectedColumn
 
-	for i,col := range layout.columns {
+	for i, col := range layout.columns {
 		arrow := arrowFor(i, profile)
 		if i != selectedColumn {
-			str += fmt.Sprintf(`%*s`, col.width, arrow + col.title)
+			str += fmt.Sprintf(`%*s`, col.width, arrow+col.title)
 		} else {
-			str += fmt.Sprintf(`<r>%*s</r>`, col.width, arrow + col.title)
+			str += fmt.Sprintf(`<r>%*s</r>`, col.width, arrow+col.title)
 		}
 	}
 
 	return `<u>` + str + `</u>`
 }
 
-// TotalColumns is the utility method for the column editor that returns
-// total number of columns.
+// TotalColumns is the utility method for the column editor that
+// returns total number of columns.
 func (layout *Layout) TotalColumns() int {
 	return len(layout.columns)
 }
 
 //-----------------------------------------------------------------------------
-func (layout *Layout) prettify(quotes *Quotes) []Stock {
-	pretty := make([]Stock, len(quotes.stocks))
+func (layout *Layout) prettify(quotes Quoter) []Stock {
+	stocks := quotes.GetStocks()
+
+	pretty := make([]Stock, len(stocks))
 	//
 	// Iterate over the list of stocks and properly format all its columns.
 	//
-	for i, stock := range quotes.stocks {
-		pretty[i].Advancing = stock.Advancing
+	for i, stock := range stocks {
+		pretty[i].SetAdvance(stock.GetAdvance())
 		//
-		// Iterate over the list of stock columns. For each column name:
+		// Iterate over the list of stock columns. For each
+		// column name:
 		// - Get current column value.
 		// - If the column has the formatter method then call it.
 		// - Set the column value padding it to the given width.
 		//
-		for _,column := range layout.columns {
+		for _, column := range layout.columns {
 			// ex. value = stock.Change
 			value := reflect.ValueOf(&stock).Elem().FieldByName(column.name).String()
 			if column.formatter != nil {
@@ -150,14 +157,15 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 		}
 	}
 
-	profile := quotes.profile
+	profile := quotes.GetProfile()
 	if layout.sorter == nil { // Initialize sorter on first invocation.
 		layout.sorter = new(Sorter).Initialize(profile)
 	}
 	layout.sorter.SortByCurrentColumn(pretty)
 	//
-	// Group stocks by advancing/declining unless sorted by Chanage or Change%
-	// in which case the grouping has been done already.
+	// Group stocks by advancing/declining unless sorted by
+	// Chanage or Change% in which case the grouping has been
+	// done already.
 	//
 	if profile.Grouped && (profile.SortColumn < 2 || profile.SortColumn > 3) {
 		pretty = group(pretty)
@@ -172,7 +180,7 @@ func (layout *Layout) pad(str string, width int) string {
 	if len(match) > 0 {
 		switch len(match[1]) {
 		case 2:
-			str = strings.Replace(str, match[1], match[1] + `0`, 1)
+			str = strings.Replace(str, match[1], match[1]+`0`, 1)
 		case 4, 5:
 			str = strings.Replace(str, match[1], match[1][0:3], 1)
 		}
@@ -217,14 +225,14 @@ func group(stocks []Stock) []Stock {
 	grouped := make([]Stock, len(stocks))
 	current := 0
 
-	for _,stock := range stocks {
-		if stock.Advancing {
+	for _, stock := range stocks {
+		if stock.GetAdvance() {
 			grouped[current] = stock
 			current++
 		}
 	}
-	for _,stock := range stocks {
-		if !stock.Advancing {
+	for _, stock := range stocks {
+		if !stock.GetAdvance() {
 			grouped[current] = stock
 			current++
 		}
@@ -265,7 +273,11 @@ func zero(str string) string {
 //-----------------------------------------------------------------------------
 func last(str string) string {
 	if len(str) >= 6 && str[0:6] != `N/A - ` {
-		return str
+		return str[0:int(math.Min(float64(len(str)), 9))]
+	}
+
+	if len(str) < 6 {
+		return ""
 	}
 
 	return str[6:]
@@ -275,6 +287,9 @@ func last(str string) string {
 func currency(str string) string {
 	if str == `N/A` {
 		return `-`
+	}
+	if str == "" {
+		return ""
 	}
 	if sign := str[0:1]; sign == `+` || sign == `-` {
 		return sign + `$` + str[1:]

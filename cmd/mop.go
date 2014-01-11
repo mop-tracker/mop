@@ -5,9 +5,11 @@
 package main
 
 import (
-	`github.com/michaeldv/mop`
-	`github.com/michaeldv/termbox-go`
+	"log"
+	"os"
 	`time`
+	`../`
+	`github.com/michaeldv/termbox-go`
 )
 
 const help = `Mop v0.1.0 -- Copyright (c) 2013 Michael Dvorkin. All Rights Reserved.
@@ -47,7 +49,9 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	}()
 
 	market := new(mop.Market).Initialize()
-	quotes := new(mop.Quotes).Initialize(market, profile)
+	quotes := mop.NewYahooQuotes(market, profile)
+	//quotes := mop.NewMarkitQuotes(market, profile)
+	quotes.Fetch()
 	screen.Draw(market, quotes)
 
 loop:
@@ -116,6 +120,14 @@ loop:
 
 //-----------------------------------------------------------------------------
 func main() {
+	f, err := os.OpenFile("mop.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("error opening file: %v", err)
+	}
+	defer f.Close()
+
+	log.SetOutput(f)
+
 	screen := new(mop.Screen).Initialize()
 	defer screen.Close()
 

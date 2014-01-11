@@ -10,19 +10,19 @@ import `github.com/michaeldv/termbox-go`
 // current column name in the header, then waits for arrow keys (choose
 // another column), Enter (reverse sort order), or Esc (exit).
 type ColumnEditor struct {
-	screen   *Screen   // Pointer to Screen so we could use screen.Draw().
-	quotes   *Quotes   // Pointer to Quotes to redraw them when the sort order changes.
-	layout   *Layout   // Pointer to Layout to redraw stock quotes header.
-	profile	 *Profile  // Pointer to Profile where we save newly selected sort order.
+	screen  *Screen  // Pointer to Screen so we could use screen.Draw().
+	quotes  Quoter   // Pointer to Quotes to redraw them when the sort order changes.
+	layout  *Layout  // Pointer to Layout to redraw stock quotes header.
+	profile *Profile // Pointer to Profile where we save newly selected sort order.
 }
 
 // Initialize sets internal variables and highlights current column name
 // (as stored in Profile).
-func (editor *ColumnEditor) Initialize(screen *Screen, quotes *Quotes) *ColumnEditor {
+func (editor *ColumnEditor) Initialize(screen *Screen, quotes Quoter) *ColumnEditor {
 	editor.screen = screen
 	editor.quotes = quotes
 	editor.layout = screen.layout
-	editor.profile = quotes.profile
+	editor.profile = editor.quotes.GetProfile()
 
 	editor.selectCurrentColumn()
 
@@ -41,7 +41,7 @@ func (editor *ColumnEditor) Handle(event termbox.Event) bool {
 	case termbox.KeyEnter:
 		editor.execute()
 
-        case termbox.KeyArrowLeft:
+	case termbox.KeyArrowLeft:
 		editor.selectLeftColumn()
 
 	case termbox.KeyArrowRight:
@@ -70,7 +70,7 @@ func (editor *ColumnEditor) selectLeftColumn() *ColumnEditor {
 //-----------------------------------------------------------------------------
 func (editor *ColumnEditor) selectRightColumn() *ColumnEditor {
 	editor.profile.selectedColumn++
-	if editor.profile.selectedColumn > editor.layout.TotalColumns() - 1 {
+	if editor.profile.selectedColumn > editor.layout.TotalColumns()-1 {
 		editor.profile.selectedColumn = 0
 	}
 	return editor
@@ -96,4 +96,3 @@ func (editor *ColumnEditor) redrawHeader() {
 	editor.screen.DrawLine(0, 4, editor.layout.Header(editor.profile))
 	termbox.Flush()
 }
-

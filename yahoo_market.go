@@ -18,34 +18,34 @@ const marketURL = `http://finance.yahoo.com/` // `http://finance.yahoo.com/marke
 // Market stores current market information displayed in the top three lines of
 // the screen. The market data is fetched and parsed from the HTML page above.
 type Market struct {
-	IsClosed   bool		      // True when U.S. markets are closed.
-	Dow        map[string]string  // Hash of Dow Jones indicators.
-	Nasdaq     map[string]string  // Hash of NASDAQ indicators.
-	Sp500      map[string]string  // Hash of S&P 500 indicators.
-	London     map[string]string
-	Frankfurt  map[string]string
-	Paris      map[string]string
-	Tokyo      map[string]string
-	HongKong   map[string]string
-	Shanghai   map[string]string
-	regex      *regexp.Regexp     // Regex to parse market data from HTML.
-	errors     string	      // Error(s), if any.
+	IsClosed  bool              // True when U.S. markets are closed.
+	Dow       map[string]string // Hash of Dow Jones indicators.
+	Nasdaq    map[string]string // Hash of NASDAQ indicators.
+	Sp500     map[string]string // Hash of S&P 500 indicators.
+	London    map[string]string
+	Frankfurt map[string]string
+	Paris     map[string]string
+	Tokyo     map[string]string
+	HongKong  map[string]string
+	Shanghai  map[string]string
+	regex     *regexp.Regexp // Regex to parse market data from HTML.
+	errors    string         // Error(s), if any.
 }
 
 // Initialize creates empty hashes and builds regular expression used to parse
 // market data from HTML page.
 func (market *Market) Initialize() *Market {
-	market.IsClosed  = false
-	market.Sp500     = make(map[string]string)
-	market.Dow       = make(map[string]string)
-	market.Nasdaq    = make(map[string]string)
-	market.London    = make(map[string]string)
+	market.IsClosed = false
+	market.Sp500 = make(map[string]string)
+	market.Dow = make(map[string]string)
+	market.Nasdaq = make(map[string]string)
+	market.London = make(map[string]string)
 	market.Frankfurt = make(map[string]string)
-	market.Paris     = make(map[string]string)
-	market.Tokyo     = make(map[string]string)
-	market.HongKong  = make(map[string]string)
-	market.Shanghai  = make(map[string]string)
-	market.errors    = ``
+	market.Paris = make(map[string]string)
+	market.Tokyo = make(map[string]string)
+	market.HongKong = make(map[string]string)
+	market.Shanghai = make(map[string]string)
+	market.errors = ``
 
 	const any = `\s*<.+?>`
 	const color = `<.+?price-change-([a-z]+)'>[\+\-]?`
@@ -53,15 +53,15 @@ func (market *Market) Initialize() *Market {
 	const percent = `\(([\d\.,%]+)\)`
 
 	rules := []string{
-		`S&P 500</span>`,    any, price, color, price, any, percent, any,
-		`Dow</span>`,        any, price, color, price, any, percent, any,
-		`NASDAQ</span>`,     any, price, color, price, any, percent, any,
-		`FTSE</span>`,       any, price, color, price, any, percent, any,
-		`DAX</span>`,        any, price, color, price, any, percent, any,
-		`CAC 40</span>`,     any, price, color, price, any, percent, any,
+		`S&P 500</span>`, any, price, color, price, any, percent, any,
+		`Dow</span>`, any, price, color, price, any, percent, any,
+		`NASDAQ</span>`, any, price, color, price, any, percent, any,
+		`FTSE</span>`, any, price, color, price, any, percent, any,
+		`DAX</span>`, any, price, color, price, any, percent, any,
+		`CAC 40</span>`, any, price, color, price, any, percent, any,
 		`NIKKEI 225</span>`, any, price, color, price, any, percent, any,
-		`Hang Seng</span>`,  any, price, color, price, any, percent, any,
-		`SSE Comp</span>`,   any, price, color, price, any, percent, any,
+		`Hang Seng</span>`, any, price, color, price, any, percent, any,
+		`SSE Comp</span>`, any, price, color, price, any, percent, any,
 	}
 
 	market.regex = regexp.MustCompile(strings.Join(rules, ``))

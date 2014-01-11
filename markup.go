@@ -24,35 +24,35 @@ import (
 // The <right>...</right> tag is used to right align the enclosed string
 // (ex. when displaying current time in the upper right corner).
 type Markup struct {
-	Foreground     termbox.Attribute	     // Foreground color.
-	Background     termbox.Attribute	     // Background color (so far always termbox.ColorDefault).
-	RightAligned   bool			     // True when the string is right aligned.
-	tags	       map[string]termbox.Attribute  // Tags to Termbox translation hash.
-	regex	      *regexp.Regexp		     // Regex to identify the supported tag names.
+	Foreground   termbox.Attribute            // Foreground color.
+	Background   termbox.Attribute            // Background color (so far always termbox.ColorDefault).
+	RightAligned bool                         // True when the string is right aligned.
+	tags         map[string]termbox.Attribute // Tags to Termbox translation hash.
+	regex        *regexp.Regexp               // Regex to identify the supported tag names.
 }
 
 // Initialize creates tags to Termbox translation hash and sets default
 // colors and string alignment.
 func (markup *Markup) Initialize() *Markup {
-	markup.Foreground      = termbox.ColorDefault
-	markup.Background      = termbox.ColorDefault
-	markup.RightAligned    = false
+	markup.Foreground = termbox.ColorDefault
+	markup.Background = termbox.ColorDefault
+	markup.RightAligned = false
 
 	markup.tags = make(map[string]termbox.Attribute)
-	markup.tags[`/`]       = termbox.ColorDefault
-	markup.tags[`black`]   = termbox.ColorBlack
-	markup.tags[`red`]     = termbox.ColorRed
-	markup.tags[`green`]   = termbox.ColorGreen
-	markup.tags[`yellow`]  = termbox.ColorYellow
-	markup.tags[`blue`]    = termbox.ColorBlue
+	markup.tags[`/`] = termbox.ColorDefault
+	markup.tags[`black`] = termbox.ColorBlack
+	markup.tags[`red`] = termbox.ColorRed
+	markup.tags[`green`] = termbox.ColorGreen
+	markup.tags[`yellow`] = termbox.ColorYellow
+	markup.tags[`blue`] = termbox.ColorBlue
 	markup.tags[`magenta`] = termbox.ColorMagenta
-	markup.tags[`cyan`]    = termbox.ColorCyan
-	markup.tags[`white`]   = termbox.ColorWhite
-	markup.tags[`right`]   = termbox.ColorDefault	 // Termbox can combine attributes and a single color using bitwise OR.
-	markup.tags[`b`]       = termbox.AttrBold	 // Attribute = 1 << (iota + 4)
-	markup.tags[`u`]       = termbox.AttrUnderline
-	markup.tags[`r`]       = termbox.AttrReverse
-	markup.regex           = markup.supportedTags()  // Once we have the hash we could build the regex.
+	markup.tags[`cyan`] = termbox.ColorCyan
+	markup.tags[`white`] = termbox.ColorWhite
+	markup.tags[`right`] = termbox.ColorDefault // Termbox can combine attributes and a single color using bitwise OR.
+	markup.tags[`b`] = termbox.AttrBold         // Attribute = 1 << (iota + 4)
+	markup.tags[`u`] = termbox.AttrUnderline
+	markup.tags[`r`] = termbox.AttrReverse
+	markup.regex = markup.supportedTags() // Once we have the hash we could build the regex.
 
 	return markup
 }
@@ -110,17 +110,17 @@ func (markup *Markup) process(tag string, open bool) bool {
 	if attribute, ok := markup.tags[tag]; ok {
 		switch tag {
 		case `right`:
-			markup.RightAligned = open  // On for <right>, off for </right>.
+			markup.RightAligned = open // On for <right>, off for </right>.
 		default:
 			if open {
 				if attribute >= termbox.AttrBold {
-					markup.Foreground |= attribute   // Set the Termbox attribute.
+					markup.Foreground |= attribute // Set the Termbox attribute.
 				} else {
-					markup.Foreground = attribute	 // Set the Termbox color.
+					markup.Foreground = attribute // Set the Termbox color.
 				}
 			} else {
 				if attribute >= termbox.AttrBold {
-					markup.Foreground &= ^attribute	 // Clear the Termbox attribute.
+					markup.Foreground &= ^attribute // Clear the Termbox attribute.
 				} else {
 					markup.Foreground = termbox.ColorDefault
 				}
@@ -137,7 +137,7 @@ func (markup *Markup) supportedTags() *regexp.Regexp {
 	arr := []string{}
 
 	for tag := range markup.tags {
-		arr = append(arr, `</?` + tag + `>`)
+		arr = append(arr, `</?`+tag+`>`)
 	}
 
 	return regexp.MustCompile(strings.Join(arr, `|`))
