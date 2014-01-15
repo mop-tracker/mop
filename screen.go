@@ -94,6 +94,8 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 			object := ptr.(*Market)
 			screen.draw(screen.layout.Market(object.Fetch()))
 		case Quoter:
+			//Call fetch every loop
+			ptr.(Quoter).Fetch()
 			screen.draw(screen.layout.Quotes(ptr.(Quoter)))
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm PST`)

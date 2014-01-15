@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 	`time`
-	`../`
+	`github.com/drewwells/mop`
 	`github.com/michaeldv/termbox-go`
 )
 
@@ -51,7 +51,6 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	market := new(mop.Market).Initialize()
 	quotes := mop.NewYahooQuotes(market, profile)
 	//quotes := mop.NewMarkitQuotes(market, profile)
-	quotes.Fetch()
 	screen.Draw(market, quotes)
 
 loop:

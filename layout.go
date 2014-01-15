@@ -7,7 +7,6 @@ package mop
 import (
 	`bytes`
 	`fmt`
-	`log`
 	"math"
 	`reflect`
 	`regexp`
