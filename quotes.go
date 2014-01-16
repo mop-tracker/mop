@@ -90,7 +90,7 @@ func (quotes Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 // quotes. In both cases we make sure the list of requested
 // tickers is not empty.
 func (quotes Quotes) isReady() bool {
-	return (reflect.ValueOf(quotes.stocks).IsNil() || !quotes.market.IsClosed) && len(quotes.profile.Tickers) > 0
+	return ((quotes.stocks != nil && len(quotes.stocks) == 0) || !quotes.market.IsClosed) // && len(quotes.GetProfile().Tickers) > 0
 }
 
 // Initialize ensures sane initial values for a Quotes struct.
