@@ -1,4 +1,6 @@
 ### Mop: track stocks the hacker way ###
+
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/michaeldv/mop?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Mop is a command-line utility that displays continuous up-to-date
 information about the U.S. markets and individual stocks. One
 screenshot is worth a thousand words:
