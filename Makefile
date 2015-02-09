@@ -6,3 +6,4 @@ build:
 
 install:
 	go install github.com/michaeldv/mop/cmd
+	go get gopkg.in/gomail.v1
