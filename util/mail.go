@@ -1,4 +1,4 @@
-package mop
+package util
 
 import (
     "gopkg.in/gomail.v1"

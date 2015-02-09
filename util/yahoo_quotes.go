@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
-package mop
+package util
 
 import (
 	`bytes`
@@ -48,8 +48,8 @@ type Stock struct {
 // the tickers we are tracking.
 type Quotes struct {
 	market	  *Market   // Pointer to Market.
-	profile	  *Profile  // Pointer to Profile.
-	stocks	   []Stock  // Array of stock quote data.
+	Quotes_profile	  *Profile  // Pointer to Profile.
+	Stocks	   []Stock  // Array of stock quote data.
 	errors     string   // Error string if any.
 }
 
@@ -57,7 +57,7 @@ type Quotes struct {
 // so that the next function call could be chained.
 func (quotes *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
 	quotes.market = market
-	quotes.profile = profile
+	quotes.Quotes_profile = profile
 	quotes.errors = ``
 
 	return quotes
@@ -74,7 +74,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 			}
 		}()
 
-		url := fmt.Sprintf(quotesURL, strings.Join(quotes.profile.Tickers, `+`))
+		url := fmt.Sprintf(quotesURL, strings.Join(quotes.Quotes_profile.Tickers, `+`))
 		response, err := http.Get(url)
 		if err != nil {
 			panic(err)
@@ -102,8 +102,8 @@ func (quotes *Quotes) Ok() (bool, string) {
 // tickers have been added. The function gets called from the line editor
 // when user adds new stock tickers.
 func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
-	if added, err = quotes.profile.AddTickers(tickers); err == nil && added > 0 {
-		quotes.stocks = nil	// Force fetch.
+	if added, err = quotes.Quotes_profile.AddTickers(tickers); err == nil && added > 0 {
+		quotes.Stocks = nil	// Force fetch.
 	}
 	return
 }
@@ -112,8 +112,8 @@ func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
 // tickers have been removed. The function gets called from the line editor
 // when user removes existing stock tickers.
 func (quotes *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
-	if removed, err = quotes.profile.RemoveTickers(tickers); err == nil && removed > 0 {
-		quotes.stocks = nil	// Force fetch.
+	if removed, err = quotes.Quotes_profile.RemoveTickers(tickers); err == nil && removed > 0 {
+		quotes.Stocks = nil	// Force fetch.
 	}
 	return
 }
@@ -122,19 +122,23 @@ func (quotes *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 // market is still open and we might want to grab the latest quotes. In both
 // cases we make sure the list of requested tickers is not empty.
 func (quotes *Quotes) isReady() bool {
-	return (quotes.stocks == nil || !quotes.market.IsClosed) && len(quotes.profile.Tickers) > 0
+	return (quotes.Stocks == nil || !quotes.market.IsClosed) && len(quotes.Quotes_profile.Tickers) > 0
+}
+
+func (quotes *Quotes) GetProfile() *Profile {
+	return quotes.Quotes_profile
 }
 
 // Use reflection to parse and assign the quotes data fetched using the Yahoo
 // market API.
 func (quotes *Quotes) parse(body []byte) *Quotes {
 	lines := bytes.Split(body, []byte{'\n'})
-	quotes.stocks = make([]Stock, len(lines))
+	quotes.Stocks = make([]Stock, len(lines))
 	//
 	// Get the total number of fields in the Stock struct. Skip the last
 	// Advanicing field which is not fetched.
 	//
-	fieldsCount := reflect.ValueOf(quotes.stocks[0]).NumField() - 1
+	fieldsCount := reflect.ValueOf(quotes.Stocks[0]).NumField() - 1
 	//
 	// Split each line into columns, then iterate over the Stock struct
 	// fields to assign column values.
@@ -142,24 +146,24 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 	for i, line := range lines {
 		columns := bytes.Split(bytes.TrimSpace(line), []byte{','})
 		for j := 0; j < fieldsCount; j++ {
-			// ex. quotes.stocks[i].Ticker = string(columns[0])
-			reflect.ValueOf(&quotes.stocks[i]).Elem().Field(j).SetString(string(columns[j]))
+			// ex. quotes.Stocks[i].Ticker = string(columns[0])
+			reflect.ValueOf(&quotes.Stocks[i]).Elem().Field(j).SetString(string(columns[j]))
 		}
 		//
 		// Try realtime value and revert to the last known if the
 		// realtime is not available.
 		//
-		if quotes.stocks[i].PeRatio == `N/A` && quotes.stocks[i].PeRatioX != `N/A` {
-			quotes.stocks[i].PeRatio = quotes.stocks[i].PeRatioX
+		if quotes.Stocks[i].PeRatio == `N/A` && quotes.Stocks[i].PeRatioX != `N/A` {
+			quotes.Stocks[i].PeRatio = quotes.Stocks[i].PeRatioX
 		}
-		if quotes.stocks[i].MarketCap == `N/A` && quotes.stocks[i].MarketCapX != `N/A` {
-			quotes.stocks[i].MarketCap = quotes.stocks[i].MarketCapX
+		if quotes.Stocks[i].MarketCap == `N/A` && quotes.Stocks[i].MarketCapX != `N/A` {
+			quotes.Stocks[i].MarketCap = quotes.Stocks[i].MarketCapX
 		}
 		//
 		// Stock is advancing if the change is not negative (i.e. $0.00
 		// is also "advancing").
 		//
-		quotes.stocks[i].Advancing = (quotes.stocks[i].Change[0:1] != `-`)
+		quotes.Stocks[i].Advancing = (quotes.Stocks[i].Change[0:1] != `-`)
 	}
 
 	return quotes

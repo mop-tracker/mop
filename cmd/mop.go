@@ -5,8 +5,9 @@
 package main
 
 import (
-	`github.com/michaeldv/mop`
 	`github.com/michaeldv/termbox-go`
+	`github.com/mop/util`
+	`github.com/mop/view`
 	`time`
 )
 
@@ -29,9 +30,9 @@ Enter comma-delimited list of stock tickers when prompted.
 `
 
 //-----------------------------------------------------------------------------
-func mainLoop(screen *mop.Screen, profile *mop.Profile) {
-	var lineEditor *mop.LineEditor
-	var columnEditor *mop.ColumnEditor
+func mainLoop(screen *view.Screen, profile *util.Profile) {
+	var lineEditor *view.LineEditor
+	var columnEditor *view.ColumnEditor
 
 	keyboardQueue := make(chan termbox.Event)
 	timestampQueue := time.NewTicker(1 * time.Second)
@@ -47,8 +48,8 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 		}
 	}()
 
-	market := new(mop.Market).Initialize()
-	quotes := new(mop.Quotes).Initialize(market, profile)
+	market := new(util.Market).Initialize()
+	quotes := new(util.Quotes).Initialize(market, profile)
 	screen.Draw(quotes)
 
 loop:
@@ -61,10 +62,10 @@ loop:
 					if event.Key == termbox.KeyEsc || event.Ch == 'q' || event.Ch == 'Q' {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
-						lineEditor = new(mop.LineEditor).Initialize(screen, quotes)
+						lineEditor = new(view.LineEditor).Initialize(screen, quotes)
 						lineEditor.Prompt(event.Ch)
 					} else if event.Ch == 'o' || event.Ch == 'O' {
-						columnEditor = new(mop.ColumnEditor).Initialize(screen, quotes)
+						columnEditor = new(view.ColumnEditor).Initialize(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						if profile.Regroup() == nil {
 							screen.Draw(quotes)
@@ -112,16 +113,16 @@ loop:
 		// 		screen.Draw(market)
 		// 	}
 		case <-emailQueue.C:
-			mop.SendMail(screen.GetQuoteLayout(quotes))
+			util.SendMail(screen.GetQuoteLayout(quotes))
 		}
 	}
 }
 
 //-----------------------------------------------------------------------------
 func main() {
-	screen := new(mop.Screen).Initialize()
+	screen := new(view.Screen).Initialize()
 	defer screen.Close()
 
-	profile := new(mop.Profile).Initialize()
+	profile := new(util.Profile).Initialize()
 	mainLoop(screen, profile)
 }

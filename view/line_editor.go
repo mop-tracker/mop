@@ -2,12 +2,13 @@
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
-package mop
+package view
 
 import (
 	`github.com/michaeldv/termbox-go`
 	`regexp`
 	`strings`
+	`github.com/mop/util`
 )
 
 // LineEditor kicks in when user presses '+' or '-' to add or delete stock
@@ -20,12 +21,12 @@ type LineEditor struct {
 	prompt   string		// Prompt string for the command.
 	input    string		// User typed input string.
 	screen  *Screen		// Pointer to Screen.
-	quotes  *Quotes		// Pointer to Quotes.
+	quotes  *util.Quotes		// Pointer to Quotes.
 	regex   *regexp.Regexp	// Regex to split comma-delimited input string.
 }
 
 // Initialize sets internal pointers and compiles the regular expression.
-func (editor *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
+func (editor *LineEditor) Initialize(screen *Screen, quotes *util.Quotes) *LineEditor {
 	editor.screen = screen
 	editor.quotes = quotes
 	editor.regex = regexp.MustCompile(`[,\s]+`)
@@ -173,7 +174,7 @@ func (editor *LineEditor) execute() *LineEditor {
 	case '-':
 		tickers := editor.tokenize()
 		if len(tickers) > 0 {
-			before := len(editor.quotes.profile.Tickers)
+			before := len(editor.quotes.Quotes_profile.Tickers)
 			if removed,_ := editor.quotes.RemoveTickers(tickers); removed > 0 {
 				editor.screen.Draw(editor.quotes)
 

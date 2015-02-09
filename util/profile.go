@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
-package mop
+package util
 
 import (
 	`encoding/json`
@@ -24,7 +24,7 @@ type Profile struct {
 	SortColumn      int       // Column number by which we sort stock quotes.
 	Ascending       bool	  // True when sort order is ascending.
 	Grouped         bool	  // True when stocks are grouped by advancing/declining.
-	selectedColumn  int 	  // Stores selected column number when the column editor is active.
+	SelectedColumn  int 	  // Stores selected column number when the column editor is active.
 }
 
 // Initialize attempts to load the settings from ~/.moprc file. If the
@@ -42,7 +42,7 @@ func (profile *Profile) Initialize() *Profile {
 	} else {
 		json.Unmarshal(data, profile)
 	}
-	profile.selectedColumn = -1
+	profile.SelectedColumn = -1
 
 	return profile
 }
@@ -108,10 +108,10 @@ func (profile *Profile) RemoveTickers(tickers []string) (removed int, err error)
 // Reorder gets called by the column editor to either reverse sorting order
 // for the current column, or to pick another sort column.
 func (profile *Profile) Reorder() error {
-	if profile.selectedColumn == profile.SortColumn {
+	if profile.SelectedColumn == profile.SortColumn {
 		profile.Ascending = !profile.Ascending	     // Reverse sort order.
 	} else {
-		profile.SortColumn = profile.selectedColumn  // Pick new sort column.
+		profile.SortColumn = profile.SelectedColumn  // Pick new sort column.
 	}
 	return profile.Save()
 }

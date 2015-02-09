@@ -2,12 +2,13 @@
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
-package mop
+package view
 
 import (
 	`github.com/michaeldv/termbox-go`
 	`strings`
 	`time`
+	`github.com/mop/util`
 )
 
 // Screen is thin wrapper aroung Termbox library to provide basic display
@@ -90,11 +91,11 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
         }
 	for _, ptr := range objects {
 		switch ptr.(type) {
-		case *Market:
-			object := ptr.(*Market)
+		case *util.Market:
+			object := ptr.(*util.Market)
 			screen.draw(screen.layout.Market(object.Fetch()))
-		case *Quotes:
-			object := ptr.(*Quotes)
+		case *util.Quotes:
+			object := ptr.(*util.Quotes)
 			screen.draw(screen.layout.Quotes(object.Fetch()))
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm PST`)
@@ -107,7 +108,7 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 	return screen
 }
 
-func (screen *Screen) GetQuoteLayout(quotes *Quotes) string {
+func (screen *Screen) GetQuoteLayout(quotes *util.Quotes) string {
 	return screen.layout.EmailQuotes(quotes)
 }
 

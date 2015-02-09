@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
-package mop
+package view
 
 import (
 	`bytes`
@@ -12,6 +12,7 @@ import (
 	`strings`
 	`text/template`
 	`time`
+	`github.com/mop/util`
 )
 
 // Column describes formatting rules for individual column within the list
@@ -27,7 +28,7 @@ type Column struct {
 // updates and the list of stock quotes.
 type Layout struct {
 	columns         []Column	    // List of stock quotes columns.
-	sorter          *Sorter		    // Pointer to sorting receiver.
+	sorter          *util.Sorter		    // Pointer to sorting receiver.
 	regex           *regexp.Regexp	    // Pointer to regular expression to align decimal points.
 	marketTemplate  *template.Template  // Pointer to template to format market data.
 	quotesTemplate  *template.Template  // Pointer to template to format the list of stock quotes.
@@ -64,7 +65,7 @@ func (layout *Layout) Initialize() *Layout {
 
 // Market merges given market data structure with the market template and
 // returns formatted string that includes highlighting markup.
-func (layout *Layout) Market(market *Market) string {
+func (layout *Layout) Market(market *util.Market) string {
 	if ok, err := market.Ok(); !ok {  // If there was an error fetching market data...
 		return err		  // then simply return the error string.
 	}
@@ -80,7 +81,7 @@ func (layout *Layout) Market(market *Market) string {
 // Quotes uses quotes template to format timestamp, stock quotes header,
 // and the list of given stock quotes. It returns formatted string with
 // all the necessary markup.
-func (layout *Layout) Quotes(quotes *Quotes) string {
+func (layout *Layout) Quotes(quotes *util.Quotes) string {
 	if ok, err := quotes.Ok(); !ok {  // If there was an error fetching stock quotes...
 		return err		  // then simply return the error string.
 	}
@@ -88,10 +89,10 @@ func (layout *Layout) Quotes(quotes *Quotes) string {
 	vars := struct {
 		Now    string	// Current timestamp.
 		Header string	// Formatted header line.
-		Stocks []Stock	// List of formatted stock quotes.
+		Stocks []util.Stock	// List of formatted stock quotes.
 	}{
 		time.Now().Format(`3:04:05pm PST`),
-		layout.Header(quotes.profile),
+		layout.Header(quotes.Quotes_profile),
 		layout.prettify(quotes),
 	}
 
@@ -103,16 +104,16 @@ func (layout *Layout) Quotes(quotes *Quotes) string {
 
 
 // Quotes uses quotes template to send email to customers
-func (layout *Layout) EmailQuotes(quotes *Quotes) string {
+func (layout *Layout) EmailQuotes(quotes *util.Quotes) string {
 	if ok, err := quotes.Ok(); !ok {  // If there was an error fetching stock quotes...
 		return err		  // then simply return the error string.
 	}
 
 	vars := struct {
 		Header string	// Formatted header line.
-		Stocks []Stock	// List of formatted stock quotes.
+		Stocks []util.Stock	// List of formatted stock quotes.
 	}{
-		layout.Header(quotes.profile),
+		layout.Header(quotes.Quotes_profile),
 		layout.prettify(quotes),
 	}
 
@@ -128,12 +129,12 @@ func (layout *Layout) EmailQuotes(quotes *Quotes) string {
 // formatting includes placing an arrow next to the sorted column title.
 // When the column editor is active it knows how to highlight currently
 // selected column title.
-func (layout *Layout) Header(profile *Profile) string {
-	str, selectedColumn := ``, profile.selectedColumn
+func (layout *Layout) Header(profile *util.Profile) string {
+	str, SelectedColumn := ``, profile.SelectedColumn
 
 	for i,col := range layout.columns {
 		arrow := arrowFor(i, profile)
-		if i != selectedColumn {
+		if i != SelectedColumn {
 			str += fmt.Sprintf(`%*s`, col.width, arrow + col.title)
 		} else {
 			str += fmt.Sprintf(`<r>%*s</r>`, col.width, arrow + col.title)
@@ -150,12 +151,12 @@ func (layout *Layout) TotalColumns() int {
 }
 
 //-----------------------------------------------------------------------------
-func (layout *Layout) prettify(quotes *Quotes) []Stock {
-	pretty := make([]Stock, len(quotes.stocks))
+func (layout *Layout) prettify(quotes *util.Quotes) []util.Stock {
+	pretty := make([]util.Stock, len(quotes.Stocks))
 	//
 	// Iterate over the list of stocks and properly format all its columns.
 	//
-	for i, stock := range quotes.stocks {
+	for i, stock := range quotes.Stocks {
 		pretty[i].Advancing = stock.Advancing
 		//
 		// Iterate over the list of stock columns. For each column name:
@@ -175,9 +176,9 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 		}
 	}
 
-	profile := quotes.profile
+	profile := quotes.Quotes_profile
 	if layout.sorter == nil { // Initialize sorter on first invocation.
-		layout.sorter = new(Sorter).Initialize(profile)
+		layout.sorter = new(util.Sorter).Initialize(profile)
 	}
 	layout.sorter.SortByCurrentColumn(pretty)
 	//
@@ -249,8 +250,8 @@ func highlight(collections ...map[string]string) {
 }
 
 //-----------------------------------------------------------------------------
-func group(stocks []Stock) []Stock {
-	grouped := make([]Stock, len(stocks))
+func group(stocks []util.Stock) []util.Stock {
+	grouped := make([]util.Stock, len(stocks))
 	current := 0
 
 	for _,stock := range stocks {
@@ -270,7 +271,7 @@ func group(stocks []Stock) []Stock {
 }
 
 //-----------------------------------------------------------------------------
-func arrowFor(column int, profile *Profile) string {
+func arrowFor(column int, profile *util.Profile) string {
 	if column == profile.SortColumn {
 		if profile.Ascending {
 			return string('\U00002191')
