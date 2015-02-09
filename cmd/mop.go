@@ -36,7 +36,8 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	keyboardQueue := make(chan termbox.Event)
 	timestampQueue := time.NewTicker(1 * time.Second)
 	quotesQueue := time.NewTicker(5 * time.Second)
-	//marketQueue := time.NewTicker(12 * time.Second)
+	marketQueue := time.NewTicker(12 * time.Second)
+	emailQueue := time.NewTicker(10 * time.Second)
 	showingHelp := false
 	paused := false
 
@@ -48,7 +49,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 
 	market := new(mop.Market).Initialize()
 	quotes := new(mop.Quotes).Initialize(market, profile)
-	screen.Draw(quotes)
+	screen.Draw(market, quotes)
 
 loop:
 	for {
@@ -85,12 +86,12 @@ loop:
 					}
 				} else if showingHelp {
 					showingHelp = false
-					screen.Clear().Draw(quotes)
+					screen.Clear().Draw(market, quotes)
 				}
 			case termbox.EventResize:
 				screen.Resize()
 				if !showingHelp {
-					screen.Draw(quotes)
+					screen.Draw(market, quotes)
 				} else {
 					screen.Draw(help)
 				}
@@ -106,10 +107,12 @@ loop:
 				screen.Draw(quotes)
 			}
 
-			// case <-marketQueue.C:
-			// 	if !showingHelp && !paused {
-			// 		screen.Draw(market)
-			// 	}
+		case <-marketQueue.C:
+			if !showingHelp && !paused {
+				screen.Draw(market)
+			}
+		case <-emailQueue.C:
+			mop.SendMail(screen.GetQuoteLayout(quotes))
 		}
 	}
 }

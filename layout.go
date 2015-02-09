@@ -31,6 +31,8 @@ type Layout struct {
 	regex           *regexp.Regexp	    // Pointer to regular expression to align decimal points.
 	marketTemplate  *template.Template  // Pointer to template to format market data.
 	quotesTemplate  *template.Template  // Pointer to template to format the list of stock quotes.
+	emailTemplate  *template.Template  // Pointer to template to format the list of stock quotes to send mail
+
 }
 
 // Initialize assigns the default values that stay unchanged for the life of
@@ -56,7 +58,7 @@ func (layout *Layout) Initialize() *Layout {
 	layout.regex = regexp.MustCompile(`(\.\d+)[BMK]?$`)
 	layout.marketTemplate = buildMarketTemplate()
 	layout.quotesTemplate = buildQuotesTemplate()
-
+	layout.emailTemplate = buildEmailTemplate()
 	return layout
 }
 
@@ -98,6 +100,29 @@ func (layout *Layout) Quotes(quotes *Quotes) string {
 
 	return buffer.String()
 }
+
+
+// Quotes uses quotes template to send email to customers
+func (layout *Layout) EmailQuotes(quotes *Quotes) string {
+	if ok, err := quotes.Ok(); !ok {  // If there was an error fetching stock quotes...
+		return err		  // then simply return the error string.
+	}
+
+	vars := struct {
+		Header string	// Formatted header line.
+		Stocks []Stock	// List of formatted stock quotes.
+	}{
+		layout.Header(quotes.profile),
+		layout.prettify(quotes),
+	}
+
+	buffer := new(bytes.Buffer)
+	layout.emailTemplate.Execute(buffer, vars)
+
+	return buffer.String()
+}
+
+
 
 // Header iterates over column titles and formats the header line. The
 // formatting includes placing an arrow next to the sorted column title.
@@ -202,6 +227,17 @@ func buildQuotesTemplate() *template.Template {
 
 	return template.Must(template.New(`quotes`).Parse(markup))
 }
+
+//-----------------------------------------------------------------------------
+func buildEmailTemplate() *template.Template {
+	markup := `
+{{.Header}}
+{{range.Stocks}}{{if .Advancing}}<green>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}</>
+{{end}}`
+
+	return template.Must(template.New(`quotes`).Parse(markup))
+}
+
 
 //-----------------------------------------------------------------------------
 func highlight(collections ...map[string]string) {

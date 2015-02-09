@@ -11,6 +11,7 @@ import (
 	`net/http`
 	`regexp`
 	`strings`
+
 )
 
 const marketURL = `http://finance.yahoo.com`
@@ -113,7 +114,7 @@ func (market *Market) checkIfMarketIsOpen(body []byte) []byte {
 //-----------------------------------------------------------------------------
 func (market *Market) trim(body []byte) []byte {
 	start := bytes.Index(body, []byte(`>S&P 500<`))
-	finish := bytes.LastIndex(body, []byte(`id="mediafinancesuperherogs"`))
+	finish := bytes.LastIndex(body, []byte(`<div id='ms-market-strip-0' class='ms-panel-ft Pt-6 Pb-6 Pos-r W-100'>`))
 	snippet := bytes.Replace(body[start:finish], []byte{'\n'}, []byte{}, -1)
 	snippet = bytes.Replace(snippet, []byte(`&amp;`), []byte{'&'}, -1)
 
@@ -123,13 +124,22 @@ func (market *Market) trim(body []byte) []byte {
 //-----------------------------------------------------------------------------
 func (market *Market) extract(snippet []byte) *Market {
 	matches := market.regex.FindStringSubmatch(string(snippet))
+	fmt.Sprintf("cao ni ma %d", len(matches))
+	fmt.Sprintf("cao ni ma %d", len(matches))
+
+	fmt.Sprintf("cao ni ma %d", len(matches))
+	fmt.Sprintf("cao ni ma %d", len(matches))
+	fmt.Sprintf("cao ni ma %d", len(matches))
+	fmt.Sprintf("cao ni ma %d", len(matches))
+
         // fmt.Printf("\n\n\n%q\n\n\n", matches)
-        if len(matches) < 37 {
-                panic(`Unable to parse ` + marketURL)
-        }
+    // if len(matches) < 37 {
+    //     panic(`Unable to parse ` + marketURL)
+    // }
 
 	market.Sp500[`name`] = `S&P 500`
 	market.Sp500[`latest`] = matches[1]
+
 	market.Sp500[`change`] = matches[3]
 	market.Sp500[`percent`] = matches[4]
 	if matches[2] == `green` {
