@@ -44,7 +44,7 @@ func mainLoop(screen *view.Screen, profile *util.Profile) {
 
 	go func() {
 		for {
-			keyboardQueue <- termbox.PollEvent()
+			keyboardQueue <- termbox.PollEvent() // user input
 		}
 	}()
 
