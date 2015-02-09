@@ -107,6 +107,10 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 	return screen
 }
 
+func (screen *Screen) GetQuoteLayout(quotes *Quotes) string {
+	return screen.layout.EmailQuotes(quotes)
+}
+
 // DrawLine takes the incoming string, tokenizes it to extract markup
 // elements, and displays it all starting at (x,y) location.
 func (screen *Screen) DrawLine(x int, y int, str string) {
