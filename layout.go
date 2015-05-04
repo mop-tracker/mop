@@ -264,11 +264,10 @@ func zero(str string) string {
 
 //-----------------------------------------------------------------------------
 func last(str string) string {
-	if len(str) >= 6 && str[0:6] != `N/A - ` {
-		return str
+	if len(str) >= 6 && str[0:6] == `N/A - ` {
+		return str[6:]
 	}
-
-	return str[6:]
+	return str
 }
 
 //-----------------------------------------------------------------------------
