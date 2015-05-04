@@ -1,0 +1,19 @@
+# Mac OS
+.DS_Store
+
+# TextMate
+*.tmproj
+tmtags
+
+# Vim
+*.swp
+
+# Other
+~*
+*~
+*.*~
+
+# Builds and logs.
+cmd/mop
+logs/*
+
