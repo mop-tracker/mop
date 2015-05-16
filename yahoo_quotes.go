@@ -19,7 +19,11 @@ import (
 // ?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in(%22ALU%22,%22AAPL%22)
 // &env=http%3A%2F%2Fstockstables.org%2Falltables.env&format=json'
 
-const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=,l1c6k2oghjkva2r2rdyj3j1`
+//const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c6k2oghjkva2r2rdyj3j1`
+// c2: realtime change vs c1: change
+// k2: realtime change vs p2: change
+//
+const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c1p2oghjkva2r2rdyj3j1`
 
 // Stock stores quote information for the particular stock ticker. The data
 // for all the fields except 'Advancing' is fetched using Yahoo market API.
