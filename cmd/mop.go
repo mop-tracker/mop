@@ -116,9 +116,9 @@ loop:
 
 //-----------------------------------------------------------------------------
 func main() {
-	screen := new(mop.Screen).Initialize()
+	screen := mop.NewScreen()
 	defer screen.Close()
 
-	profile := new(mop.Profile).Initialize()
+	profile := mop.NewProfile()
 	mainLoop(screen, profile)
 }

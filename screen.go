@@ -21,15 +21,16 @@ type Screen struct {
 	pausedAt  *time.Time  // Timestamp of the pause request or nil if none.
 }
 
-// Initialize loads the Termbox, allocates and initializes layout and markup,
-// and calculates current screen dimensions. Once initialized the screen is
+// Initializes Termbox, creates screen along with layout and markup, and
+// calculates current screen dimensions. Once initialized the screen is
 // ready for display.
-func (screen *Screen) Initialize() *Screen {
+func NewScreen() *Screen {
 	if err := termbox.Init(); err != nil {
 		panic(err)
 	}
-	screen.layout = new(Layout).Initialize()
-	screen.markup = new(Markup).Initialize()
+	screen := &Screen{}
+	screen.layout = NewLayout()
+	screen.markup = NewMarkup()
 
 	return screen.Resize()
 }

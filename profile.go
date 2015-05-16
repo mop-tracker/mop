@@ -27,9 +27,10 @@ type Profile struct {
 	selectedColumn  int 	  // Stores selected column number when the column editor is active.
 }
 
-// Initialize attempts to load the settings from ~/.moprc file. If the
-// file is not there it gets created with the default values.
-func (profile *Profile) Initialize() *Profile {
+// Creates the profile and attempts to load the settings from ~/.moprc file.
+// If the file is not there it gets created with default values.
+func NewProfile() *Profile {
+	profile := &Profile{}
 	data, err := ioutil.ReadFile(profile.defaultFileName())
 	if err != nil {			    // Set default values:
 		profile.MarketRefresh = 12  // Market data gets fetched every 12s (5 times per minute).
