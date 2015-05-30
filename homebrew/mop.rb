@@ -9,8 +9,8 @@ class Mop < Formula
   depends_on "go" => :build
 
   def install
-  end
-
-  def caveats
+    system "go", "get", "github.com/michaeldv/termbox-go"
+    system "go build cmd/mop.go"
+    bin.install "mop"
   end
 end
