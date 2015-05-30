@@ -1,4 +1,4 @@
-// Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
+// Copyright (c) 2013-2015 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
@@ -17,41 +17,41 @@ import (
 // Column describes formatting rules for individual column within the list
 // of stock quotes.
 type Column struct {
-	width	   int 		       // Column width.
-	name       string	       // The name of the field in the Stock struct.
-	title	   string	       // Column title to display in the header.
-	formatter  func(string)string  // Optional function to format the contents of the column.
+	width     int                 // Column width.
+	name      string              // The name of the field in the Stock struct.
+	title     string              // Column title to display in the header.
+	formatter func(string) string // Optional function to format the contents of the column.
 }
 
 // Layout is used to format and display all the collected data, i.e. market
 // updates and the list of stock quotes.
 type Layout struct {
-	columns         []Column	    // List of stock quotes columns.
-	sorter          *Sorter		    // Pointer to sorting receiver.
-	regex           *regexp.Regexp	    // Pointer to regular expression to align decimal points.
-	marketTemplate  *template.Template  // Pointer to template to format market data.
-	quotesTemplate  *template.Template  // Pointer to template to format the list of stock quotes.
+	columns        []Column           // List of stock quotes columns.
+	sorter         *Sorter            // Pointer to sorting receiver.
+	regex          *regexp.Regexp     // Pointer to regular expression to align decimal points.
+	marketTemplate *template.Template // Pointer to template to format market data.
+	quotesTemplate *template.Template // Pointer to template to format the list of stock quotes.
 }
 
 // Creates the layout and assigns the default values that stay unchanged.
 func NewLayout() *Layout {
 	layout := &Layout{}
 	layout.columns = []Column{
-		{ -7, `Ticker`,    `Ticker`,    nil      },
-		{ 10, `LastTrade`, `Last`,      currency },
-		{ 10, `Change`,    `Change`,    currency },
-		{ 10, `ChangePct`, `Change%`,   last     },
-		{ 10, `Open`,      `Open`,      currency },
-		{ 10, `Low`,       `Low`,       currency },
-		{ 10, `High`,      `High`,      currency },
-		{ 10, `Low52`,     `52w Low`,   currency },
-		{ 10, `High52`,    `52w High`,  currency },
-		{ 11, `Volume`,    `Volume`,    nil      },
-		{ 11, `AvgVolume`, `AvgVolume`, nil      },
-		{  9, `PeRatio`,   `P/E`,       blank    },
-		{  9, `Dividend`,  `Dividend`,  zero     },
-		{  9, `Yield`,     `Yield`,     percent  },
-		{ 11, `MarketCap`, `MktCap`,    currency },
+		{-7, `Ticker`, `Ticker`, nil},
+		{10, `LastTrade`, `Last`, currency},
+		{10, `Change`, `Change`, currency},
+		{10, `ChangePct`, `Change%`, last},
+		{10, `Open`, `Open`, currency},
+		{10, `Low`, `Low`, currency},
+		{10, `High`, `High`, currency},
+		{10, `Low52`, `52w Low`, currency},
+		{10, `High52`, `52w High`, currency},
+		{11, `Volume`, `Volume`, nil},
+		{11, `AvgVolume`, `AvgVolume`, nil},
+		{9, `PeRatio`, `P/E`, blank},
+		{9, `Dividend`, `Dividend`, zero},
+		{9, `Yield`, `Yield`, percent},
+		{11, `MarketCap`, `MktCap`, currency},
 	}
 	layout.regex = regexp.MustCompile(`(\.\d+)[BMK]?$`)
 	layout.marketTemplate = buildMarketTemplate()
@@ -63,8 +63,8 @@ func NewLayout() *Layout {
 // Market merges given market data structure with the market template and
 // returns formatted string that includes highlighting markup.
 func (layout *Layout) Market(market *Market) string {
-	if ok, err := market.Ok(); !ok {  // If there was an error fetching market data...
-		return err		  // then simply return the error string.
+	if ok, err := market.Ok(); !ok { // If there was an error fetching market data...
+		return err // then simply return the error string.
 	}
 
 	highlight(market.Dow, market.Sp500, market.Nasdaq,
@@ -80,14 +80,14 @@ func (layout *Layout) Market(market *Market) string {
 // and the list of given stock quotes. It returns formatted string with
 // all the necessary markup.
 func (layout *Layout) Quotes(quotes *Quotes) string {
-	if ok, err := quotes.Ok(); !ok {  // If there was an error fetching stock quotes...
-		return err		  // then simply return the error string.
+	if ok, err := quotes.Ok(); !ok { // If there was an error fetching stock quotes...
+		return err // then simply return the error string.
 	}
 
 	vars := struct {
-		Now    string	// Current timestamp.
-		Header string	// Formatted header line.
-		Stocks []Stock	// List of formatted stock quotes.
+		Now    string  // Current timestamp.
+		Header string  // Formatted header line.
+		Stocks []Stock // List of formatted stock quotes.
 	}{
 		time.Now().Format(`3:04:05pm PST`),
 		layout.Header(quotes.profile),
@@ -107,12 +107,12 @@ func (layout *Layout) Quotes(quotes *Quotes) string {
 func (layout *Layout) Header(profile *Profile) string {
 	str, selectedColumn := ``, profile.selectedColumn
 
-	for i,col := range layout.columns {
+	for i, col := range layout.columns {
 		arrow := arrowFor(i, profile)
 		if i != selectedColumn {
-			str += fmt.Sprintf(`%*s`, col.width, arrow + col.title)
+			str += fmt.Sprintf(`%*s`, col.width, arrow+col.title)
 		} else {
-			str += fmt.Sprintf(`<r>%*s</r>`, col.width, arrow + col.title)
+			str += fmt.Sprintf(`<r>%*s</r>`, col.width, arrow+col.title)
 		}
 	}
 
@@ -139,7 +139,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 		// - If the column has the formatter method then call it.
 		// - Set the column value padding it to the given width.
 		//
-		for _,column := range layout.columns {
+		for _, column := range layout.columns {
 			// ex. value = stock.Change
 			value := reflect.ValueOf(&stock).Elem().FieldByName(column.name).String()
 			if column.formatter != nil {
@@ -173,7 +173,7 @@ func (layout *Layout) pad(str string, width int) string {
 	if len(match) > 0 {
 		switch len(match[1]) {
 		case 2:
-			str = strings.Replace(str, match[1], match[1] + `0`, 1)
+			str = strings.Replace(str, match[1], match[1]+`0`, 1)
 		case 4, 5:
 			str = strings.Replace(str, match[1], match[1][0:3], 1)
 		}
@@ -218,13 +218,13 @@ func group(stocks []Stock) []Stock {
 	grouped := make([]Stock, len(stocks))
 	current := 0
 
-	for _,stock := range stocks {
+	for _, stock := range stocks {
 		if stock.Advancing {
 			grouped[current] = stock
 			current++
 		}
 	}
-	for _,stock := range stocks {
+	for _, stock := range stocks {
 		if !stock.Advancing {
 			grouped[current] = stock
 			current++

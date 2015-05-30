@@ -1,4 +1,4 @@
-// Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
+// Copyright (c) 2013-2015 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
@@ -18,61 +18,61 @@ const marketURL = `http://money.cnn.com/data/markets/`
 // Market stores current market information displayed in the top three lines of
 // the screen. The market data is fetched and parsed from the HTML page above.
 type Market struct {
-	IsClosed   bool		      // True when U.S. markets are closed.
-	Dow        map[string]string  // Hash of Dow Jones indicators.
-	Nasdaq     map[string]string  // Hash of NASDAQ indicators.
-	Sp500      map[string]string  // Hash of S&P 500 indicators.
-	Tokyo      map[string]string
-	HongKong   map[string]string
-	London     map[string]string
-	Frankfurt  map[string]string
-	Yield      map[string]string
-	Oil        map[string]string
-	Yen        map[string]string
-	Euro       map[string]string
-	Gold       map[string]string
-	regex      *regexp.Regexp     // Regex to parse market data from HTML.
-	errors     string	      // Error(s), if any.
+	IsClosed  bool              // True when U.S. markets are closed.
+	Dow       map[string]string // Hash of Dow Jones indicators.
+	Nasdaq    map[string]string // Hash of NASDAQ indicators.
+	Sp500     map[string]string // Hash of S&P 500 indicators.
+	Tokyo     map[string]string
+	HongKong  map[string]string
+	London    map[string]string
+	Frankfurt map[string]string
+	Yield     map[string]string
+	Oil       map[string]string
+	Yen       map[string]string
+	Euro      map[string]string
+	Gold      map[string]string
+	regex     *regexp.Regexp // Regex to parse market data from HTML.
+	errors    string         // Error(s), if any.
 }
 
 // Returns new initialized Market struct.
 func NewMarket() *Market {
-	market := &Market{};
-	market.IsClosed  = false
-	market.Dow       = make(map[string]string)
-	market.Nasdaq    = make(map[string]string)
-	market.Sp500     = make(map[string]string)
+	market := &Market{}
+	market.IsClosed = false
+	market.Dow = make(map[string]string)
+	market.Nasdaq = make(map[string]string)
+	market.Sp500 = make(map[string]string)
 
-	market.Tokyo     = make(map[string]string)
-	market.HongKong  = make(map[string]string)
-	market.London    = make(map[string]string)
+	market.Tokyo = make(map[string]string)
+	market.HongKong = make(map[string]string)
+	market.London = make(map[string]string)
 	market.Frankfurt = make(map[string]string)
 
-	market.Yield     = make(map[string]string)
-	market.Oil       = make(map[string]string)
-	market.Yen       = make(map[string]string)
-	market.Euro      = make(map[string]string)
-	market.Gold      = make(map[string]string)
+	market.Yield = make(map[string]string)
+	market.Oil = make(map[string]string)
+	market.Yen = make(map[string]string)
+	market.Euro = make(map[string]string)
+	market.Gold = make(map[string]string)
 
-	market.errors    = ``
+	market.errors = ``
 
 	const any = `\s*(?:.+?)`
 	const price = `>([\d\.,]+)</span>`
 	const percent = `>([\+\-]?[\d\.,]+%?)<`
 
 	rules := []string{
-		`>Dow<`,    	any, percent, any, price, any, percent, any,
-		`>Nasdaq<`,     any, percent, any, price, any, percent, any,
-		`">S&P<`,   	any, percent, any, price, any, percent, any,
+		`>Dow<`, any, percent, any, price, any, percent, any,
+		`>Nasdaq<`, any, percent, any, price, any, percent, any,
+		`">S&P<`, any, percent, any, price, any, percent, any,
 		`>Nikkei 225<`, any, percent, any, price, any, percent, any,
-		`>Hang Seng<`,  any, percent, any, price, any, percent, any,
-		`>FTSE 100<`,   any, percent, any, price, any, percent, any,
-		`>DAX<`,   	any, percent, any, price, any, percent, any,
-		`>10-year yield<`,  any, price, any, percent, any,
-		`>Oil<`,       any, price, any, percent, any,
-		`>Yen<`,       any, price, any, percent, any,
-		`>Euro<`,       any, price, any, percent, any,
-		`>Gold<`,       any, price, any, percent, any,
+		`>Hang Seng<`, any, percent, any, price, any, percent, any,
+		`>FTSE 100<`, any, percent, any, price, any, percent, any,
+		`>DAX<`, any, percent, any, price, any, percent, any,
+		`>10-year yield<`, any, price, any, percent, any,
+		`>Oil<`, any, price, any, percent, any,
+		`>Yen<`, any, price, any, percent, any,
+		`>Euro<`, any, price, any, percent, any,
+		`>Gold<`, any, price, any, percent, any,
 	}
 
 	market.regex = regexp.MustCompile(strings.Join(rules, ``))
@@ -131,9 +131,9 @@ func (market *Market) trim(body []byte) []byte {
 func (market *Market) extract(snippet []byte) *Market {
 	matches := market.regex.FindStringSubmatch(string(snippet))
 
-       if len(matches) < 31 {
-               panic(`Unable to parse ` + marketURL)
-       }
+	if len(matches) < 31 {
+		panic(`Unable to parse ` + marketURL)
+	}
 
 	market.Dow[`change`] = matches[1]
 	market.Dow[`latest`] = matches[2]

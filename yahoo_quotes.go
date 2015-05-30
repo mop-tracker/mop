@@ -1,4 +1,4 @@
-// Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
+// Copyright (c) 2013-2015 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
@@ -24,41 +24,41 @@ const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c1p2
 // Stock stores quote information for the particular stock ticker. The data
 // for all the fields except 'Advancing' is fetched using Yahoo market API.
 type Stock struct {
-	Ticker      string  // Stock ticker.
-	LastTrade   string  // l1: last trade.
-	Change      string  // c6: change real time.
-	ChangePct   string  // k2: percent change real time.
-	Open        string  // o: market open price.
-	Low         string  // g: day's low.
-	High        string  // h: day's high.
-	Low52       string  // j: 52-weeks low.
-	High52      string  // k: 52-weeks high.
-	Volume      string  // v: volume.
-	AvgVolume   string  // a2: average volume.
-	PeRatio     string  // r2: P/E ration real time.
-	PeRatioX    string  // r: P/E ration (fallback when real time is N/A).
-	Dividend    string  // d: dividend.
-	Yield       string  // y: dividend yield.
-	MarketCap   string  // j3: market cap real time.
-	MarketCapX  string  // j1: market cap (fallback when real time is N/A).
-	Advancing   bool    // True when change is >= $0.
+	Ticker     string // Stock ticker.
+	LastTrade  string // l1: last trade.
+	Change     string // c6: change real time.
+	ChangePct  string // k2: percent change real time.
+	Open       string // o: market open price.
+	Low        string // g: day's low.
+	High       string // h: day's high.
+	Low52      string // j: 52-weeks low.
+	High52     string // k: 52-weeks high.
+	Volume     string // v: volume.
+	AvgVolume  string // a2: average volume.
+	PeRatio    string // r2: P/E ration real time.
+	PeRatioX   string // r: P/E ration (fallback when real time is N/A).
+	Dividend   string // d: dividend.
+	Yield      string // y: dividend yield.
+	MarketCap  string // j3: market cap real time.
+	MarketCapX string // j1: market cap (fallback when real time is N/A).
+	Advancing  bool   // True when change is >= $0.
 }
 
 // Quotes stores relevant pointers as well as the array of stock quotes for
 // the tickers we are tracking.
 type Quotes struct {
-	market	  *Market   // Pointer to Market.
-	profile	  *Profile  // Pointer to Profile.
-	stocks	   []Stock  // Array of stock quote data.
-	errors     string   // Error string if any.
+	market  *Market  // Pointer to Market.
+	profile *Profile // Pointer to Profile.
+	stocks  []Stock  // Array of stock quote data.
+	errors  string   // Error string if any.
 }
 
 // Sets the initial values and returns new Quotes struct.
 func NewQuotes(market *Market, profile *Profile) *Quotes {
 	return &Quotes{
-		market: market,
+		market:  market,
 		profile: profile,
-		errors: ``,
+		errors:  ``,
 	}
 }
 
@@ -102,7 +102,7 @@ func (quotes *Quotes) Ok() (bool, string) {
 // when user adds new stock tickers.
 func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
 	if added, err = quotes.profile.AddTickers(tickers); err == nil && added > 0 {
-		quotes.stocks = nil	// Force fetch.
+		quotes.stocks = nil // Force fetch.
 	}
 	return
 }
@@ -112,7 +112,7 @@ func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
 // when user removes existing stock tickers.
 func (quotes *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 	if removed, err = quotes.profile.RemoveTickers(tickers); err == nil && removed > 0 {
-		quotes.stocks = nil	// Force fetch.
+		quotes.stocks = nil // Force fetch.
 	}
 	return
 }

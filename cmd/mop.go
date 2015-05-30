@@ -1,4 +1,4 @@
-// Copyright (c) 2013 by Michael Dvorkin. All Rights Reserved.
+// Copyright (c) 2013-2015 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
@@ -10,7 +10,7 @@ import (
 	`time`
 )
 
-const help = `Mop v0.2.0 -- Copyright (c) 2013-15 Michael Dvorkin. All Rights Reserved.
+const help = `Mop v0.2.0 -- Copyright (c) 2013-2015 by Michael Dvorkin. All Rights Reserved.
 NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 
 <u>Command</u>    <u>Description                                </u>
