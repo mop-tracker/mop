@@ -15,11 +15,7 @@ import (
 
 // See http://www.gummy-stuff.org/Yahoo-stocks.htm
 //
-// Also http://query.yahooapis.com/v1/public/yql
-// ?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in(%22ALU%22,%22AAPL%22)
-// &env=http%3A%2F%2Fstockstables.org%2Falltables.env&format=json'
-
-//const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c6k2oghjkva2r2rdyj3j1`
+// const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c6k2oghjkva2r2rdyj3j1`
 // c2: realtime change vs c1: change
 // k2: realtime change vs p2: change
 //
@@ -57,14 +53,13 @@ type Quotes struct {
 	errors     string   // Error string if any.
 }
 
-// Initialize sets the initial values for the Quotes struct. It returns "self"
-// so that the next function call could be chained.
-func (quotes *Quotes) Initialize(market *Market, profile *Profile) *Quotes {
-	quotes.market = market
-	quotes.profile = profile
-	quotes.errors = ``
-
-	return quotes
+// Sets the initial values and returns new Quotes struct.
+func NewQuotes(market *Market, profile *Profile) *Quotes {
+	return &Quotes{
+		market: market,
+		profile: profile,
+		errors: ``,
+	}
 }
 
 // Fetch the latest stock quotes and parse raw fetched data into array of

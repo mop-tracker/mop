@@ -33,9 +33,9 @@ type Layout struct {
 	quotesTemplate  *template.Template  // Pointer to template to format the list of stock quotes.
 }
 
-// Initialize assigns the default values that stay unchanged for the life of
-// allocated Layout struct.
-func (layout *Layout) Initialize() *Layout {
+// Creates the layout and assigns the default values that stay unchanged.
+func NewLayout() *Layout {
+	layout := &Layout{}
 	layout.columns = []Column{
 		{ -7, `Ticker`,    `Ticker`,    nil      },
 		{ 10, `LastTrade`, `Last`,      currency },
@@ -67,8 +67,9 @@ func (layout *Layout) Market(market *Market) string {
 		return err		  // then simply return the error string.
 	}
 
-	highlight(market.Dow, market.Sp500, market.Nasdaq, market.London, market.Frankfurt,
-		  market.Paris, market.Tokyo, market.HongKong, market.Shanghai)
+	highlight(market.Dow, market.Sp500, market.Nasdaq,
+		market.Tokyo, market.HongKong, market.London, market.Frankfurt,
+		market.Yield, market.Oil, market.Euro, market.Gold)
 	buffer := new(bytes.Buffer)
 	layout.marketTemplate.Execute(buffer, market)
 
@@ -152,7 +153,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 
 	profile := quotes.profile
 	if layout.sorter == nil { // Initialize sorter on first invocation.
-		layout.sorter = new(Sorter).Initialize(profile)
+		layout.sorter = NewSorter(profile)
 	}
 	layout.sorter.SortByCurrentColumn(pretty)
 	//
@@ -183,9 +184,9 @@ func (layout *Layout) pad(str string, width int) string {
 
 //-----------------------------------------------------------------------------
 func buildMarketTemplate() *template.Template {
-	markup := `<yellow>{{.Dow.name}}</> {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}} <yellow>{{.Sp500.name}}</> {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}} <yellow>{{.Nasdaq.name}}</> {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
-<yellow>{{.London.name}}</> {{.London.change}} ({{.London.percent}}) at {{.London.latest}} <yellow>{{.Frankfurt.name}}</> {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}} <yellow>{{.Paris.name}}</> {{.Paris.change}} ({{.Paris.percent}}) at {{.Paris.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
-<yellow>{{.Tokyo.name}}</> {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}} <yellow>{{.HongKong.name}}</> {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}} <yellow>{{.Shanghai.name}}</> {{.Shanghai.change}} ({{.Shanghai.percent}}) at {{.Shanghai.latest}}`
+	markup := `<yellow>Dow</> {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}} <yellow>S&P 500</> {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}} <yellow>NASDAQ</> {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
+<yellow>Tokyo</> {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}} <yellow>HK</> {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}} <yellow>London</> {{.London.change}} ({{.London.percent}}) at {{.London.latest}} <yellow>Frankfurt</> {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
+<yellow>10-Year Yield</> {{.Yield.latest}}% ({{.Yield.change}}) <yellow>Euro</> ${{.Euro.latest}} ({{.Euro.change}}%) <yellow>Yen</> ¥{{.Yen.latest}} ({{.Yen.change}}%) <yellow>Oil</> ${{.Oil.latest}} ({{.Oil.change}}%) <yellow>Gold</> ${{.Gold.latest}} ({{.Gold.change}}%)`
 
 	return template.Must(template.New(`market`).Parse(markup))
 }
@@ -267,7 +268,8 @@ func last(str string) string {
 	if len(str) >= 6 && str[0:6] == `N/A - ` {
 		return str[6:]
 	}
-	return str
+
+	return percent(str)
 }
 
 //-----------------------------------------------------------------------------
@@ -282,11 +284,23 @@ func currency(str string) string {
 	return `$` + str
 }
 
+// Returns percent value truncated at 2 decimal points.
 //-----------------------------------------------------------------------------
 func percent(str string) string {
 	if str == `N/A` {
 		return `-`
 	}
 
-	return str + `%`
+	split := strings.Split(str, ".")
+	if len(split) == 2 {
+		digits := len(split[1])
+		if digits > 2 {
+			digits = 2
+		}
+		str = split[0] + "." + split[1][0:digits]
+	}
+	if str[len(str)-1] != '%' {
+		str += `%`
+	}
+	return str
 }

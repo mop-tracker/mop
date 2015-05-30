@@ -31,9 +31,10 @@ type Markup struct {
 	regex	      *regexp.Regexp		     // Regex to identify the supported tag names.
 }
 
-// Initialize creates tags to Termbox translation hash and sets default
-// colors and string alignment.
-func (markup *Markup) Initialize() *Markup {
+// Creates markup to define tag to Termbox translation rules and store default
+// colors and column alignments.
+func NewMarkup() *Markup {
+	markup := &Markup{}
 	markup.Foreground      = termbox.ColorDefault
 	markup.Background      = termbox.ColorDefault
 	markup.RightAligned    = false

@@ -85,11 +85,11 @@ func (list byDividendDesc)    Less(i, j int) bool { return list.sortable[j].Divi
 func (list byYieldDesc)       Less(i, j int) bool { return list.sortable[j].Yield         < list.sortable[i].Yield }
 func (list byMarketCapDesc)   Less(i, j int) bool { return m(list.sortable[j].MarketCap)  < m(list.sortable[i].MarketCap) }
 
-// Initialize simply saves the pointer to Profile for later use.
-func (sorter *Sorter) Initialize(profile *Profile) *Sorter {
-	sorter.profile = profile
-
-	return sorter
+// Returns new Sorter struct.
+func NewSorter(profile *Profile) *Sorter {
+	return &Sorter{
+		profile: profile,
+	}
 }
 
 // SortByCurrentColumn builds a list of sort interface based on current sort

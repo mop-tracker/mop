@@ -24,13 +24,13 @@ type LineEditor struct {
 	regex   *regexp.Regexp	// Regex to split comma-delimited input string.
 }
 
-// Initialize sets internal pointers and compiles the regular expression.
-func (editor *LineEditor) Initialize(screen *Screen, quotes *Quotes) *LineEditor {
-	editor.screen = screen
-	editor.quotes = quotes
-	editor.regex = regexp.MustCompile(`[,\s]+`)
-
-	return editor
+// Returns new initialized LineEditor struct.
+func NewLineEditor(screen *Screen, quotes *Quotes) *LineEditor {
+	return &LineEditor{
+		screen: screen,
+		quotes: quotes,
+		regex: regexp.MustCompile(`[,\s]+`),
+	}
 }
 
 // Prompt displays a prompt in response to '+' or '-' commands. Unknown commands

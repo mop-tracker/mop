@@ -16,13 +16,15 @@ type ColumnEditor struct {
 	profile	 *Profile  // Pointer to Profile where we save newly selected sort order.
 }
 
-// Initialize sets internal variables and highlights current column name
-// (as stored in Profile).
-func (editor *ColumnEditor) Initialize(screen *Screen, quotes *Quotes) *ColumnEditor {
-	editor.screen = screen
-	editor.quotes = quotes
-	editor.layout = screen.layout
-	editor.profile = quotes.profile
+// Returns new initialized ColumnEditor struct. As part of initialization it
+// highlights current column name (as stored in Profile).
+func NewColumnEditor(screen *Screen, quotes *Quotes) *ColumnEditor {
+	editor := &ColumnEditor{
+		screen: screen,
+		quotes: quotes,
+		layout: screen.layout,
+		profile: quotes.profile,
+	}
 
 	editor.selectCurrentColumn()
 

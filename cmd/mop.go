@@ -10,7 +10,7 @@ import (
 	`time`
 )
 
-const help = `Mop v0.1.0 -- Copyright (c) 2013 Michael Dvorkin. All Rights Reserved.
+const help = `Mop v0.2.0 -- Copyright (c) 2013-15 Michael Dvorkin. All Rights Reserved.
 NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 
 <u>Command</u>    <u>Description                                </u>
@@ -46,8 +46,8 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 		}
 	}()
 
-	market := new(mop.Market).Initialize()
-	quotes := new(mop.Quotes).Initialize(market, profile)
+	market := mop.NewMarket()
+	quotes := mop.NewQuotes(market, profile)
 	screen.Draw(market, quotes)
 
 loop:
@@ -60,10 +60,10 @@ loop:
 					if event.Key == termbox.KeyEsc || event.Ch == 'q' || event.Ch == 'Q' {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
-						lineEditor = new(mop.LineEditor).Initialize(screen, quotes)
+						lineEditor = mop.NewLineEditor(screen, quotes)
 						lineEditor.Prompt(event.Ch)
 					} else if event.Ch == 'o' || event.Ch == 'O' {
-						columnEditor = new(mop.ColumnEditor).Initialize(screen, quotes)
+						columnEditor = mop.NewColumnEditor(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						if profile.Regroup() == nil {
 							screen.Draw(quotes)
