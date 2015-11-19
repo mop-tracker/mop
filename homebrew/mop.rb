@@ -10,7 +10,7 @@ class Mop < Formula
 
   def install
     system "go", "get", "github.com/michaeldv/termbox-go"
-    system "go build cmd/mop.go"
+    system "go build cmd/mop/mop.go"
     bin.install "mop"
   end
 end
