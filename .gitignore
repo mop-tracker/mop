@@ -14,7 +14,6 @@ tmtags
 *.*~
 
 # Builds and logs.
-mop
 bin/mop*
 logs/*
 

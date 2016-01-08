@@ -9,7 +9,7 @@ run:
 	go run ./cmd/mop/main.go
 
 build:
-	go build -x $(PACKAGE)
+	go build -x -o ./bin/mop $(PACKAGE)
 
 install:
 	go install -x $(PACKAGE)
