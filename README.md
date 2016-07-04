@@ -3,7 +3,7 @@ Mop is a command-line utility that displays continuous up-to-date
 information about the U.S. markets and individual stocks. One
 screenshot is worth a thousand words:
 
-![Screenshot](https://raw.github.com/michaeldv/mop/master/doc/screenshot.png "Mop Screenshot")
+![Screenshot](https://raw.githubusercontent.com/mop-tracker/mop/master/doc/screenshot.png "Mop Screenshot")
 
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
