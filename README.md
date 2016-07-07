@@ -9,7 +9,7 @@ screenshot is worth a thousand words:
 Mop is implemented in Go and compiles down to a single executable file.
 
     # Make sure your $GOPATH is set.
-    $ go get github.com/michaeldv/mop
+    $ go get github.com/mop-tracker/mop
     $ cd $GOPATH/src/github.com/michaeldv/mop
     $ make            # <-- Compile and run mop.
     $ make build      # <-- Build mop in current directory.
