@@ -1,4 +1,4 @@
-### Mop: track stocks the hacker way ###
+## Terminal Stocks
 Mop is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks. 
 
 This repository assimilates the following fixes:
@@ -6,7 +6,7 @@ This repository assimilates the following fixes:
 
 ![](http://i.imgur.com/SkyRCpW.png)
 
-### Installing Go Language ###
+### Installing Go Language
 
     sudo apt -y install golang
     mkdir -p ~/go
@@ -17,7 +17,7 @@ This repository assimilates the following fixes:
         export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
     source /etc/profile.d/goenv.sh
 
-### Installing Mop ###
+### Installing Mop
 Mop is implemented in Go and compiles down to a single executable file.
 *Make sure your $GOPATH is set. - see above*
 
@@ -25,7 +25,7 @@ Mop is implemented in Go and compiles down to a single executable file.
     cd $GOPATH/src/github.com/brandleesee/mop
     make install    # <-- Build mop and install it in $GOPATH/bin.
 
-### Using Mop ###
+### Using Mop
 For demonstartion purposes Mop comes preconfigured with a number of
 stock tickers. You can easily change the default list by using the
 following keyboard commands:
@@ -42,7 +42,7 @@ When prompted please enter comma-delimited list of stock tickers. The
 list and other settings are stored in ``.moprc`` file in your ``$HOME``
 directory.
 
-### License ###
+### License
 Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved.
 "mike" + "@dvorkin" + ".net" || "twitter.com/mid"
 
