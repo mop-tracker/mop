@@ -5,8 +5,8 @@
 package main
 
 import (
-	`github.com/mop-tracker/mop`
-	`github.com/michaeldv/termbox-go`
+	`github.com/brandleesee/mop`
+	`github.com/brandleesee/termbox-go`
 	`time`
 )
 
