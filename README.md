@@ -3,33 +3,43 @@ Mop is a command-line utility that displays continuous up-to-date
 information about the U.S. markets and individual stocks. One
 screenshot is worth a thousand words:
 
-![Screenshot](https://raw.githubusercontent.com/mop-tracker/mop/master/doc/screenshot.png "Mop Screenshot")
+![](http://i.imgur.com/SkyRCpW.png)
+
+### Installing Go Language ###
+
+	sudo apt -y install golang
+	mkdir -p ~/go
+	sudo mkdir -p /etc/profile.d/
+	sudo nautilus /etc/profile.d/goenv.sh
+		export GOROOT=/usr/lib/go
+		export GOPATH=$HOME/go
+		export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+	source /etc/profile.d/goenv.sh
 
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
+*Make sure your $GOPATH is set. - see above*
 
-    # Make sure your $GOPATH is set.
     $ go get github.com/brandleesee/mop
     $ cd $GOPATH/src/github.com/brandleesee/mop
     $ make install    # <-- Build mop and install it in $GOPATH/bin.
-
 
 ### Using Mop ###
 For demonstartion purposes Mop comes preconfigured with a number of
 stock tickers. You can easily change the default list by using the
 following keyboard commands:
 
-    +       Add stocks to the list.
-    -       Remove stocks from the list.
-    o       Change column sort order.
-    g       Group stocks by advancing/declining issues.
-    ?       Display help screen.
-    esc     Quit mop.
+    +       Adds stocks to the list.
+    -       Removes stocks from the list.
+    o       Changes column sort order.
+    g       Groups stocks by advancing/declining issues.
+    q       Quits mop
+    ?       Displays help screen.
+    esc     Quits mop.
 
 When prompted please enter comma-delimited list of stock tickers. The
 list and other settings are stored in ``.moprc`` file in your ``$HOME``
 directory.
-
 
 ### License ###
 Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved.
