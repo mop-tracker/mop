@@ -5,7 +5,7 @@
 package mop
 
 import (
-	`github.com/michaeldv/termbox-go`
+	`github.com/brandleesee/termbox-go`
 	`strings`
 	`time`
 )
