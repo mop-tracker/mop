@@ -1,28 +1,29 @@
 ### Mop: track stocks the hacker way ###
-Mop is a command-line utility that displays continuous up-to-date
-information about the U.S. markets and individual stocks. One
-screenshot is worth a thousand words:
+Mop is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks. 
+
+This repository assimilates the following fixes:
+* https://github.com/mop-tracker/mop/pull/24/commits/641b65aa60f6a3090186fb3a87fc6c9b04e786fe
 
 ![](http://i.imgur.com/SkyRCpW.png)
 
 ### Installing Go Language ###
 
-	sudo apt -y install golang
-	mkdir -p ~/go
-	sudo mkdir -p /etc/profile.d/
-	sudo nautilus /etc/profile.d/goenv.sh
-		export GOROOT=/usr/lib/go
-		export GOPATH=$HOME/go
-		export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-	source /etc/profile.d/goenv.sh
+    sudo apt -y install golang
+    mkdir -p ~/go
+    sudo mkdir -p /etc/profile.d/
+    sudo nautilus /etc/profile.d/goenv.sh
+        export GOROOT=/usr/lib/go
+        export GOPATH=$HOME/go
+        export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+    source /etc/profile.d/goenv.sh
 
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
 *Make sure your $GOPATH is set. - see above*
 
-    $ go get github.com/brandleesee/mop
-    $ cd $GOPATH/src/github.com/brandleesee/mop
-    $ make install    # <-- Build mop and install it in $GOPATH/bin.
+    go get github.com/brandleesee/mop
+    cd $GOPATH/src/github.com/brandleesee/mop
+    make install    # <-- Build mop and install it in $GOPATH/bin.
 
 ### Using Mop ###
 For demonstartion purposes Mop comes preconfigured with a number of
