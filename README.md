@@ -9,10 +9,8 @@ screenshot is worth a thousand words:
 Mop is implemented in Go and compiles down to a single executable file.
 
     # Make sure your $GOPATH is set.
-    $ go get github.com/michaeldv/mop
-    $ cd $GOPATH/src/github.com/michaeldv/mop
-    $ make            # <-- Compile and run mop.
-    $ make build      # <-- Build mop in current directory.
+    $ go get github.com/brandleesee/mop
+    $ cd $GOPATH/src/github.com/brandleesee/mop
     $ make install    # <-- Build mop and install it in $GOPATH/bin.
 
 
@@ -31,16 +29,6 @@ following keyboard commands:
 When prompted please enter comma-delimited list of stock tickers. The
 list and other settings are stored in ``.moprc`` file in your ``$HOME``
 directory.
-
-
-### Contributing ###
-Mop is my personal project I came up with to learn Go programming. Your
-comments, suggestions, and contributions are welcome.
-
-* Fork the project on Github.
-* Make your feature addition or bug fix.
-* Commit, do not change program version, or commit history.
-* Email me commit URL (*do not* send pull requests).
 
 
 ### License ###
