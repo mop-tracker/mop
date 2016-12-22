@@ -34,7 +34,7 @@ following keyboard commands:
     -       Removes stocks from the list.
     o       Changes column sort order.
     g       Groups stocks by advancing/declining issues.
-    q       Quits mop
+    q       Quits mop.
     ?       Displays help screen.
     esc     Quits mop.
 
