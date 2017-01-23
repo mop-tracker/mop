@@ -4,7 +4,7 @@
 
 package mop
 
-import `github.com/brandleesee/termbox-go`
+import `github.com/michaeldv/termbox-go`
 
 // ColumnEditor handles column sort order. When activated it highlights
 // current column name in the header, then waits for arrow keys (choose
