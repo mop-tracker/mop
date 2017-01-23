@@ -6,7 +6,7 @@ package main
 
 import (
 	`github.com/brandleesee/mop`
-	`github.com/brandleesee/termbox-go`
+	`github.com/michaeldv/termbox-go`
 	`time`
 )
 
