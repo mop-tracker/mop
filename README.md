@@ -47,9 +47,9 @@ For demonstartion purposes Terminal Stocks comes preconfigured with a number of 
     -       Removes stocks from the list.
     o       Changes column sort order.
     g       Groups stocks by advancing/declining issues.
-    q       Quits mop.
+    q       Quits Terminal Stocks.
     ?       Displays help screen.
-    esc     Quits mop.
+    esc     Quits Terminal Stocks.
 
 When prompted please enter comma-delimited list of stock tickers. The list and other settings are stored in `` .TSrc `` file in your `` $HOME `` directory.
 
