@@ -1,36 +1,46 @@
+## Terminal Stocks.
+
 ![](https://github.com/mop-tracker/mop/blob/master/doc/screenshot.png)
 
-## Terminal Stocks
-Mop is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks. 
+Mop is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks in a terminal emulator. 
 
 ![](http://i.imgur.com/SkyRCpW.png)
 
 This repository assimilates the following fixes:
+
 * [Fix for parsing of market data](https://github.com/mop-tracker/mop/pull/24/commits/641b65aa60f6a3090186fb3a87fc6c9b04e786fe)
 * [Display of correct timezone name](https://github.com/cuihantao/mop/commit/7037a19e20d87d2d02037fcfc4e22b4b686d75de)
 * [Red colour for negative numbers, better 'N/A' handling](https://github.com/dalbert/mop/commit/ee4f79f97f2261a0fa4eb22f103c2c9ec645d38c)
 
 ### Installing Go Language
 
-    sudo apt -y install golang
-    mkdir -p ~/go
-    sudo mkdir -p /etc/profile.d/
-    sudo nautilus /etc/profile.d/goenv.sh
-        export GOROOT=/usr/lib/go
-        export GOPATH=$HOME/go
-        export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-    source /etc/profile.d/goenv.sh
+```bash
+sudo apt -y install golang
+mkdir -p ~/go
+sudo mkdir -p /etc/profile.d/
+sudo nautilus /etc/profile.d/goenv.sh
+    export GOROOT=/usr/lib/go
+    export GOPATH=$HOME/go
+    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+source /etc/profile.d/goenv.sh
+```
 
 ### Installing Mop
+
 Mop is implemented in Go and compiles down to a single executable file.
 
 **Make sure your $GOPATH is set.** - *see above*
 
-    go get github.com/brandleesee/mop
-    cd $GOPATH/src/github.com/brandleesee/mop
-    make install    # <-- Build mop and install it in $GOPATH/bin.
+Build mop and install it in ` $GOPATH/bin ` :
+
+```bash
+go get github.com/brandleesee/mop
+cd $GOPATH/src/github.com/brandleesee/mop
+make install
+```
 
 ### Using Mop
+
 For demonstartion purposes Mop comes preconfigured with a number of
 stock tickers. You can easily change the default list by using the
 following keyboard commands:
@@ -48,6 +58,7 @@ list and other settings are stored in ``.moprc`` file in your ``$HOME``
 directory.
 
 ### License
+
 Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved.
 "mike" + "@dvorkin" + ".net" || "twitter.com/mid"
 
