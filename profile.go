@@ -12,11 +12,11 @@ import (
 )
 
 // File name in user's home directory where we store the settings.
-const moprc = `/.moprc`
+const TSrc = `/.TSrc`
 
 // Profile manages Mop program settings as defined by user (ex. list of
 // stock tickers). The settings are serialized using JSON and saved in
-// the ~/.moprc file.
+// the ~/.TSrc file.
 type Profile struct {
 	Tickers        []string // List of stock tickers to display.
 	MarketRefresh  int      // Time interval to refresh market data.
@@ -27,7 +27,7 @@ type Profile struct {
 	selectedColumn int      // Stores selected column number when the column editor is active.
 }
 
-// Creates the profile and attempts to load the settings from ~/.moprc file.
+// Creates the profile and attempts to load the settings from ~/.TSrc file.
 // If the file is not there it gets created with default values.
 func NewProfile() *Profile {
 	profile := &Profile{}
