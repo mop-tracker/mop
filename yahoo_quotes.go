@@ -5,12 +5,12 @@
 package mop
 
 import (
-	`bytes`
-	`fmt`
-	`io/ioutil`
-	`net/http`
-	`reflect`
-	`strings`
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"reflect"
+	"strings"
 )
 
 // See http://www.gummy-stuff.org/Yahoo-stocks.htm
@@ -20,6 +20,7 @@ import (
 // k2: realtime change vs p2: change
 //
 const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c1p2oghjkva2r2rdyj3j1`
+const noDataIndicator = `N/A`
 
 // Stock stores quote information for the particular stock ticker. The data
 // for all the fields except 'Advancing' is fetched using Yahoo market API.
@@ -131,7 +132,7 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 	quotes.stocks = make([]Stock, len(lines))
 	//
 	// Get the total number of fields in the Stock struct. Skip the last
-	// Advanicing field which is not fetched.
+	// Advancing field which is not fetched.
 	//
 	fieldsCount := reflect.ValueOf(quotes.stocks[0]).NumField() - 1
 	//
@@ -148,10 +149,10 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 		// Try realtime value and revert to the last known if the
 		// realtime is not available.
 		//
-		if quotes.stocks[i].PeRatio == `N/A` && quotes.stocks[i].PeRatioX != `N/A` {
+		if quotes.stocks[i].PeRatio == noDataIndicator && quotes.stocks[i].PeRatioX != noDataIndicator {
 			quotes.stocks[i].PeRatio = quotes.stocks[i].PeRatioX
 		}
-		if quotes.stocks[i].MarketCap == `N/A` && quotes.stocks[i].MarketCapX != `N/A` {
+		if quotes.stocks[i].MarketCap == noDataIndicator && quotes.stocks[i].MarketCapX != noDataIndicator {
 			quotes.stocks[i].MarketCap = quotes.stocks[i].MarketCapX
 		}
 		//
