@@ -14,7 +14,7 @@ import (
 // File name in user's home directory where we store the settings.
 const TSrc = `/.TSrc`
 
-// Profile manages Mop program settings as defined by user (ex. list of
+// Profile manages Terminal Stocks program settings as defined by user (ex. list of
 // stock tickers). The settings are serialized using JSON and saved in
 // the ~/.TSrc file.
 type Profile struct {
@@ -48,7 +48,7 @@ func NewProfile() *Profile {
 	return profile
 }
 
-// Save serializes settings using JSON and saves them in ~/.moprc file.
+// Save serializes settings using JSON and saves them in ~/.TSrc file.
 func (profile *Profile) Save() error {
 	data, err := json.Marshal(profile)
 	if err != nil {
@@ -130,5 +130,5 @@ func (profile *Profile) defaultFileName() string {
 	if err != nil {
 		panic(err)
 	}
-	return usr.HomeDir + moprc
+	return usr.HomeDir + TSrc
 }
