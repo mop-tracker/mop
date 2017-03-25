@@ -25,17 +25,17 @@ sudo nautilus /etc/profile.d/goenv.sh
 source /etc/profile.d/goenv.sh
 ```
 
-### Installing Mop in Ubuntu and derivatives
+### Installing Terminal Stocks in Ubuntu and derivatives
 
 Terminal Stocks is implemented in Go and compiles down to a single executable file.
 
 **Make sure your $GOPATH is set.** *see instructions above*
 
-Build mop and install it in `` $GOPATH/bin `` :
+Build Terminal Stocks and install it in `` $GOPATH/bin `` :
 
 ```bash
-go get github.com/brandleesee/mop
-cd $GOPATH/src/github.com/brandleesee/mop
+go get github.com/brandleesee/Terminal-Stocks
+cd $GOPATH/src/github.com/brandleesee/Terminal-Stocks
 make install
 ```
 
@@ -51,7 +51,7 @@ For demonstartion purposes Terminal Stocks comes preconfigured with a number of 
     ?       Displays help screen.
     esc     Quits mop.
 
-When prompted please enter comma-delimited list of stock tickers. The list and other settings are stored in `` .moprc `` file in your `` $HOME `` directory.
+When prompted please enter comma-delimited list of stock tickers. The list and other settings are stored in `` .TSrc `` file in your `` $HOME `` directory.
 
 ### License
 
