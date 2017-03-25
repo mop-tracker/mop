@@ -1,4 +1,4 @@
-## Terminal Stocks.
+## Terminal Stocks
 
 ![](https://github.com/mop-tracker/mop/blob/master/doc/screenshot.png)
 
