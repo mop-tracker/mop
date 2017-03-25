@@ -3,6 +3,8 @@ Mop is a command-line utility that displays continuous up-to-date information ab
 
 This repository assimilates the following fixes:
 * https://github.com/mop-tracker/mop/pull/24/commits/641b65aa60f6a3090186fb3a87fc6c9b04e786fe
+* https://github.com/cuihantao/mop/commit/7037a19e20d87d2d02037fcfc4e22b4b686d75de#
+* https://github.com/dalbert/mop/commit/ee4f79f97f2261a0fa4eb22f103c2c9ec645d38c
 
 ![](http://i.imgur.com/SkyRCpW.png)
 
