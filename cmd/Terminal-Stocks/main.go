@@ -20,8 +20,8 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
    g       Group stocks by advancing/declining issues.
    o       Change column sort order.
    p       Pause market data and stock updates.
-   q       Quit mop.
-  esc      Ditto.
+   q       Quit Terminal Stocks.
+  esc      Quit Terminal Stocks.
 
 Enter comma-delimited list of stock tickers when prompted.
 
@@ -29,9 +29,9 @@ Enter comma-delimited list of stock tickers when prompted.
 `
 
 //-----------------------------------------------------------------------------
-func mainLoop(screen *mop.Screen, profile *mop.Profile) {
-	var lineEditor *mop.LineEditor
-	var columnEditor *mop.ColumnEditor
+func mainLoop(screen *Terminal-Stocks.Screen, profile *Terminal-Stocks.Profile) {
+	var lineEditor *Terminal-Stocks.LineEditor
+	var columnEditor *Terminal-Stocks.ColumnEditor
 
 	keyboardQueue := make(chan termbox.Event)
 	timestampQueue := time.NewTicker(1 * time.Second)
@@ -46,8 +46,8 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 		}
 	}()
 
-	market := mop.NewMarket()
-	quotes := mop.NewQuotes(market, profile)
+	market := Terminal-Stocks.NewMarket()
+	quotes := Terminal-Stocks.NewQuotes(market, profile)
 	screen.Draw(market, quotes)
 
 loop:
@@ -60,10 +60,10 @@ loop:
 					if event.Key == termbox.KeyEsc || event.Ch == 'q' || event.Ch == 'Q' {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
-						lineEditor = mop.NewLineEditor(screen, quotes)
+						lineEditor = Terminal-Stocks.NewLineEditor(screen, quotes)
 						lineEditor.Prompt(event.Ch)
 					} else if event.Ch == 'o' || event.Ch == 'O' {
-						columnEditor = mop.NewColumnEditor(screen, quotes)
+						columnEditor = Terminal-Stocks.NewColumnEditor(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						if profile.Regroup() == nil {
 							screen.Draw(quotes)
@@ -116,9 +116,9 @@ loop:
 
 //-----------------------------------------------------------------------------
 func main() {
-	screen := mop.NewScreen()
+	screen := Terminal-Stocks.NewScreen()
 	defer screen.Close()
 
-	profile := mop.NewProfile()
+	profile := Terminal-Stocks.NewProfile()
 	mainLoop(screen, profile)
 }
