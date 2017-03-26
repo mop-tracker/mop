@@ -28,7 +28,7 @@ sudo mkdir -p /etc/profile.d/
 sudo nautilus /etc/profile.d/goenv.sh
 ```
 
-**put the following in the Go Environment file ` goenv.sh ` **
+**put the following in the Go Environment file `` goenv.sh ``**
 
 ```bash
     export GOROOT=/usr/lib/go
@@ -46,9 +46,13 @@ source /etc/profile.d/goenv.sh
 
 Terminal Stocks is implemented in Go and compiles down to a single executable file.
 
-**make sure your $GOPATH is set** *see instructions above*
+**make sure your `` $GOPATH `` is set** 
 
-Build Terminal Stocks and install it in `` $GOPATH/bin `` :
+```
+see instructions above
+```
+
+**Build Terminal Stocks and install it in `` $GOPATH/bin ``:**
 
 ```bash
 go get github.com/brandleesee/Terminal-Stocks
