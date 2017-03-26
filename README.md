@@ -14,14 +14,31 @@ This repository assimilates the following fixes:
 
 ### Installing Go Language in Ubuntu and derivatives
 
+**download Go in system-preferred folder structure**
+
 ```bash
 sudo apt -y install golang
 mkdir -p ~/go
 sudo mkdir -p /etc/profile.d/
+```
+
+**create Go Environment**
+
+```bash
 sudo nautilus /etc/profile.d/goenv.sh
+```
+
+**put the following in the Go Environment file ` goenv.sh ` **
+
+```bash
     export GOROOT=/usr/lib/go
     export GOPATH=$HOME/go
     export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+```
+
+**make Go Environment recognised by system**
+    
+```bash
 source /etc/profile.d/goenv.sh
 ```
 
@@ -29,7 +46,7 @@ source /etc/profile.d/goenv.sh
 
 Terminal Stocks is implemented in Go and compiles down to a single executable file.
 
-**Make sure your $GOPATH is set.** *see instructions above*
+**make sure your $GOPATH is set** *see instructions above*
 
 Build Terminal Stocks and install it in `` $GOPATH/bin `` :
 
@@ -56,6 +73,7 @@ When prompted please enter comma-delimited list of stock tickers. The list and o
 ### License
 
 Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved.
+
 "mike" + "@dvorkin" + ".net" || "twitter.com/mid"
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
