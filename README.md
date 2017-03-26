@@ -1,10 +1,10 @@
-## Terminal Stocks
+# Terminal Stocks
 
 Terminal Stocks is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks in a terminal emulator. 
 
 ![](http://i.imgur.com/SkyRCpW.png)
 
-### Updates
+## Updates
 
 This repository assimilates the following fixes:
 
@@ -12,9 +12,9 @@ This repository assimilates the following fixes:
 * [correct display of timezone name](https://github.com/cuihantao/mop/commit/7037a19e20d87d2d02037fcfc4e22b4b686d75de)
 * [red colour for negative numbers & better N/A handling](https://github.com/dalbert/mop/commit/ee4f79f97f2261a0fa4eb22f103c2c9ec645d38c)
 
-### Installing Go Language in Ubuntu and derivatives
+## Installing Go Language in Ubuntu and derivatives
 
-**download Go in system-preferred folder structure**
+### Download Go in system-preferred folder structure
 
 ```bash
 sudo apt -y install golang
@@ -22,13 +22,13 @@ mkdir -p ~/go
 sudo mkdir -p /etc/profile.d/
 ```
 
-**create Go Environment**
+### Create Go Environment
 
 ```bash
 sudo nautilus /etc/profile.d/goenv.sh
 ```
 
-**put the following in the Go Environment file `` goenv.sh ``**
+### Put the following in the Go Environment file `` goenv.sh ``
 
 ```bash
     export GOROOT=/usr/lib/go
@@ -36,23 +36,23 @@ sudo nautilus /etc/profile.d/goenv.sh
     export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 ```
 
-**make Go Environment recognised by system**
+### Make Go Environment recognised by system
     
 ```bash
 source /etc/profile.d/goenv.sh
 ```
 
-### Installing Terminal Stocks in Ubuntu and derivatives
+## Installing Terminal Stocks in Ubuntu and derivatives
 
 Terminal Stocks is implemented in Go and compiles down to a single executable file.
 
-**make sure your `` $GOPATH `` is set** 
+### Make sure your `` $GOPATH `` is set
 
 ```
 see instructions above
 ```
 
-**Build Terminal Stocks and install it in `` $GOPATH/bin ``:**
+### Build Terminal Stocks and install it in `` $GOPATH/bin ``:
 
 ```bash
 go get github.com/brandleesee/Terminal-Stocks
@@ -60,7 +60,7 @@ cd $GOPATH/src/github.com/brandleesee/Terminal-Stocks
 make install
 ```
 
-### Usage
+## Usage
 
 For demonstartion purposes Terminal Stocks comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
 
@@ -74,7 +74,7 @@ For demonstartion purposes Terminal Stocks comes preconfigured with a number of 
 
 When prompted please enter comma-delimited list of stock tickers. The list and other settings are stored in `` .TSrc `` file in your `` $HOME `` directory.
 
-### License
+## License
 
 Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved.
 
