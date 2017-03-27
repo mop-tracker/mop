@@ -55,8 +55,8 @@ see instructions above
 ### Build Terminal Stocks and install it in `` $GOPATH/bin ``:
 
 ```bash
-go get github.com/brandleesee/Terminal-Stocks
-cd $GOPATH/src/github.com/brandleesee/Terminal-Stocks
+go get github.com/brandleesee/TerminalStocks
+cd $GOPATH/src/github.com/brandleesee/TerminalStocks
 make install
 ```
 
