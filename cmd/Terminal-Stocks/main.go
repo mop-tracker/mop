@@ -5,7 +5,7 @@
 package main
 
 import (
-	`github.com/brandleesee/Terminal-Stocks`
+	`github.com/brandleesee/TerminalStocks`
 	`github.com/michaeldv/termbox-go`
 	`time`
 )
@@ -29,9 +29,9 @@ Enter comma-delimited list of stock tickers when prompted.
 `
 
 //-----------------------------------------------------------------------------
-func mainLoop(screen *Terminal-Stocks.Screen, profile *Terminal-Stocks.Profile) {
-	var lineEditor *Terminal-Stocks.LineEditor
-	var columnEditor *Terminal-Stocks.ColumnEditor
+func mainLoop(screen *TerminalStocks.Screen, profile *TerminalStocks.Profile) {
+	var lineEditor *TerminalStocks.LineEditor
+	var columnEditor *TerminalStocks.ColumnEditor
 
 	keyboardQueue := make(chan termbox.Event)
 	timestampQueue := time.NewTicker(1 * time.Second)
@@ -46,8 +46,8 @@ func mainLoop(screen *Terminal-Stocks.Screen, profile *Terminal-Stocks.Profile) 
 		}
 	}()
 
-	market := Terminal-Stocks.NewMarket()
-	quotes := Terminal-Stocks.NewQuotes(market, profile)
+	market := TerminalStocks.NewMarket()
+	quotes := TerminalStocks.NewQuotes(market, profile)
 	screen.Draw(market, quotes)
 
 loop:
@@ -116,9 +116,9 @@ loop:
 
 //-----------------------------------------------------------------------------
 func main() {
-	screen := Terminal-Stocks.NewScreen()
+	screen := TerminalStocks.NewScreen()
 	defer screen.Close()
 
-	profile := Terminal-Stocks.NewProfile()
+	profile := TerminalStocks.NewProfile()
 	mainLoop(screen, profile)
 }
