@@ -14,6 +14,6 @@ tmtags
 *.*~
 
 # Builds and logs.
-bin/Terminal-Stocks*
+bin/TerminalStocks*
 logs/*
 
