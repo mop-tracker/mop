@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"text/templat"
+	"text/template"
 	"time"
 )
 
