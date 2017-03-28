@@ -61,10 +61,10 @@ loop:
 					if event.Key == termbox.KeyEsc || event.Ch == 'q' || event.Ch == 'Q' {
 						break loop
 					} else if event.Ch == '+' || event.Ch == '-' {
-						lineEditor = Terminal-Stocks.NewLineEditor(screen, quotes)
+						lineEditor = TerminalStocks.NewLineEditor(screen, quotes)
 						lineEditor.Prompt(event.Ch)
 					} else if event.Ch == 'o' || event.Ch == 'O' {
-						columnEditor = Terminal-Stocks.NewColumnEditor(screen, quotes)
+						columnEditor = TerminalStocks.NewColumnEditor(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						if profile.Regroup() == nil {
 							screen.Draw(quotes)
