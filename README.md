@@ -17,7 +17,7 @@ Mop is implemented in Go and compiles down to a single executable file.
 
 
 ### Using Mop ###
-For demonstartion purposes Mop comes preconfigured with a number of
+For demonstration purposes Mop comes preconfigured with a number of
 stock tickers. You can easily change the default list by using the
 following keyboard commands:
 
