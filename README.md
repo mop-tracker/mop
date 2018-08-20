@@ -2,15 +2,17 @@
 
 Terminal Stocks is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks in a terminal emulator. 
 
-![](http://i.imgur.com/SkyRCpW.png)
+![](https://user-images.githubusercontent.com/698668/44194756-cf458a80-a0eb-11e8-93b4-3f8a3cdc5c7a.png)
+thanks to @jamesonjlee for picture & patch
 
 ## Updates
 
 This repository assimilates the following fixes:
 
-* [fix for market data parsing](https://github.com/mop-tracker/mop/pull/24/commits/641b65aa60f6a3090186fb3a87fc6c9b04e786fe)
-* [correct display of timezone name](https://github.com/cuihantao/mop/commit/7037a19e20d87d2d02037fcfc4e22b4b686d75de)
-* [red colour for negative numbers & better N/A handling](https://github.com/dalbert/mop/commit/ee4f79f97f2261a0fa4eb22f103c2c9ec645d38c)
+* [Yahoo Data Extraction](https://github.com/brandleesee/TerminalStocks/pull/4)
+* [CNN Data Extraction](https://github.com/mop-tracker/mop/pull/24/commits/641b65aa60f6a3090186fb3a87fc6c9b04e786fe)
+* [Correct Time Zone Name](https://github.com/cuihantao/mop/commit/7037a19e20d87d2d02037fcfc4e22b4b686d75de)
+* [Red Negative Numbers](https://github.com/dalbert/mop/commit/ee4f79f97f2261a0fa4eb22f103c2c9ec645d38c)
 
 ## Installing Go Language in Ubuntu and derivatives
 
@@ -73,6 +75,8 @@ For demonstartion purposes Terminal Stocks comes preconfigured with a number of 
     esc     Quits Terminal Stocks.
 
 When prompted please enter comma-delimited list of stock tickers. The list and other settings are stored in `` .TSrc `` file in your `` $HOME `` directory.
+
+![](http://i.imgur.com/SkyRCpW.png)
 
 ## License
 
