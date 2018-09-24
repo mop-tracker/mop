@@ -15,13 +15,6 @@ import (
 	"strings"
 )
 
-// See http://www.gummy-stuff.org/Yahoo-stocks.htm
-//
-// const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c6k2oghjkva2r2rdyj3j1`
-// c2: realtime change vs c1: change
-// k2: realtime change vs p2: change
-//
-// const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c1p2oghjkva2r2rdyj3j1`
 const quotesURLv7 = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s`
 const quotesURLv7QueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 
