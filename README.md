@@ -69,9 +69,9 @@ Starting the newly created executable will start TerminalStocks in cmd.
 </tbody>
 </table>
 
-![](https://user-images.githubusercontent.com/698668/44194756-cf458a80-a0eb-11e8-93b4-3f8a3cdc5c7a.png)
-
 ## Installing Go Language in Ubuntu & derivatives and running TerminalStocks
+
+![](https://user-images.githubusercontent.com/698668/44194756-cf458a80-a0eb-11e8-93b4-3f8a3cdc5c7a.png)
 
 ### Download Go in system-preferred folder structure
 
