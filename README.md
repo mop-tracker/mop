@@ -1,18 +1,10 @@
 # Terminal Stocks
 
-Terminal Stocks is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks in a terminal emulator. 
+**Tested on Windows 7 and Ubuntu 16.04 & 18.04.**
+
+Terminal Stocks is a command-line utility that displays continuous up-to-date information about select markets and individual stocks in a terminal emulator. 
 
 ![](https://user-images.githubusercontent.com/698668/44194756-cf458a80-a0eb-11e8-93b4-3f8a3cdc5c7a.png)
-thanks to @jamesonjlee for picture & patch
-
-## Updates
-
-This repository assimilates the following fixes:
-
-* [Yahoo Data Extraction](https://github.com/brandleesee/TerminalStocks/pull/4)
-* [CNN Data Extraction](https://github.com/mop-tracker/mop/pull/24/commits/641b65aa60f6a3090186fb3a87fc6c9b04e786fe)
-* [Correct Time Zone Name](https://github.com/cuihantao/mop/commit/7037a19e20d87d2d02037fcfc4e22b4b686d75de)
-* [Red Negative Numbers](https://github.com/dalbert/mop/commit/ee4f79f97f2261a0fa4eb22f103c2c9ec645d38c)
 
 ## Installing Go Language in Ubuntu and derivatives
 
@@ -62,6 +54,71 @@ cd $GOPATH/src/github.com/brandleesee/TerminalStocks
 make install
 ```
 
+![](https://i.imgur.com/qkT8SL7.png)
+
+## Building TerminalStocks on Windows 7 x64
+
+### Download Go
+
+https://dl.google.com/go/go1.11.windows-amd64.msi
+
+### Create Subfolders in $Users/USERNAME
+
+```
+C:\Users\CHANGE-TO-USERNAME\go\src\github.com\brandleesee
+C:\Users\CHANGE-TO-USERNAME\go\src\github.com\mattn
+C:\Users\CHANGE-TO-USERNAME\go\src\github.com\nsf 
+```
+
+### Extract Repositories to Respective Folders
+
+![](https://i.imgur.com/WZmfQtq.png)
+https://github.com/brandleesee/TerminalStocks/archive/master.zip  
+C:\Users\blc\go\src\github.com\brandleesee\TerminalStocks  
+*rename TerminalStocks-master to TerminalStocks*  
+
+![](https://i.imgur.com/SjAhiWC.png)
+https://github.com/mattn/go-runewidth/archive/master.zip  
+C:\Users\blc\go\src\github.com\mattn\go-runewidth  
+*rename go-runewidth-master to go-runewidth*  
+
+![](https://i.imgur.com/cbUpBId.png)
+https://github.com/nsf/termbox-go/archive/master.zip  
+C:\Users\blc\go\src\github.com\nsf\termbox-go  
+*rename termbox-go-master to termbox-go*  
+
+**make sure that there are no duplicate folders**
+**C:\Users\blc\go\src\github.com\brandleesee\TerminalStocks\TerminalStocks**
+
+### Creating the Executable
+
+Run `cmd` then:
+
+```
+cd C:\Users\**USERNAME**\go\src\github.com\brandleesee\TerminalStocks\cmd\TerminalStocks
+go build
+```
+
+Starting the newly created executable will start TerminalStocks in cmd.
+
+### Maximize Command Prompt Window
+
+*this is done only once*
+
+* Run `cmd`
+* Right-click on Title Bar and select `Defaults`
+* In **Options** tab, tick `QuickEdit mode`
+* In **Layout** tab resize as required.
+
+<table>
+<tbody>
+<tr>
+<td align="center"><img src="https://i.imgur.com/QVzbqIT.png" /></td>
+<td align="center"><img src="https://i.imgur.com/8UFs3Mg.png" /></td>
+</tr>
+</tbody>
+</table>
+
 ## Usage
 
 For demonstartion purposes Terminal Stocks comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
@@ -76,16 +133,12 @@ For demonstartion purposes Terminal Stocks comes preconfigured with a number of 
 
 When prompted please enter comma-delimited list of stock tickers. The list and other settings are stored in `` .TSrc `` file in your `` $HOME `` directory.
 
-![](http://i.imgur.com/SkyRCpW.png)
-
 ## License
 
-Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved.
+Copyright (c) 2017-2018 Brandon Lee Camilleri. All Rights Reserved. github.com/brandleesee  
+Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved. "mike" + "@dvorkin" + ".net" || "twitter.com/mid"  
 
-"mike" + "@dvorkin" + ".net" || "twitter.com/mid"
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
