@@ -7,7 +7,7 @@ package main
 
 import (
 	`github.com/brandleesee/TerminalStocks`
-	`github.com/michaeldv/termbox-go`
+	`github.com/nsf/termbox-go`
 	`time`
 )
 
