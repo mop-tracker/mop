@@ -4,56 +4,6 @@
 
 Terminal Stocks is a command-line utility that displays continuous up-to-date information about select markets and individual stocks in a terminal emulator. 
 
-![](https://user-images.githubusercontent.com/698668/44194756-cf458a80-a0eb-11e8-93b4-3f8a3cdc5c7a.png)
-
-## Installing Go Language in Ubuntu and derivatives
-
-### Download Go in system-preferred folder structure
-
-```bash
-sudo apt -y install golang
-mkdir -p ~/go
-sudo mkdir -p /etc/profile.d/
-```
-
-### Create Go Environment
-
-```bash
-sudo nautilus /etc/profile.d/goenv.sh
-```
-
-### Put the following in the Go Environment file `` goenv.sh ``
-
-```bash
-    export GOROOT=/usr/lib/go
-    export GOPATH=$HOME/go
-    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-```
-
-### Make Go Environment recognised by system
-    
-```bash
-source /etc/profile.d/goenv.sh
-```
-
-## Installing Terminal Stocks in Ubuntu and derivatives
-
-Terminal Stocks is implemented in Go and compiles down to a single executable file.
-
-### Make sure your `` $GOPATH `` is set
-
-```
-see instructions above
-```
-
-### Build Terminal Stocks and install it in `` $GOPATH/bin ``:
-
-```bash
-go get github.com/brandleesee/TerminalStocks
-cd $GOPATH/src/github.com/brandleesee/TerminalStocks
-make install
-```
-
 ![](https://i.imgur.com/qkT8SL7.png)
 
 ## Building TerminalStocks on Windows 7 x64
@@ -118,6 +68,57 @@ Starting the newly created executable will start TerminalStocks in cmd.
 </tr>
 </tbody>
 </table>
+
+![](https://user-images.githubusercontent.com/698668/44194756-cf458a80-a0eb-11e8-93b4-3f8a3cdc5c7a.png)
+
+## Installing Go Language in Ubuntu & derivatives and running TerminalStocks
+
+### Download Go in system-preferred folder structure
+
+```bash
+sudo apt -y install golang
+mkdir -p ~/go
+sudo mkdir -p /etc/profile.d/
+```
+
+### Create Go Environment
+
+```bash
+sudo nautilus /etc/profile.d/goenv.sh
+```
+
+### Put the following in the Go Environment file `` goenv.sh ``
+
+```bash
+    export GOROOT=/usr/lib/go
+    export GOPATH=$HOME/go
+    export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+```
+
+### Make Go Environment recognised by system
+    
+```bash
+source /etc/profile.d/goenv.sh
+```
+
+## Installing Terminal Stocks in Ubuntu and derivatives
+
+Terminal Stocks is implemented in Go and compiles down to a single executable file.
+
+### Make sure your `` $GOPATH `` is set
+
+```
+see instructions above
+```
+
+### Build Terminal Stocks and install it in `` $GOPATH/bin ``:
+
+```bash
+go get github.com/brandleesee/TerminalStocks
+cd $GOPATH/src/github.com/brandleesee/TerminalStocks
+make install
+```
+
 
 ## Usage
 
