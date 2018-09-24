@@ -86,7 +86,6 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 // Draw accepts variable number of arguments and knows how to display the
 // market data, stock quotes, current time, and an arbitrary string.
 func (screen *Screen) Draw(objects ...interface{}) *Screen {
-	zonename, _ := time.Now().In(time.Local).Zone()
 	if screen.pausedAt != nil {
 		defer screen.DrawLine(0, 0, `<right><r>`+screen.pausedAt.Format(`Mon, 02 Jan, 2006 15:04:05`)+`</r></right>`)
 	}
