@@ -89,7 +89,7 @@ func (layout *Layout) Quotes(quotes *Quotes) string {
 		Header string  // Formatted header line.
 		Stocks []Stock // List of formatted stock quotes.
 	}{
-		time.Now().Format(`Mon, 02 Jan, 2006 15:04:05 ` + `LT`),
+		time.Now().Format(`Mon, 02 Jan, 2006 15:04:05 ` + zonename),
 		layout.Header(quotes.profile),
 		layout.prettify(quotes),
 	}
