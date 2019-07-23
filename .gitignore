@@ -18,3 +18,5 @@ bin/mop*
 logs/*
 
 .idea
+
+cmd/mop/debug
