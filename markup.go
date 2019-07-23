@@ -5,7 +5,7 @@
 package mop
 
 import (
-	`github.com/michaeldv/termbox-go`
+	`github.com/nsf/termbox-go`
 	`regexp`
 	`strings`
 )
