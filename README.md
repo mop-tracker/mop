@@ -43,8 +43,8 @@ comments, suggestions, and contributions are welcome.
 
 * Fork the project on Github.
 * Make your feature addition or bug fix.
+* Pull requests accepted.
 * Commit, do not change program version, or commit history.
-* Email me commit URL (*do not* send pull requests).
 
 
 ### License ###
