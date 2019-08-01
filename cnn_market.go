@@ -57,22 +57,23 @@ func NewMarket() *Market {
 	market.errors = ``
 
 	const any = `\s*(?:.+?)`
-	const price = `>([\d\.,]+)</span>`
+	const change = `>([\+\-]?[\d\.,]+)<\/span>`
+	const price = `>([\d\.,]+)<\/span>`
 	const percent = `>([\+\-]?[\d\.,]+%?)<`
 
 	rules := []string{
-		`>Dow<`, any, percent, any, price, any, percent, any,
-		`>Nasdaq<`, any, percent, any, price, any, percent, any,
-		`">S&P<`, any, percent, any, price, any, percent, any,
-		`>Nikkei 225<`, any, percent, any, price, any, percent, any,
-		`>Hang Seng<`, any, percent, any, price, any, percent, any,
-		`>FTSE 100<`, any, percent, any, price, any, percent, any,
-		`>DAX<`, any, percent, any, price, any, percent, any,
-		`>10-year yield<`, any, price, any, percent, any,
+		`>Dow<`, any, percent, any, price, any, change, any,
+		`>Nasdaq<`, any, percent, any, price, any, change, any,
+		`">S&P<`, any, percent, any, price, any, change, any,
+		`>10\-year yield<`, any, price, any, percent, any,
 		`>Oil<`, any, price, any, percent, any,
 		`>Yen<`, any, price, any, percent, any,
 		`>Euro<`, any, price, any, percent, any,
 		`>Gold<`, any, price, any, percent, any,
+		`>Nikkei 225<`, any, percent, any, price, any, change, any,
+		`>Hang Seng<`, any, percent, any, price, any, change, any,
+		`>FTSE 100<`, any, percent, any, price, any, change, any,
+		`>DAX<`, any, percent, any, price, any, change, any,
 	}
 
 	market.regex = regexp.MustCompile(strings.Join(rules, ``))
@@ -147,37 +148,38 @@ func (market *Market) extract(snippet []byte) *Market {
 	market.Sp500[`latest`] = matches[8]
 	market.Sp500[`percent`] = matches[9]
 
-	market.Tokyo[`change`] = matches[10]
-	market.Tokyo[`latest`] = matches[11]
-	market.Tokyo[`percent`] = matches[12]
-
-	market.HongKong[`change`] = matches[13]
-	market.HongKong[`latest`] = matches[14]
-	market.HongKong[`percent`] = matches[15]
-
-	market.London[`change`] = matches[16]
-	market.London[`latest`] = matches[17]
-	market.London[`percent`] = matches[18]
-
-	market.Frankfurt[`change`] = matches[19]
-	market.Frankfurt[`latest`] = matches[20]
-	market.Frankfurt[`percent`] = matches[21]
 
 	market.Yield[`name`] = `10-year Yield`
-	market.Yield[`latest`] = matches[22]
-	market.Yield[`change`] = matches[23]
+	market.Yield[`latest`] = matches[10]
+	market.Yield[`change`] = matches[11]
 
-	market.Oil[`latest`] = matches[24]
-	market.Oil[`change`] = matches[25]
+	market.Oil[`latest`] = matches[12]
+	market.Oil[`change`] = matches[13]
 
-	market.Yen[`latest`] = matches[26]
-	market.Yen[`change`] = matches[27]
+	market.Yen[`latest`] = matches[14]
+	market.Yen[`change`] = matches[15]
 
-	market.Euro[`latest`] = matches[28]
-	market.Euro[`change`] = matches[29]
+	market.Euro[`latest`] = matches[16]
+	market.Euro[`change`] = matches[17]
 
-	market.Gold[`latest`] = matches[30]
-	market.Gold[`change`] = matches[31]
+	market.Gold[`latest`] = matches[18]
+	market.Gold[`change`] = matches[19]
+
+	market.Tokyo[`change`] = matches[20]
+	market.Tokyo[`latest`] = matches[21]
+	market.Tokyo[`percent`] = matches[22]
+
+	market.HongKong[`change`] = matches[23]
+	market.HongKong[`latest`] = matches[24]
+	market.HongKong[`percent`] = matches[25]
+
+	market.London[`change`] = matches[26]
+	market.London[`latest`] = matches[27]
+	market.London[`percent`] = matches[28]
+
+	market.Frankfurt[`change`] = matches[29]
+	market.Frankfurt[`latest`] = matches[30]
+	market.Frankfurt[`percent`] = matches[31]
 
 	return market
 }
