@@ -48,7 +48,7 @@ comments, suggestions, and contributions are welcome.
 
 
 ### License ###
-Copyright (c) 2013-2016 Michael Dvorkin. All Rights Reserved.
+Copyright (c) 2013-2019 by Michael Dvorkin and contributors. All Rights Reserved.
 "mike" + "@dvorkin" + ".net" || "twitter.com/mid"
 
 Permission is hereby granted, free of charge, to any person obtaining
