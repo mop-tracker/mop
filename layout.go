@@ -274,7 +274,7 @@ func last(str string) string {
 
 //-----------------------------------------------------------------------------
 func currency(str string) string {
-	if str == `N/A` {
+	if str == `N/A` || len(str) == 0 {
 		return `-`
 	}
 	if sign := str[0:1]; sign == `+` || sign == `-` {
@@ -287,7 +287,7 @@ func currency(str string) string {
 // Returns percent value truncated at 2 decimal points.
 //-----------------------------------------------------------------------------
 func percent(str string) string {
-	if str == `N/A` {
+	if str == `N/A` || len(str) == 0 {
 		return `-`
 	}
 
