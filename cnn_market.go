@@ -13,7 +13,7 @@ import (
 	`strings`
 )
 
-const marketURL = `http://money.cnn.com/data/markets/`
+const marketURL = `https://money.cnn.com/data/markets/`
 
 // Market stores current market information displayed in the top three lines of
 // the screen. The market data is fetched and parsed from the HTML page above.
