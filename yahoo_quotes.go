@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2016 by Michael Dvorkin. All Rights Reserved.
+// Copyright (c) 2013-2019 by Michael Dvorkin. All Rights Reserved.
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
@@ -13,13 +13,10 @@ import (
 	`strings`
 )
 
-// See http://www.gummy-stuff.org/Yahoo-stocks.htm
-//
-// const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c6k2oghjkva2r2rdyj3j1`
-// c2: realtime change vs c1: change
-// k2: realtime change vs p2: change
-//
-const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c1p2oghjkva2r2rdyj3j1`
+const quotesURLv7 = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s`
+const quotesURLv7QueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
+
+const noDataIndicator = `N/A`
 
 // Stock stores quote information for the particular stock ticker. The data
 // for all the fields except 'Advancing' is fetched using Yahoo market API.
