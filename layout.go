@@ -37,7 +37,7 @@ type Layout struct {
 func NewLayout() *Layout {
 	layout := &Layout{}
 	layout.columns = []Column{
-		{-7, `Ticker`, `Ticker`, nil},
+		{-10, `Ticker`, `Ticker`, nil},
 		{10, `LastTrade`, `Last`, currency},
 		{10, `Change`, `Change`, currency},
 		{10, `ChangePct`, `Change%`, last},
