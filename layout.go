@@ -37,7 +37,7 @@ type Layout struct {
 func NewLayout() *Layout {
 	layout := &Layout{}
 	layout.columns = []Column{
-		{-7, `Ticker`, `Ticker`, nil},
+		{-10, `Ticker`, `Ticker`, nil},
 		{10, `LastTrade`, `Last`, currency},
 		{10, `Change`, `Change`, currency},
 		{10, `ChangePct`, `Change%`, last},
@@ -80,6 +80,7 @@ func (layout *Layout) Market(market *Market) string {
 // and the list of given stock quotes. It returns formatted string with
 // all the necessary markup.
 func (layout *Layout) Quotes(quotes *Quotes) string {
+	zonename, _ := time.Now().In(time.Local).Zone()
 	if ok, err := quotes.Ok(); !ok { // If there was an error fetching stock quotes...
 		return err // then simply return the error string.
 	}
@@ -89,7 +90,7 @@ func (layout *Layout) Quotes(quotes *Quotes) string {
 		Header string  // Formatted header line.
 		Stocks []Stock // List of formatted stock quotes.
 	}{
-		time.Now().Format(`3:04:05pm PST`),
+		time.Now().Format(`3:04:05pm ` + zonename),
 		layout.Header(quotes.profile),
 		layout.prettify(quotes),
 	}
