@@ -5,14 +5,10 @@
 package mop
 
 import (
-	`encoding/json`
-	`io/ioutil`
-	`os/user`
-	`sort`
+	"encoding/json"
+	"io/ioutil"
+	"sort"
 )
-
-// File name in user's home directory where we store the settings.
-const moprc = `/.moprc`
 
 // Profile manages Mop program settings as defined by user (ex. list of
 // stock tickers). The settings are serialized using JSON and saved in
@@ -25,13 +21,14 @@ type Profile struct {
 	Ascending      bool     // True when sort order is ascending.
 	Grouped        bool     // True when stocks are grouped by advancing/declining.
 	selectedColumn int      // Stores selected column number when the column editor is active.
+	filename       string   // Path to the file in which the configuration is stored
 }
 
 // Creates the profile and attempts to load the settings from ~/.moprc file.
 // If the file is not there it gets created with default values.
-func NewProfile() *Profile {
-	profile := &Profile{}
-	data, err := ioutil.ReadFile(profile.defaultFileName())
+func NewProfile(filename string) *Profile {
+	profile := &Profile{filename: filename}
+	data, err := ioutil.ReadFile(filename)
 	if err != nil { // Set default values:
 		profile.MarketRefresh = 12 // Market data gets fetched every 12s (5 times per minute).
 		profile.QuotesRefresh = 5  // Stock quotes get updated every 5s (12 times per minute).
@@ -55,7 +52,7 @@ func (profile *Profile) Save() error {
 		return err
 	}
 
-	return ioutil.WriteFile(profile.defaultFileName(), data, 0644)
+	return ioutil.WriteFile(profile.filename, data, 0644)
 }
 
 // AddTickers updates the list of existing tikers to add the new ones making
@@ -122,13 +119,4 @@ func (profile *Profile) Reorder() error {
 func (profile *Profile) Regroup() error {
 	profile.Grouped = !profile.Grouped
 	return profile.Save()
-}
-
-//-----------------------------------------------------------------------------
-func (profile *Profile) defaultFileName() string {
-	usr, err := user.Current()
-	if err != nil {
-		panic(err)
-	}
-	return usr.HomeDir + moprc
 }

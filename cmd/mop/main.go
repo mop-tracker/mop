@@ -5,10 +5,17 @@
 package main
 
 import (
-	`github.com/mop-tracker/mop`
-	`github.com/nsf/termbox-go`
-	`time`
+	"flag"
+	"os/user"
+	"path"
+	"time"
+
+	"github.com/mop-tracker/mop"
+	"github.com/nsf/termbox-go"
 )
+
+// File name in user's home directory where we store the settings.
+const defaultProfile = `.moprc`
 
 const help = `Mop v0.2.0 -- Copyright (c) 2013-2016 by Michael Dvorkin. All Rights Reserved.
 NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
@@ -119,6 +126,14 @@ func main() {
 	screen := mop.NewScreen()
 	defer screen.Close()
 
-	profile := mop.NewProfile()
+	usr, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+
+	profileName := flag.String("profile", path.Join(usr.HomeDir, defaultProfile), "path to profile")
+	flag.Parse()
+
+	profile := mop.NewProfile(*profileName)
 	mainLoop(screen, profile)
 }
