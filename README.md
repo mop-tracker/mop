@@ -30,9 +30,9 @@ following keyboard commands:
     esc     Quit mop.
 
 When prompted please enter comma-delimited list of stock tickers. The
-list and other settings are stored in ``.moprc`` file in your ``$HOME``
-directory.
+list and other settings are stored in the profile file (default: ``.moprc`` in your ``$HOME`` directory)
 
+You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 
 ### Contributing ###
 
