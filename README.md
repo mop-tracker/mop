@@ -35,16 +35,15 @@ When prompted please enter comma-delimited list of stock tickers. The
 list and other settings are stored in the profile file (default: ``.moprc`` in your ``$HOME`` directory)
 
 ### Expression-based Filtering
-Mop has an realtime expression-based filtering engine that is very easy to use.
+Mop has an in realtime expression-based filtering engine that is very easy to use.
 
-At the main screen, press `f` and a prompt will appear. Now you can
-a expression that uses the stock properties.
+At the main screen, press `f` and a prompt will appear. Write an expression that uses the stock properties.
 
 Example:
 
 ```last <= 5```
 
-This expression will make Mop show only stocks whose `last` values are less than $5.
+This expression will make Mop show only the stocks whose `last` values are less than $5.
 
 The available properties are: `last`, `change`, `changePercent`, `open`, `low`, `high`, `low52`, `high52`, `volume`, `avgVolume`, `pe`, `peX`, `dividend`, `yield`, `mktCap`, `mktCapX` and `advancing`.
 
