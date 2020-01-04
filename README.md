@@ -11,7 +11,7 @@ Mop is implemented in Go and compiles down to a single executable file.
 
     # Make sure your $GOPATH is set.
     $ go get github.com/mop-tracker/mop/cmd/mop
-    $ cd $GOPATH/src/github.com/mop-tracker/mop/cmd/mop
+    $ cd $GOPATH/src/github.com/mop-tracker/mop
     $ make            # <-- Compile and run mop.
     $ make build      # <-- Build mop in current directory.
     $ make install    # <-- Build mop and install it in $GOPATH/bin.
@@ -32,10 +32,9 @@ following keyboard commands:
     esc     Quit mop.
 
 When prompted please enter comma-delimited list of stock tickers. The
-list and other settings are stored in ``.moprc`` file in your ``$HOME``
-directory.
+list and other settings are stored in the profile file (default: ``.moprc`` in your ``$HOME`` directory)
 
-#### Filtering
+### Expression-based Filtering
 Mop has an realtime expression-based filtering engine that is very easy to use.
 
 At the main screen, press `f` and a prompt will appear. Now you can
@@ -54,6 +53,8 @@ The expression **must** return a boolean value, otherwise it will fail.
 For detailed information about the syntax, please refer to [Knetic/govaluate#what-operators-and-types-does-this-support](https://github.com/Knetic/govaluate#what-operators-and-types-does-this-support).
 
 To clear the filter, press `Shift+F`.
+
+You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 
 ### Contributing ###
 
