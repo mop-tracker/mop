@@ -24,6 +24,8 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
    +       Add stocks to the list.
    -       Remove stocks from the list.
    ?       Display this help screen.
+   f       Set filtering expression.
+   F       Unset filtering expression.
    g       Group stocks by advancing/declining issues.
    o       Change column sort order.
    p       Pause market data and stock updates.
@@ -69,6 +71,11 @@ loop:
 					} else if event.Ch == '+' || event.Ch == '-' {
 						lineEditor = mop.NewLineEditor(screen, quotes)
 						lineEditor.Prompt(event.Ch)
+					} else if event.Ch == 'f' {
+						lineEditor = mop.NewLineEditor(screen, quotes)
+						lineEditor.Prompt(event.Ch)
+					} else if event.Ch == 'F' {
+						profile.SetFilter("")
 					} else if event.Ch == 'o' || event.Ch == 'O' {
 						columnEditor = mop.NewColumnEditor(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {

@@ -26,11 +26,33 @@ following keyboard commands:
     -       Remove stocks from the list.
     o       Change column sort order.
     g       Group stocks by advancing/declining issues.
+    f       Set a filtering expression.
+    F       Unset a filtering expression.
     ?       Display help screen.
     esc     Quit mop.
 
 When prompted please enter comma-delimited list of stock tickers. The
 list and other settings are stored in the profile file (default: ``.moprc`` in your ``$HOME`` directory)
+
+### Expression-based Filtering
+Mop has an realtime expression-based filtering engine that is very easy to use.
+
+At the main screen, press `f` and a prompt will appear. Now you can
+a expression that uses the stock properties.
+
+Example:
+
+```last <= 5```
+
+This expression will make Mop show only stocks whose `last` values are less than $5.
+
+The available properties are: `last`, `change`, `changePercent`, `open`, `low`, `high`, `low52`, `high52`, `volume`, `avgVolume`, `pe`, `peX`, `dividend`, `yield`, `mktCap`, `mktCapX` and `advancing`.
+
+The expression **must** return a boolean value, otherwise it will fail.
+
+For detailed information about the syntax, please refer to [Knetic/govaluate#what-operators-and-types-does-this-support](https://github.com/Knetic/govaluate#what-operators-and-types-does-this-support).
+
+To clear the filter, press `Shift+F`.
 
 You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 

@@ -5,9 +5,10 @@
 package mop
 
 import (
-	`github.com/nsf/termbox-go`
 	`regexp`
 	`strings`
+
+	`github.com/nsf/termbox-go`
 )
 
 // LineEditor kicks in when user presses '+' or '-' to add or delete stock
@@ -37,7 +38,16 @@ func NewLineEditor(screen *Screen, quotes *Quotes) *LineEditor {
 // are simply ignored. The prompt is displayed on the 3rd line (between the market
 // data and the stock quotes).
 func (editor *LineEditor) Prompt(command rune) *LineEditor {
-	prompts := map[rune]string{'+': `Add tickers: `, '-': `Remove tickers: `}
+	filterPrompt := `Set filter: `
+
+	if filter := editor.quotes.profile.Filter; len(filter) > 0 {
+		filterPrompt = `Set filter (` + filter + `): `
+	}
+
+	prompts := map[rune]string{
+		'+': `Add tickers: `, '-': `Remove tickers: `,
+		'f': filterPrompt,
+	}
 	if prompt, ok := prompts[command]; ok {
 		editor.prompt = prompt
 		editor.command = command
@@ -184,6 +194,14 @@ func (editor *LineEditor) execute() *LineEditor {
 				}
 			}
 		}
+	case 'f':
+		if len(editor.input) == 0 {
+			editor.input = editor.quotes.profile.Filter
+		}
+
+		editor.quotes.profile.SetFilter(editor.input)
+	case 'F':
+		editor.quotes.profile.SetFilter("")
 	}
 
 	return editor

@@ -208,6 +208,10 @@ func c(str string) float32 {
 // When sorting by the market value we must first convert 42B etc. notations
 // to proper numeric values.
 func m(str string) float32 {
+	if len(str) == 0 {
+		return 0
+	}
+
 	multiplier := 1.0
 
 	switch str[len(str)-1 : len(str)] { // Check the last character.

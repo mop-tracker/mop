@@ -28,6 +28,7 @@ type Column struct {
 type Layout struct {
 	columns        []Column           // List of stock quotes columns.
 	sorter         *Sorter            // Pointer to sorting receiver.
+	filter         *Filter            // Pointer to filtering receiver.
 	regex          *regexp.Regexp     // Pointer to regular expression to align decimal points.
 	marketTemplate *template.Template // Pointer to template to format market data.
 	quotesTemplate *template.Template // Pointer to template to format the list of stock quotes.
@@ -153,6 +154,14 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 	}
 
 	profile := quotes.profile
+
+	if profile.filterExpression != nil {
+		if layout.filter == nil { // Initialize filter on first invocation.
+			layout.filter = NewFilter(profile)
+		}
+		pretty = layout.filter.Apply(pretty)
+	}
+
 	if layout.sorter == nil { // Initialize sorter on first invocation.
 		layout.sorter = NewSorter(profile)
 	}
