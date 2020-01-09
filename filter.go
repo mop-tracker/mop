@@ -4,6 +4,8 @@
 
 package mop
 
+import "strings"
+
 // Filter gets called to sort stock quotes by one of the columns. The
 // setup is rather lengthy; there should probably be more concise way
 // that uses reflection and avoids hardcoding the column names.
