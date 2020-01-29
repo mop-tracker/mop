@@ -296,14 +296,18 @@ func currency(str... string) string {
 	if len(str) < 2 {
 		return "ERR"
 	}
+	//default to $
 	symbol := "$"
 	switch (str[1]){
-		case "EUR":
-			symbol = "€"
-			break
-		case "GBP":
-			symbol = "£"
-			break
+	case "JPY":
+		symbol = "¥"
+		break
+	case "EUR":
+		symbol = "€"
+		break
+	case "GBP":
+		symbol = "£"
+		break
 	}
 	if str[0] == `N/A` || len(str[0]) == 0 {
 		return `-`
