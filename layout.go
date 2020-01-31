@@ -20,7 +20,7 @@ type Column struct {
 	width     int                 // Column width.
 	name      string              // The name of the field in the Stock struct.
 	title     string              // Column title to display in the header.
-	formatter func(string) string // Optional function to format the contents of the column.
+	formatter func(... string) string // Optional function to format the contents of the column.
 }
 
 // Layout is used to format and display all the collected data, i.e. market
@@ -146,7 +146,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 			value := reflect.ValueOf(&stock).Elem().FieldByName(column.name).String()
 			if column.formatter != nil {
 				// ex. value = currency(value)
-				value = column.formatter(value)
+				value = column.formatter(value, stock.Currency)
 			}
 			// ex. pretty[i].Change = layout.pad(value, 10)
 			reflect.ValueOf(&pretty[i]).Elem().FieldByName(column.name).SetString(layout.pad(value, column.width))
@@ -256,61 +256,89 @@ func arrowFor(column int, profile *Profile) string {
 }
 
 //-----------------------------------------------------------------------------
-func blank(str string) string {
-	if len(str) == 3 && str[0:3] == `N/A` {
+func blank(str... string) string {
+	if len(str) < 1 {
+		return "ERR"
+	}
+	if len(str[0]) == 3 && str[0][0:3] == `N/A` {
 		return `-`
 	}
 
-	return str
+	return str[0]
 }
 
 //-----------------------------------------------------------------------------
-func zero(str string) string {
-	if str == `0.00` {
+func zero(str... string) string {
+	if len(str) < 2{
+		return "ERR"
+	}
+	if str[0] == `0.00` {
 		return `-`
 	}
 
-	return currency(str)
+	return currency(str[0], str[1])
 }
 
 //-----------------------------------------------------------------------------
-func last(str string) string {
-	if len(str) >= 6 && str[0:6] == `N/A - ` {
-		return str[6:]
+func last(str... string) string {
+	if len(str) < 1 {
+		return "ERR"
+	}
+	if len(str[0]) >= 6 && str[0][0:6] == `N/A - ` {
+		return str[0][6:]
 	}
 
-	return percent(str)
+	return percent(str[0])
 }
 
 //-----------------------------------------------------------------------------
-func currency(str string) string {
-	if str == `N/A` || len(str) == 0 {
+func currency(str... string) string {
+	if len(str) < 2 {
+		return "ERR"
+	}
+	//default to $
+	symbol := "$"
+	switch (str[1]){
+	case "JPY":
+		symbol = "¥"
+		break
+	case "EUR":
+		symbol = "€"
+		break
+	case "GBP":
+		symbol = "£"
+		break
+	}
+	if str[0] == `N/A` || len(str[0]) == 0 {
 		return `-`
 	}
-	if sign := str[0:1]; sign == `+` || sign == `-` {
-		return sign + `$` + str[1:]
+	if sign := str[0][0:1]; sign == `+` || sign == `-` {
+		return sign + symbol + str[0][1:]
 	}
 
-	return `$` + str
+	return symbol + str[0]
 }
 
 // Returns percent value truncated at 2 decimal points.
 //-----------------------------------------------------------------------------
-func percent(str string) string {
-	if str == `N/A` || len(str) == 0 {
+func percent(str... string) string {
+	if len(str) < 1 {
+		return "ERR"
+	}
+	if str[0] == `N/A` || len(str[0]) == 0 {
 		return `-`
 	}
 
-	split := strings.Split(str, ".")
+	split := strings.Split(str[0], ".")
 	if len(split) == 2 {
 		digits := len(split[1])
 		if digits > 2 {
 			digits = 2
 		}
-		str = split[0] + "." + split[1][0:digits]
+		str[0] = split[0] + "." + split[1][0:digits]
 	}
-	if str[len(str)-1] != '%' {
-		str += `%`
+	if str[0][len(str)-1] != '%' {
+		str[0] += `%`
 	}
-	return str
+	return str[0]
 }

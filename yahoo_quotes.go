@@ -41,6 +41,7 @@ type Stock struct {
 	Yield      string `json:"trailingAnnualDividendYield"` // y: dividend yield.
 	MarketCap  string `json:"marketCap"` // j3: market cap real time.
 	MarketCapX string `json:"marketCap"` // j1: market cap (fallback when real time is N/A).
+	Currency   string `json:"currency"` // String code for currency of stock.
 	Advancing  bool   // True when change is >= $0.
 }
 
@@ -171,6 +172,7 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 		quotes.stocks[i].MarketCap = result["marketCap"]
 		// TODO calculate rt?
 		quotes.stocks[i].MarketCapX = result["marketCap"]
+		quotes.stocks[i].Currency = result["currency"]
 
  		/*
 			fmt.Println(i)
