@@ -5,14 +5,14 @@
 package mop
 
 import (
-	`bytes`
-	`encoding/json`
-	`fmt`
-	`io/ioutil`
-	`net/http`
-	`reflect`
-	`strconv`
-	`strings`
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"reflect"
+	"strconv"
+	"strings"
 )
 
 // const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c1p2oghjkva2r2rdyj3j1`
@@ -24,25 +24,27 @@ const noDataIndicator = `N/A`
 // Stock stores quote information for the particular stock ticker. The data
 // for all the fields except 'Advancing' is fetched using Yahoo market API.
 type Stock struct {
-	Ticker     string `json:"symbol"` // Stock ticker.
-	LastTrade  string `json:"regularMarketPrice"` // l1: last trade.
-	Change     string `json:"regularMarketChange"` // c6: change real time.
-	ChangePct  string `json:"regularMarketChangePercent"` // k2: percent change real time.
-	Open       string `json:"regularMarketOpen"`  // o: market open price.
-	Low        string `json:"regularMarketDayLow"` // g: day's low.
-	High       string `json:"regularMarketDayHigh"` // h: day's high.
-	Low52      string `json:"fiftyTwoWeekLow"` // j: 52-weeks low.
-	High52     string `json:"fiftyTwoWeekHigh"` // k: 52-weeks high.
-	Volume     string `json:"regularMarketVolume"` // v: volume.
-	AvgVolume  string `json:"averageDailyVolume10Day"` // a2: average volume.
-	PeRatio    string `json:"trailingPE"` // r2: P/E ration real time.
-	PeRatioX   string `json:"trailingPE"` // r: P/E ration (fallback when real time is N/A).
-	Dividend   string `json:"trailingAnnualDividendRate"` // d: dividend.
+	Ticker     string `json:"symbol"`                      // Stock ticker.
+	LastTrade  string `json:"regularMarketPrice"`          // l1: last trade.
+	Change     string `json:"regularMarketChange"`         // c6: change real time.
+	ChangePct  string `json:"regularMarketChangePercent"`  // k2: percent change real time.
+	Open       string `json:"regularMarketOpen"`           // o: market open price.
+	Low        string `json:"regularMarketDayLow"`         // g: day's low.
+	High       string `json:"regularMarketDayHigh"`        // h: day's high.
+	Low52      string `json:"fiftyTwoWeekLow"`             // j: 52-weeks low.
+	High52     string `json:"fiftyTwoWeekHigh"`            // k: 52-weeks high.
+	Volume     string `json:"regularMarketVolume"`         // v: volume.
+	AvgVolume  string `json:"averageDailyVolume10Day"`     // a2: average volume.
+	PeRatio    string `json:"trailingPE"`                  // r2: P/E ration real time.
+	PeRatioX   string `json:"trailingPE"`                  // r: P/E ration (fallback when real time is N/A).
+	Dividend   string `json:"trailingAnnualDividendRate"`  // d: dividend.
 	Yield      string `json:"trailingAnnualDividendYield"` // y: dividend yield.
-	MarketCap  string `json:"marketCap"` // j3: market cap real time.
-	MarketCapX string `json:"marketCap"` // j1: market cap (fallback when real time is N/A).
-	Currency   string `json:"currency"` // String code for currency of stock.
+	MarketCap  string `json:"marketCap"`                   // j3: market cap real time.
+	MarketCapX string `json:"marketCap"`                   // j1: market cap (fallback when real time is N/A).
+	Currency   string `json:"currency"`                    // String code for currency of stock.
 	Advancing  bool   // True when change is >= $0.
+	PreOpen    string `json:"preMarketChangePercent,omitempty"`
+	AfterHours string `json:"postMarketChangePercent,omitempty"`
 }
 
 // Quotes stores relevant pointers as well as the array of stock quotes for
@@ -139,7 +141,7 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 	}
 	results := d["quoteResponse"]["result"]
 
- 	quotes.stocks = make([]Stock, len(results))
+	quotes.stocks = make([]Stock, len(results))
 	for i, raw := range results {
 		result := map[string]string{}
 		for k, v := range raw {
@@ -152,7 +154,7 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 				result[k] = fmt.Sprintf("%v", v)
 			}
 
- 		}
+		}
 		quotes.stocks[i].Ticker = result["symbol"]
 		quotes.stocks[i].LastTrade = result["regularMarketPrice"]
 		quotes.stocks[i].Change = result["regularMarketChange"]
@@ -173,8 +175,9 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 		// TODO calculate rt?
 		quotes.stocks[i].MarketCapX = result["marketCap"]
 		quotes.stocks[i].Currency = result["currency"]
-
- 		/*
+		quotes.stocks[i].PreOpen = result["preMarketChangePercent"]
+		quotes.stocks[i].AfterHours = result["postMarketChangePercent"]
+		/*
 			fmt.Println(i)
 			fmt.Println("-------------------")
 			for k, v := range result {
@@ -235,7 +238,7 @@ func sanitize(body []byte) []byte {
 	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
 }
 
- func float2Str(v float64) string {
+func float2Str(v float64) string {
 	unit := ""
 	switch {
 	case v > 1.0e12:
@@ -256,4 +259,3 @@ func sanitize(body []byte) []byte {
 	// parse
 	return fmt.Sprintf("%0.3f%s", v, unit)
 }
-
