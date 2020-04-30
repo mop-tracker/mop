@@ -73,6 +73,8 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 		defer func() {
 			if err := recover(); err != nil {
 				quotes.errors = fmt.Sprintf("\n\n\n\nError fetching stock quotes...\n%s", err)
+			} else {
+				market.errors = ""
 			}
 		}()
 
