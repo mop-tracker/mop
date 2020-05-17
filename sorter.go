@@ -105,7 +105,7 @@ func (list byLastTradeDesc) Less(i, j int) bool {
 	return list.sortable[j].LastTrade < list.sortable[i].LastTrade
 }
 func (list byChangeDesc) Less(i, j int) bool {
-	return c(list.sortable[j].ChangePct) < c(list.sortable[i].ChangePct)
+	return c(list.sortable[j].Change) < c(list.sortable[i].Change)
 }
 func (list byChangePctDesc) Less(i, j int) bool {
 	return c(list.sortable[j].ChangePct) < c(list.sortable[i].ChangePct)
