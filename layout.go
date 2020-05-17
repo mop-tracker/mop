@@ -14,6 +14,13 @@ import (
 	"time"
 )
 
+var currencies = map[string]string{
+	"RUB": "₽",
+	"GDB": "£",
+	"EUR": "€",
+	"JPY": "¥",
+}
+
 // Column describes formatting rules for individual column within the list
 // of stock quotes.
 type Column struct {
@@ -300,16 +307,9 @@ func currency(str ...string) string {
 	}
 	//default to $
 	symbol := "$"
-	switch str[1] {
-	case "JPY":
-		symbol = "¥"
-		break
-	case "EUR":
-		symbol = "€"
-		break
-	case "GBP":
-		symbol = "£"
-		break
+	c, ok := currencies[str[1]]
+	if ok {
+		symbol = c
 	}
 	if str[0] == `N/A` || len(str[0]) == 0 {
 		return `-`

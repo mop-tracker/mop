@@ -200,7 +200,13 @@ func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 // The same exact method is used to sort by $Change and Change%. In both cases
 // we sort by the value of Change% so that multiple $0.00s get sorted proferly.
 func c(str string) float32 {
-	trimmed := strings.Replace(strings.Trim(str, ` %`), `$`, ``, 1)
+	c := "$"
+	for _, v := range currencies {
+		if strings.Contains(str,v) {
+			c = v
+		}
+	}
+	trimmed := strings.Replace(strings.Trim(str, ` %`), c, ``, 1)
 	value, _ := strconv.ParseFloat(trimmed, 32)
 	return float32(value)
 }
