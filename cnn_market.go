@@ -88,6 +88,8 @@ func (market *Market) Fetch() (self *Market) {
 	defer func() {
 		if err := recover(); err != nil {
 			market.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
+		} else {
+			market.errors = ""
 		}
 	}()
 
