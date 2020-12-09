@@ -9,7 +9,6 @@ screenshot is worth a thousand words:
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
 
-    # Make sure your $GOPATH is set.
     $ git clone https://github.com/mop-tracker/mop
     $ cd mop
     $ go build ./mop/cmd
