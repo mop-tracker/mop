@@ -11,7 +11,7 @@ Mop is implemented in Go and compiles down to a single executable file.
 
     $ git clone https://github.com/mop-tracker/mop
     $ cd mop
-    $ go build ./mop/cmd
+    $ go build ./cmd/mop
     $ ./mop
 
 ### Using Mop ###
