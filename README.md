@@ -10,12 +10,10 @@ screenshot is worth a thousand words:
 Mop is implemented in Go and compiles down to a single executable file.
 
     # Make sure your $GOPATH is set.
-    $ go get github.com/mop-tracker/mop/cmd/mop
-    $ cd $GOPATH/src/github.com/mop-tracker/mop
-    $ make            # <-- Compile and run mop.
-    $ make build      # <-- Build mop in current directory.
-    $ make install    # <-- Build mop and install it in $GOPATH/bin.
-
+    $ git clone https://github.com/mop-tracker/mop
+    $ cd mop
+    $ go build ./mop/cmd
+    $ ./mop
 
 ### Using Mop ###
 For demonstration purposes Mop comes preconfigured with a number of
