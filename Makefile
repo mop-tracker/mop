@@ -3,7 +3,7 @@
 # be found in the LICENSE file.
 
 VERSION = 0.2.0
-PACKAGE = github.com/mop-tracker/mop/cmd/mop
+PACKAGE = ./cmd/mop
 
 run:
 	go run ./cmd/mop/main.go
