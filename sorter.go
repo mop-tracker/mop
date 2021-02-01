@@ -73,7 +73,9 @@ func (list byChangePctAsc) Less(i, j int) bool {
 func (list byOpenAsc) Less(i, j int) bool {
 	return list.sortable[i].Open < list.sortable[j].Open
 }
-func (list byLowAsc) Less(i, j int) bool { return list.sortable[i].Low < list.sortable[j].Low }
+func (list byLowAsc) Less(i, j int) bool { 
+	return list.sortable[i].Low < list.sortable[j].Low
+}
 func (list byHighAsc) Less(i, j int) bool {
 	return list.sortable[i].High < list.sortable[j].High
 }
@@ -102,11 +104,12 @@ func (list byMarketCapAsc) Less(i, j int) bool {
 	return m(list.sortable[i].MarketCap) < m(list.sortable[j].MarketCap)
 }
 func (list byPreOpenAsc) Less(i, j int) bool {
-	return m(list.sortable[i].PreOpen) < m(list.sortable[j].PreOpen)
+	return c(list.sortable[i].PreOpen) < c(list.sortable[j].PreOpen)
 }
 func (list byAfterHoursAsc) Less(i, j int) bool {
-	return m(list.sortable[i].AfterHours) < m(list.sortable[j].AfterHours)
+	return c(list.sortable[i].AfterHours) < c(list.sortable[j].AfterHours)
 }
+
 
 func (list byTickerDesc) Less(i, j int) bool {
 	return list.sortable[j].Ticker < list.sortable[i].Ticker
@@ -123,7 +126,9 @@ func (list byChangePctDesc) Less(i, j int) bool {
 func (list byOpenDesc) Less(i, j int) bool {
 	return list.sortable[j].Open < list.sortable[i].Open
 }
-func (list byLowDesc) Less(i, j int) bool { return list.sortable[j].Low < list.sortable[i].Low }
+func (list byLowDesc) Less(i, j int) bool { 
+	return list.sortable[j].Low < list.sortable[i].Low
+}
 func (list byHighDesc) Less(i, j int) bool {
 	return list.sortable[j].High < list.sortable[i].High
 }
@@ -152,10 +157,10 @@ func (list byMarketCapDesc) Less(i, j int) bool {
 	return m(list.sortable[j].MarketCap) < m(list.sortable[i].MarketCap)
 }
 func (list byPreOpenDesc) Less(i, j int) bool {
-	return m(list.sortable[j].PreOpen) < m(list.sortable[i].PreOpen)
+	return c(list.sortable[j].PreOpen) < c(list.sortable[i].PreOpen)
 }
 func (list byAfterHoursDesc) Less(i, j int) bool {
-	return m(list.sortable[j].AfterHours) < m(list.sortable[i].AfterHours)
+	return c(list.sortable[j].AfterHours) < c(list.sortable[i].AfterHours)
 }
 
 // Returns new Sorter struct.
