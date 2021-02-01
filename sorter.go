@@ -37,6 +37,8 @@ type byPeRatioAsc struct{ sortable }
 type byDividendAsc struct{ sortable }
 type byYieldAsc struct{ sortable }
 type byMarketCapAsc struct{ sortable }
+type byPreOpenAsc struct{ sortable }
+type byAfterHoursAsc struct{ sortable }
 
 type byTickerDesc struct{ sortable }
 type byLastTradeDesc struct{ sortable }
@@ -53,6 +55,8 @@ type byPeRatioDesc struct{ sortable }
 type byDividendDesc struct{ sortable }
 type byYieldDesc struct{ sortable }
 type byMarketCapDesc struct{ sortable }
+type byPreOpenDesc struct{ sortable }
+type byAfterHoursDesc struct{ sortable }
 
 func (list byTickerAsc) Less(i, j int) bool {
 	return list.sortable[i].Ticker < list.sortable[j].Ticker
@@ -96,6 +100,12 @@ func (list byYieldAsc) Less(i, j int) bool {
 }
 func (list byMarketCapAsc) Less(i, j int) bool {
 	return m(list.sortable[i].MarketCap) < m(list.sortable[j].MarketCap)
+}
+func (list byPreOpenAsc) Less(i, j int) bool {
+	return m(list.sortable[i].PreOpen) < m(list.sortable[j].PreOpen)
+}
+func (list byAfterHoursAsc) Less(i, j int) bool {
+	return m(list.sortable[i].AfterHours) < m(list.sortable[j].AfterHours)
 }
 
 func (list byTickerDesc) Less(i, j int) bool {
@@ -141,6 +151,12 @@ func (list byYieldDesc) Less(i, j int) bool {
 func (list byMarketCapDesc) Less(i, j int) bool {
 	return m(list.sortable[j].MarketCap) < m(list.sortable[i].MarketCap)
 }
+func (list byPreOpenDesc) Less(i, j int) bool {
+	return m(list.sortable[j].PreOpen) < m(list.sortable[i].PreOpen)
+}
+func (list byAfterHoursDesc) Less(i, j int) bool {
+	return m(list.sortable[j].AfterHours) < m(list.sortable[i].AfterHours)
+}
 
 // Returns new Sorter struct.
 func NewSorter(profile *Profile) *Sorter {
@@ -171,6 +187,8 @@ func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 			byDividendAsc{stocks},
 			byYieldAsc{stocks},
 			byMarketCapAsc{stocks},
+			byPreOpenAsc{stocks},
+			byAfterHoursAsc{stocks},
 		}
 	} else {
 		interfaces = []sort.Interface{
@@ -189,6 +207,8 @@ func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 			byDividendDesc{stocks},
 			byYieldDesc{stocks},
 			byMarketCapDesc{stocks},
+			byPreOpenDesc{stocks},
+			byAfterHoursDesc{stocks},
 		}
 	}
 
