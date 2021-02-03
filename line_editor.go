@@ -5,10 +5,10 @@
 package mop
 
 import (
-	`regexp`
-	`strings`
+	"regexp"
+	"strings"
 
-	`github.com/nsf/termbox-go`
+	"github.com/nsf/termbox-go"
 )
 
 // LineEditor kicks in when user presses '+' or '-' to add or delete stock
@@ -189,7 +189,7 @@ func (editor *LineEditor) execute() *LineEditor {
 
 				// Clear the lines at the bottom of the list, if any.
 				after := before - removed
-				for i := before; i > after; i-- {
+				for i := before + 1; i > after; i-- {
 					editor.screen.ClearLine(0, i+4)
 				}
 			}
