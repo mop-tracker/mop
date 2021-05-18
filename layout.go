@@ -12,6 +12,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"unicode"
 )
 
 var currencies = map[string]string{
@@ -54,8 +55,8 @@ func NewLayout() *Layout {
 		{10, `High`, `High`, currency},
 		{10, `Low52`, `52w Low`, currency},
 		{10, `High52`, `52w High`, currency},
-		{11, `Volume`, `Volume`, nil},
-		{11, `AvgVolume`, `AvgVolume`, nil},
+		{11, `Volume`, `Volume`, integer},
+		{11, `AvgVolume`, `AvgVolume`, integer},
 		{9, `PeRatio`, `P/E`, blank},
 		{9, `Dividend`, `Dividend`, zero},
 		{9, `Yield`, `Yield`, percent},
@@ -63,7 +64,7 @@ func NewLayout() *Layout {
 		{13, `PreOpen`, `PreMktChg%`, percent},
 		{13, `AfterHours`, `AfterMktChg%`, percent},
 	}
-	layout.regex = regexp.MustCompile(`(\.\d+)[BMK]?$`)
+	layout.regex = regexp.MustCompile(`(\.\d+)[TBMK]?$`)
 	layout.marketTemplate = buildMarketTemplate()
 	layout.quotesTemplate = buildQuotesTemplate()
 
@@ -269,7 +270,7 @@ func blank(str ...string) string {
 	if len(str) < 1 {
 		return "ERR"
 	}
-	if len(str[0]) == 3 && str[0][0:3] == `N/A` {
+	if (len(str[0]) == 3 && str[0][0:3] == `N/A`) || len(str[0]) == 0 {
 		return `-`
 	}
 
@@ -341,6 +342,26 @@ func percent(str ...string) string {
 	}
 	if str[0][len(str)-1] != '%' {
 		str[0] += `%`
+	}
+	return str[0]
+}
+
+// Returns value as integer (no trailing digits after a '.').
+//-----------------------------------------------------------------------------
+func integer(str ...string) string {
+	if len(str) < 1 {
+		return "ERR"
+	}
+	if str[0] == `N/A` || len(str[0]) == 0 {
+		return `-`
+	}
+
+	// Don't strip after the '.' if we have a value such as 123.45M
+	if unicode.IsDigit(rune(str[0][len(str[0])-1])) {
+		split := strings.Split(str[0], ".")
+		if len(split) == 2 {
+			return split[0]
+		}
 	}
 	return str[0]
 }

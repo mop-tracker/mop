@@ -86,10 +86,10 @@ func (list byHigh52Asc) Less(i, j int) bool {
 	return list.sortable[i].High52 < list.sortable[j].High52
 }
 func (list byVolumeAsc) Less(i, j int) bool {
-	return list.sortable[i].Volume < list.sortable[j].Volume
+	return m(list.sortable[i].Volume) < m(list.sortable[j].Volume)
 }
 func (list byAvgVolumeAsc) Less(i, j int) bool {
-	return list.sortable[i].AvgVolume < list.sortable[j].AvgVolume
+	return m(list.sortable[i].AvgVolume) < m(list.sortable[j].AvgVolume)
 }
 func (list byPeRatioAsc) Less(i, j int) bool {
 	return list.sortable[i].PeRatio < list.sortable[j].PeRatio
@@ -139,10 +139,10 @@ func (list byHigh52Desc) Less(i, j int) bool {
 	return list.sortable[j].High52 < list.sortable[i].High52
 }
 func (list byVolumeDesc) Less(i, j int) bool {
-	return list.sortable[j].Volume < list.sortable[i].Volume
+	return m(list.sortable[j].Volume) < m(list.sortable[i].Volume)
 }
 func (list byAvgVolumeDesc) Less(i, j int) bool {
-	return list.sortable[j].AvgVolume < list.sortable[i].AvgVolume
+	return m(list.sortable[j].AvgVolume) < m(list.sortable[i].AvgVolume)
 }
 func (list byPeRatioDesc) Less(i, j int) bool {
 	return list.sortable[j].PeRatio < list.sortable[i].PeRatio
@@ -246,6 +246,8 @@ func m(str string) float32 {
 	multiplier := 1.0
 
 	switch str[len(str)-1 : len(str)] { // Check the last character.
+	case `T`:
+		multiplier = 1000000000000.0
 	case `B`:
 		multiplier = 1000000000.0
 	case `M`:
@@ -254,7 +256,7 @@ func m(str string) float32 {
 		multiplier = 1000.0
 	}
 
-	trimmed := strings.Trim(str, ` $BMK`) // Get rid of non-numeric characters.
+	trimmed := strings.Trim(str, ` $TBMK`) // Get rid of non-numeric characters.
 	value, _ := strconv.ParseFloat(trimmed, 32)
 
 	return float32(value * multiplier)
