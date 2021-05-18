@@ -60,8 +60,8 @@ func NewLayout() *Layout {
 		{9, `Dividend`, `Dividend`, zero},
 		{9, `Yield`, `Yield`, percent},
 		{11, `MarketCap`, `MktCap`, currency},
-		{13, `PreOpen`, `PreMktChg%`, last},
-		{13, `AfterHours`, `AfterMktChg%`, last},
+		{13, `PreOpen`, `PreMktChg%`, percent},
+		{13, `AfterHours`, `AfterMktChg%`, percent},
 	}
 	layout.regex = regexp.MustCompile(`(\.\d+)[BMK]?$`)
 	layout.marketTemplate = buildMarketTemplate()

@@ -37,6 +37,8 @@ type byPeRatioAsc struct{ sortable }
 type byDividendAsc struct{ sortable }
 type byYieldAsc struct{ sortable }
 type byMarketCapAsc struct{ sortable }
+type byPreOpenAsc struct{ sortable }
+type byAfterHoursAsc struct{ sortable }
 
 type byTickerDesc struct{ sortable }
 type byLastTradeDesc struct{ sortable }
@@ -53,6 +55,8 @@ type byPeRatioDesc struct{ sortable }
 type byDividendDesc struct{ sortable }
 type byYieldDesc struct{ sortable }
 type byMarketCapDesc struct{ sortable }
+type byPreOpenDesc struct{ sortable }
+type byAfterHoursDesc struct{ sortable }
 
 func (list byTickerAsc) Less(i, j int) bool {
 	return list.sortable[i].Ticker < list.sortable[j].Ticker
@@ -69,7 +73,9 @@ func (list byChangePctAsc) Less(i, j int) bool {
 func (list byOpenAsc) Less(i, j int) bool {
 	return list.sortable[i].Open < list.sortable[j].Open
 }
-func (list byLowAsc) Less(i, j int) bool { return list.sortable[i].Low < list.sortable[j].Low }
+func (list byLowAsc) Less(i, j int) bool { 
+	return list.sortable[i].Low < list.sortable[j].Low
+}
 func (list byHighAsc) Less(i, j int) bool {
 	return list.sortable[i].High < list.sortable[j].High
 }
@@ -97,6 +103,13 @@ func (list byYieldAsc) Less(i, j int) bool {
 func (list byMarketCapAsc) Less(i, j int) bool {
 	return m(list.sortable[i].MarketCap) < m(list.sortable[j].MarketCap)
 }
+func (list byPreOpenAsc) Less(i, j int) bool {
+	return c(list.sortable[i].PreOpen) < c(list.sortable[j].PreOpen)
+}
+func (list byAfterHoursAsc) Less(i, j int) bool {
+	return c(list.sortable[i].AfterHours) < c(list.sortable[j].AfterHours)
+}
+
 
 func (list byTickerDesc) Less(i, j int) bool {
 	return list.sortable[j].Ticker < list.sortable[i].Ticker
@@ -113,7 +126,9 @@ func (list byChangePctDesc) Less(i, j int) bool {
 func (list byOpenDesc) Less(i, j int) bool {
 	return list.sortable[j].Open < list.sortable[i].Open
 }
-func (list byLowDesc) Less(i, j int) bool { return list.sortable[j].Low < list.sortable[i].Low }
+func (list byLowDesc) Less(i, j int) bool { 
+	return list.sortable[j].Low < list.sortable[i].Low
+}
 func (list byHighDesc) Less(i, j int) bool {
 	return list.sortable[j].High < list.sortable[i].High
 }
@@ -140,6 +155,12 @@ func (list byYieldDesc) Less(i, j int) bool {
 }
 func (list byMarketCapDesc) Less(i, j int) bool {
 	return m(list.sortable[j].MarketCap) < m(list.sortable[i].MarketCap)
+}
+func (list byPreOpenDesc) Less(i, j int) bool {
+	return c(list.sortable[j].PreOpen) < c(list.sortable[i].PreOpen)
+}
+func (list byAfterHoursDesc) Less(i, j int) bool {
+	return c(list.sortable[j].AfterHours) < c(list.sortable[i].AfterHours)
 }
 
 // Returns new Sorter struct.
@@ -171,6 +192,8 @@ func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 			byDividendAsc{stocks},
 			byYieldAsc{stocks},
 			byMarketCapAsc{stocks},
+			byPreOpenAsc{stocks},
+			byAfterHoursAsc{stocks},
 		}
 	} else {
 		interfaces = []sort.Interface{
@@ -189,6 +212,8 @@ func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 			byDividendDesc{stocks},
 			byYieldDesc{stocks},
 			byMarketCapDesc{stocks},
+			byPreOpenDesc{stocks},
+			byAfterHoursDesc{stocks},
 		}
 	}
 
