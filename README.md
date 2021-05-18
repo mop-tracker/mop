@@ -11,6 +11,15 @@ Mop is implemented in Go and compiles down to a single executable file.
 
     $ go get github.com/mop-tracker/mop/cmd/mop
 
+Alternatively,
+
+    # Make sure your $GOPATH is set.
+    
+    $ git clone https://github.com/mop-tracker/mop
+    $ cd mop
+    $ go build ./mop/cmd
+    $ ./mop
+
 ### Using Mop ###
 For demonstration purposes Mop comes preconfigured with a number of
 stock tickers. You can easily change the default list by using the
