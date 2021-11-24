@@ -17,7 +17,7 @@ Alternatively,
     
     $ git clone https://github.com/mop-tracker/mop
     $ cd mop
-    $ go build ./mop/cmd
+    $ go build ./cmd/mop
     $ ./mop
 
 ### Using Mop ###

@@ -143,4 +143,5 @@ func main() {
 
 	profile := mop.NewProfile(*profileName)
 	mainLoop(screen, profile)
+        profile.Save()
 }
