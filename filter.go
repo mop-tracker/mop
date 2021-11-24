@@ -50,13 +50,21 @@ func (filter *Filter) Apply(stocks []Stock) []Stock {
 		result, err := filter.profile.filterExpression.Evaluate(values)
 
 		if err != nil {
-			panic(err)
+                        // The filter isn't working, so reset to no filter.
+                        filter.profile.Filter = ""
+                        // Return an empty list.  The next main loop cycle will
+                        // show unfiltered.
+                        return filteredStocks
 		}
 
 		truthy, ok := result.(bool)
 
 		if !ok {
-			panic("Expression `" + filter.profile.Filter + "` should return a boolean value")
+                        // The filter isn't working, so reset to no filter.
+                        filter.profile.Filter = ""
+                        // Return an empty list.  The next main loop cycle will
+                        // show unfiltered.
+                        return filteredStocks
 		}
 
 		if truthy {

@@ -142,5 +142,4 @@ func (profile *Profile) SetFilter(filter string) {
 	}
 
 	profile.Filter = filter
-	profile.Save()
 }
