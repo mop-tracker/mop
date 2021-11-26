@@ -9,7 +9,7 @@ screenshot is worth a thousand words:
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
 
-    $ go get github.com/mop-tracker/mop/cmd/mop
+    $ go install github.com/mop-tracker/mop/cmd/mop@latest
 
 Alternatively,
 
