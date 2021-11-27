@@ -165,11 +165,13 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 
 	profile := quotes.profile
 
-	if profile.filterExpression != nil {
-		if layout.filter == nil { // Initialize filter on first invocation.
-			layout.filter = NewFilter(profile)
+	if profile.Filter != ""{ // Fix for blank display if invalid filter expression was cleared.
+		if profile.filterExpression != nil {
+			if layout.filter == nil { // Initialize filter on first invocation.
+				layout.filter = NewFilter(profile)
+			}
+			pretty = layout.filter.Apply(pretty)
 		}
-		pretty = layout.filter.Apply(pretty)
 	}
 
 	if layout.sorter == nil { // Initialize sorter on first invocation.
