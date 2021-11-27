@@ -8,6 +8,8 @@ import (
 	`github.com/nsf/termbox-go`
 	`strings`
 	`time`
+        `strconv`
+        `fmt`
 )
 
 // Screen is thin wrapper aroung Termbox library to provide basic display
@@ -140,7 +142,39 @@ func (screen *Screen) draw(str string) {
 	if !screen.cleared {
 		screen.Clear()
 	}
-	for row, line := range strings.Split(str, "\n") {
-		screen.DrawLine(0, row, line)
+	var allLines []string
+	drewHeading := false
+
+	tempFormat := "%" + strconv.Itoa(screen.width) + "s"
+	blankLine := fmt.Sprintf(tempFormat,"")
+	allLines = strings.Split(str, "\n")
+
+	// Write the lines being updated.
+	for row := 0; row < len(allLines); row++ {
+		screen.DrawLine(0, row, allLines[row])
+		// Did we draw the underlined heading row?  This is a crude
+		// check, but--see comments below...
+		if strings.Contains(allLines[row],"Ticker") &&
+		   strings.Contains(allLines[row],"Last")   &&
+		   strings.Contains(allLines[row],"Change") {
+			drewHeading = true
+		}
+	}
+	// If the quotes lines in this cycle are shorter than in the previous
+	// cycles, e.g., because a filter was just applied, then one or more
+	// lines from the previous cycles will not be cleared.  Since the
+	// incoming lines don't mark explicitly whether they are part of the
+	// market summary or quotes, we can't check whether quotes were updated
+	// in a way that is robust for code changes.  This is a simple test: if
+	// we drew the heading row ("Ticker Last Change..."), then we are
+	// updating the quotes section in this cycle, and we should pad the
+	// quotes section with blank lines.  If we didn't draw the heading row,
+	// then we probably only updated the market summary at the top in this
+	// cycle.  In that case, padding with blank lines would overwrite the
+	// stocks list.)
+	if drewHeading {
+		for i := len(allLines)-1; i < screen.height; i++ {
+			screen.DrawLine(0, i, blankLine)
+		}
 	}
 }
