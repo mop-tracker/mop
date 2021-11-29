@@ -245,7 +245,7 @@ func m(str string) float32 {
 
 	multiplier := 1.0
 
-	switch str[len(str)-1 : len(str)] { // Check the last character.
+	switch str[len(str)-1:] { // Check the last character.
 	case `T`:
 		multiplier = 1000000000000.0
 	case `B`:
