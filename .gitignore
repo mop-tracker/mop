@@ -19,5 +19,6 @@ cmd/mop/debug
 # Builds and logs.
 bin/mop*
 logs/*
+/mop
 
 .idea
