@@ -1,7 +1,7 @@
 ### Mop: track stocks the hacker way ###
 Mop is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks.
 
-![image](https://user-images.githubusercontent.com/12674437/143927057-429098a1-cec1-4b32-bee5-39ac40c6b8c0.png)
+![image](https://user-images.githubusercontent.com/12674437/144409175-698d38c9-cf43-40fd-8367-7ec5ba4d437a.png)
 
 ### Installing Mop ###
 Mop is implemented in Go and compiles down to a single executable file.
