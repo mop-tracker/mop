@@ -5,11 +5,19 @@ Mop is a command-line utility that displays continuous up-to-date information ab
 
 ### Downloading mop
 
+#### ready-to-use program
+
+```
+https://github.com/mop-tracker/mop/releases/download/v1.0.0/mop.exe
+```
+
+#### source code
+
 ```
 https://github.com/mop-tracker/mop/releases/tag/v1.0.0
 ```
 
-### Installing mop
+#### Installing mop from source
 
 Ensure GO language is installed. Download from: https://go.dev/dl/ and the $GOPATH is set then:
 
