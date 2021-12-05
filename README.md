@@ -1,17 +1,17 @@
-### Mop: track stocks the hacker way ###
+### mop: track stocks the hacker way
 Mop is a command-line utility that displays continuous up-to-date information about the U.S. markets and individual stocks.
 
 ![image](https://user-images.githubusercontent.com/12674437/144474220-5f35f893-6860-4ba5-9c3a-58b80df16255.png)
 
-### Installing Mop ###
-
-Ensure GO language is installed. Download from: https://go.dev/dl/ 
+### Downloading mop
 
 ```
-go install github.com/mop-tracker/mop/cmd/mop@latest
+https://github.com/mop-tracker/mop/releases/tag/v1.0.0
 ```
 
-Alternatively, make sure $GOPATH is set then:
+### Installing mop
+
+Ensure GO language is installed. Download from: https://go.dev/dl/ and the $GOPATH is set then:
 
 ```
 git clone https://github.com/mop-tracker/mop
@@ -20,7 +20,7 @@ go build ./cmd/mop
 ./mop
 ```
 
-### Using Mop ###
+### Using mop
 For demonstration purposes Mop comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
 
     +       Add stocks to the list.
@@ -55,11 +55,11 @@ To clear the filter, press `Shift+F`.
 
 You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 
-### Contributing ###
+### Contributing
 * Pull requests accepted.
 * Commit without changing program version or commit history.
 
-### License ###
+### License
 Copyright (c) 2013-2019 by Michael Dvorkin and contributors. All Rights Reserved.
 "mike" + "@dvorkin" + ".net" || "twitter.com/mid"
 
