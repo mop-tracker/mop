@@ -4,18 +4,21 @@ Mop is a command-line utility that displays continuous up-to-date information ab
 ![image](https://user-images.githubusercontent.com/12674437/144474220-5f35f893-6860-4ba5-9c3a-58b80df16255.png)
 
 ### Installing Mop ###
-Mop is implemented in Go and compiles down to a single executable file.
 
-    $ go install github.com/mop-tracker/mop/cmd/mop@latest
+Ensure GO language is installed. Download from: https://go.dev/dl/ 
 
-Alternatively,
+```
+go install github.com/mop-tracker/mop/cmd/mop@latest
+```
 
-    # Make sure your $GOPATH is set.
-    
-    $ git clone https://github.com/mop-tracker/mop
-    $ cd mop
-    $ go build ./cmd/mop
-    $ ./mop
+Alternatively, make sure $GOPATH is set then:
+
+```
+git clone https://github.com/mop-tracker/mop
+cd mop
+go build ./cmd/mop
+./mop
+```
 
 ### Using Mop ###
 For demonstration purposes Mop comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
