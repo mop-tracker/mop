@@ -130,9 +130,6 @@ loop:
 
 //-----------------------------------------------------------------------------
 func main() {
-	screen := mop.NewScreen()
-	defer screen.Close()
-
 	usr, err := user.Current()
 	if err != nil {
 		panic(err)
@@ -140,6 +137,9 @@ func main() {
 
 	profileName := flag.String("profile", path.Join(usr.HomeDir, defaultProfile), "path to profile")
 	flag.Parse()
+
+	screen := mop.NewScreen()
+	defer screen.Close()
 
 	profile := mop.NewProfile(*profileName)
 	mainLoop(screen, profile)
