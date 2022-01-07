@@ -2,7 +2,7 @@
 # Use of this source code is governed by a MIT-style license that can
 # be found in the LICENSE file.
 
-VERSION = 0.2.0
+VERSION = 1.0.0
 PACKAGE = ./cmd/mop
 
 run:
