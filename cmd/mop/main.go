@@ -17,7 +17,7 @@ import (
 // File name in user's home directory where we store the settings.
 const defaultProfile = `.moprc`
 
-const help = `Mop v0.2.0 -- Copyright (c) 2013-2016 by Michael Dvorkin. All Rights Reserved.
+const help = `Mop v1.0.0 -- Copyright (c) 2013-2022 by Michael Dvorkin. All Rights Reserved.
 NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 
 <u>Command</u>    <u>Description                                </u>
