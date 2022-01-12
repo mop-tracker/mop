@@ -5,12 +5,12 @@ A command-line utility that displays continuous up-to-date information about sel
 
 ### Downloading mop
 
-#### ready-to-use program
+<!-- #### ready-to-use program
 
 ```
 https://github.com/mop-tracker/mop/releases/download/v1.0.0/mop.exe
 ```
-
+-->
 #### source code
 
 ```
