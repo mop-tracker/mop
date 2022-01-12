@@ -17,7 +17,7 @@ import (
 
 var currencies = map[string]string{
 	"RUB": "₽",
-	"GDB": "£",
+	"GBP": "£",
 	"EUR": "€",
 	"JPY": "¥",
 }
