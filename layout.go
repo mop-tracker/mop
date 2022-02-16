@@ -83,7 +83,7 @@ func (layout *Layout) Market(market *Market) string {
 
 	highlight(market.Dow, market.Sp500, market.Nasdaq,
 		market.Tokyo, market.HongKong, market.London, market.Frankfurt,
-		market.Yield, market.Oil, market.Euro, market.Gold)
+		market.Yield, market.Oil, market.Euro, market.Yen, market.Gold)
 	buffer := new(bytes.Buffer)
 	layout.marketTemplate.Execute(buffer, market)
 
