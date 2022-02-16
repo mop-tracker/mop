@@ -146,7 +146,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 	// Iterate over the list of stocks and properly format all its columns.
 	//
 	for i, stock := range quotes.stocks {
-		pretty[i].Advancing = stock.Advancing
+		pretty[i].Direction = stock.Direction
 		//
 		// Iterate over the list of stock columns. For each column name:
 		// - Get current column value.
@@ -222,7 +222,7 @@ func buildQuotesTemplate() *template.Template {
 
 
 {{.Header}}
-{{range.Stocks}}{{if .Advancing}}<green>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}{{.PreOpen}}{{.AfterHours}}</>
+{{range.Stocks}}{{if eq .Direction 1}}<green>{{else if eq .Direction -1}}<red>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}{{.PreOpen}}{{.AfterHours}}</>
 {{end}}`
 
 	return template.Must(template.New(`quotes`).Parse(markup))
@@ -243,13 +243,13 @@ func group(stocks []Stock) []Stock {
 	current := 0
 
 	for _, stock := range stocks {
-		if stock.Advancing {
+		if stock.Direction >= 0 {
 			grouped[current] = stock
 			current++
 		}
 	}
 	for _, stock := range stocks {
-		if !stock.Advancing {
+		if stock.Direction < 0 {
 			grouped[current] = stock
 			current++
 		}
