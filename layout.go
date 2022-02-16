@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -210,7 +211,7 @@ func (layout *Layout) pad(str string, width int) string {
 func buildMarketTemplate() *template.Template {
 	markup := `<yellow>Dow</> {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}} <yellow>S&P 500</> {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}} <yellow>NASDAQ</> {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
 <yellow>Tokyo</> {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}} <yellow>HK</> {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}} <yellow>London</> {{.London.change}} ({{.London.percent}}) at {{.London.latest}} <yellow>Frankfurt</> {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
-<yellow>10-Year Yield</> {{.Yield.latest}}% ({{.Yield.change}}) <yellow>Euro</> ${{.Euro.latest}} ({{.Euro.change}}%) <yellow>Yen</> ¥{{.Yen.latest}} ({{.Yen.change}}%) <yellow>Oil</> ${{.Oil.latest}} ({{.Oil.change}}%) <yellow>Gold</> ${{.Gold.latest}} ({{.Gold.change}}%)`
+<yellow>10-Year Yield</> {{.Yield.latest}} ({{.Yield.change}}) <yellow>Euro</> ${{.Euro.latest}} ({{.Euro.change}}) <yellow>Yen</> ¥{{.Yen.latest}} ({{.Yen.change}}) <yellow>Oil</> ${{.Oil.latest}} ({{.Oil.change}}) <yellow>Gold</> ${{.Gold.latest}} ({{.Gold.change}})`
 
 	return template.Must(template.New(`market`).Parse(markup))
 }
@@ -231,8 +232,17 @@ func buildQuotesTemplate() *template.Template {
 //-----------------------------------------------------------------------------
 func highlight(collections ...map[string]string) {
 	for _, collection := range collections {
-		if collection[`change`][0:1] != `-` {
-			collection[`change`] = `<green>` + collection[`change`] + `</>`
+		change := collection[`change`]
+		if change[len(change)-1:] == `%` {
+			change = change[0:len(change)-1]
+		}
+		adv, err := strconv.ParseFloat(change, 64)
+		if err == nil {
+			if adv < 0.0 {
+				collection[`change`] = `<red>` + collection[`change`] + `</>`
+			} else if adv > 0.0 {
+				collection[`change`] = `<green>` + collection[`change`] + `</>`
+			}
 		}
 	}
 }
