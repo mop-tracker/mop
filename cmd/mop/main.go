@@ -138,10 +138,10 @@ func main() {
 	profileName := flag.String("profile", path.Join(usr.HomeDir, defaultProfile), "path to profile")
 	flag.Parse()
 
-	screen := mop.NewScreen()
+	profile := mop.NewProfile(*profileName)
+	screen := mop.NewScreen(profile)
 	defer screen.Close()
 
-	profile := mop.NewProfile(*profileName)
 	mainLoop(screen, profile)
         profile.Save()
 }

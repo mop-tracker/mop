@@ -26,13 +26,13 @@ type Screen struct {
 // Initializes Termbox, creates screen along with layout and markup, and
 // calculates current screen dimensions. Once initialized the screen is
 // ready for display.
-func NewScreen() *Screen {
+func NewScreen(profile *Profile) *Screen {
 	if err := termbox.Init(); err != nil {
 		panic(err)
 	}
 	screen := &Screen{}
 	screen.layout = NewLayout()
-	screen.markup = NewMarkup()
+	screen.markup = NewMarkup(profile)
 
 	return screen.Resize()
 }

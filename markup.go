@@ -33,7 +33,7 @@ type Markup struct {
 
 // Creates markup to define tag to Termbox translation rules and store default
 // colors and column alignments.
-func NewMarkup() *Markup {
+func NewMarkup(profile *Profile) *Markup {
 	markup := &Markup{}
 	markup.Foreground = termbox.ColorDefault
 	markup.Background = termbox.ColorDefault
@@ -53,6 +53,12 @@ func NewMarkup() *Markup {
 	markup.tags[`b`] = termbox.AttrBold         // Attribute = 1 << (iota + 4)
 	markup.tags[`u`] = termbox.AttrUnderline
 	markup.tags[`r`] = termbox.AttrReverse
+
+	// Semantic markups
+	markup.tags[`gain`] = markup.tags[profile.TickerColors.Gain]
+	markup.tags[`loss`] = markup.tags[profile.TickerColors.Loss]
+	markup.tags[`tag`] = markup.tags[profile.TickerColors.Tag]
+
 	markup.regex = markup.supportedTags() // Once we have the hash we could build the regex.
 
 	return markup
