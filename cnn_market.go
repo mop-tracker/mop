@@ -108,7 +108,7 @@ func (market *Market) Fetch() (self *Market) {
 	return market.extract(market.trim(body))
 }
 
-// Ok returns two values: 1) boolean indicating whether the error has occured,
+// Ok returns two values: 1) boolean indicating whether the error has occurred,
 // and 2) the error text itself.
 func (market *Market) Ok() (bool, string) {
 	return market.errors == ``, market.errors

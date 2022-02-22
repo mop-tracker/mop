@@ -223,7 +223,7 @@ func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
 }
 
 // The same exact method is used to sort by $Change and Change%. In both cases
-// we sort by the value of Change% so that multiple $0.00s get sorted proferly.
+// we sort by the value of Change% so that multiple $0.00s get sorted properly.
 func c(str string) float32 {
 	c := "$"
 	for _, v := range currencies {

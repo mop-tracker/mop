@@ -12,8 +12,8 @@ import (
         `fmt`
 )
 
-// Screen is thin wrapper aroung Termbox library to provide basic display
-// capabilities as requied by Mop.
+// Screen is thin wrapper around Termbox library to provide basic display
+// capabilities as required by Mop.
 type Screen struct {
 	width    int        // Current number of columns.
 	height   int        // Current number of rows.

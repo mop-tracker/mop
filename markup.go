@@ -77,7 +77,7 @@ func (markup *Markup) Tokenize(str string) []string {
 		tail = match[0]
 		if match[1] != 0 {
 			if head != 0 || tail != 0 {
-				// Apend the text between tags.
+				// Append the text between tags.
 				strings = append(strings, str[head:tail])
 			}
 			// Append the tag itmarkup.

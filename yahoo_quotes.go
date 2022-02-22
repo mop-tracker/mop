@@ -96,7 +96,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 	return quotes
 }
 
-// Ok returns two values: 1) boolean indicating whether the error has occured,
+// Ok returns two values: 1) boolean indicating whether the error has occurred,
 // and 2) the error text itself.
 func (quotes *Quotes) Ok() (bool, string) {
 	return quotes.errors == ``, quotes.errors
