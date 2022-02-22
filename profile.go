@@ -8,9 +8,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"sort"
+	"strings"
 
 	"github.com/Knetic/govaluate"
 )
+
+const defaultGainColor = "green"
+const defaultLossColor = "red"
+const defaultTagColor = "yellow"
 
 // Profile manages Mop program settings as defined by user (ex. list of
 // stock tickers). The settings are serialized using JSON and saved in
@@ -23,9 +28,30 @@ type Profile struct {
 	Ascending        bool                           // True when sort order is ascending.
 	Grouped          bool                           // True when stocks are grouped by advancing/declining.
 	Filter           string                         // Filter in human form
+	TickerColors     struct {                       // Ticker colors
+		Gain             string
+		Loss             string
+		Tag              string
+	}
 	filterExpression *govaluate.EvaluableExpression // The filter as a govaluate expression
 	selectedColumn   int                            // Stores selected column number when the column editor is active.
 	filename         string                         // Path to the file in which the configuration is stored
+}
+
+func IsSupportedColor(colorName string) bool {
+	switch colorName {
+		case
+			"black",
+			"red",
+			"green",
+			"yellow",
+			"blue",
+			"magenta",
+			"cyan",
+			"white":
+			return true
+	}
+	return false
 }
 
 // Creates the profile and attempts to load the settings from ~/.moprc file.
@@ -41,9 +67,28 @@ func NewProfile(filename string) *Profile {
 		profile.SortColumn = 0   // Stock quotes are sorted by ticker name.
 		profile.Ascending = true // A to Z.
 		profile.Filter = ""
+		profile.TickerColors.Gain = defaultGainColor
+		profile.TickerColors.Loss = defaultLossColor
+		profile.TickerColors.Tag = defaultTagColor
 		profile.Save()
 	} else {
 		json.Unmarshal(data, profile)
+
+		profile.TickerColors.Gain = strings.ToLower(profile.TickerColors.Gain)
+		if !IsSupportedColor(profile.TickerColors.Gain) {
+			profile.TickerColors.Gain = defaultGainColor
+		}
+
+		profile.TickerColors.Loss = strings.ToLower(profile.TickerColors.Loss)
+		if !IsSupportedColor(profile.TickerColors.Loss) {
+			profile.TickerColors.Loss = defaultLossColor
+		}
+
+		profile.TickerColors.Tag = strings.ToLower(profile.TickerColors.Tag)
+		if !IsSupportedColor(profile.TickerColors.Tag) {
+			profile.TickerColors.Tag = defaultTagColor
+		}
+
 		profile.SetFilter(profile.Filter)
 	}
 	profile.selectedColumn = -1
@@ -61,7 +106,7 @@ func (profile *Profile) Save() error {
 	return ioutil.WriteFile(profile.filename, data, 0644)
 }
 
-// AddTickers updates the list of existing tikers to add the new ones making
+// AddTickers updates the list of existing tickers to add the new ones making
 // sure there are no duplicates.
 func (profile *Profile) AddTickers(tickers []string) (added int, err error) {
 	added, err = 0, nil
