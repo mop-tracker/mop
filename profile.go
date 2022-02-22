@@ -98,7 +98,7 @@ func NewProfile(filename string) *Profile {
 
 // Save serializes settings using JSON and saves them in ~/.moprc file.
 func (profile *Profile) Save() error {
-	data, err := json.Marshal(profile)
+	data, err := json.MarshalIndent(profile, "", "    ")
 	if err != nil {
 		return err
 	}
