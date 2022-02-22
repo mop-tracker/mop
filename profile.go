@@ -48,7 +48,15 @@ func IsSupportedColor(colorName string) bool {
 			"blue",
 			"magenta",
 			"cyan",
-			"white":
+			"white",
+			"darkgray",
+			"lightred",
+			"lightgreen",
+			"lightyellow",
+			"lightblue",
+			"lightmagenta",
+			"lightcyan",
+			"lightgray":
 			return true
 	}
 	return false

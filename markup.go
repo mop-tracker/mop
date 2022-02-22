@@ -49,6 +49,15 @@ func NewMarkup(profile *Profile) *Markup {
 	markup.tags[`magenta`] = termbox.ColorMagenta
 	markup.tags[`cyan`] = termbox.ColorCyan
 	markup.tags[`white`] = termbox.ColorWhite
+	markup.tags[`darkgray`] = termbox.ColorDarkGray
+	markup.tags[`lightred`] = termbox.ColorLightRed
+	markup.tags[`lightgreen`] = termbox.ColorLightGreen
+	markup.tags[`lightyellow`] = termbox.ColorLightYellow
+	markup.tags[`lightblue`] = termbox.ColorLightBlue
+	markup.tags[`lightmagenta`] = termbox.ColorLightMagenta
+	markup.tags[`lightcyan`] = termbox.ColorLightCyan
+	markup.tags[`lightgray`] = termbox.ColorLightGray
+
 	markup.tags[`right`] = termbox.ColorDefault // Termbox can combine attributes and a single color using bitwise OR.
 	markup.tags[`b`] = termbox.AttrBold         // Attribute = 1 << (iota + 4)
 	markup.tags[`u`] = termbox.AttrUnderline
