@@ -55,9 +55,9 @@ func NewMarkup(profile *Profile) *Markup {
 	markup.tags[`r`] = termbox.AttrReverse
 
 	// Semantic markups
-	markup.tags[`gain`] = markup.tags[profile.TickerColors.Gain]
-	markup.tags[`loss`] = markup.tags[profile.TickerColors.Loss]
-	markup.tags[`tag`] = markup.tags[profile.TickerColors.Tag]
+	markup.tags[`gain`] = markup.tags[profile.Colors.Gain]
+	markup.tags[`loss`] = markup.tags[profile.Colors.Loss]
+	markup.tags[`tag`] = markup.tags[profile.Colors.Tag]
 
 	markup.regex = markup.supportedTags() // Once we have the hash we could build the regex.
 

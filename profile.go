@@ -28,7 +28,7 @@ type Profile struct {
 	Ascending        bool                           // True when sort order is ascending.
 	Grouped          bool                           // True when stocks are grouped by advancing/declining.
 	Filter           string                         // Filter in human form
-	TickerColors     struct {                       // Ticker colors
+	Colors           struct {                       // User defined colors
 		Gain             string
 		Loss             string
 		Tag              string
@@ -67,26 +67,26 @@ func NewProfile(filename string) *Profile {
 		profile.SortColumn = 0   // Stock quotes are sorted by ticker name.
 		profile.Ascending = true // A to Z.
 		profile.Filter = ""
-		profile.TickerColors.Gain = defaultGainColor
-		profile.TickerColors.Loss = defaultLossColor
-		profile.TickerColors.Tag = defaultTagColor
+		profile.Colors.Gain = defaultGainColor
+		profile.Colors.Loss = defaultLossColor
+		profile.Colors.Tag = defaultTagColor
 		profile.Save()
 	} else {
 		json.Unmarshal(data, profile)
 
-		profile.TickerColors.Gain = strings.ToLower(profile.TickerColors.Gain)
-		if !IsSupportedColor(profile.TickerColors.Gain) {
-			profile.TickerColors.Gain = defaultGainColor
+		profile.Colors.Gain = strings.ToLower(profile.Colors.Gain)
+		if !IsSupportedColor(profile.Colors.Gain) {
+			profile.Colors.Gain = defaultGainColor
 		}
 
-		profile.TickerColors.Loss = strings.ToLower(profile.TickerColors.Loss)
-		if !IsSupportedColor(profile.TickerColors.Loss) {
-			profile.TickerColors.Loss = defaultLossColor
+		profile.Colors.Loss = strings.ToLower(profile.Colors.Loss)
+		if !IsSupportedColor(profile.Colors.Loss) {
+			profile.Colors.Loss = defaultLossColor
 		}
 
-		profile.TickerColors.Tag = strings.ToLower(profile.TickerColors.Tag)
-		if !IsSupportedColor(profile.TickerColors.Tag) {
-			profile.TickerColors.Tag = defaultTagColor
+		profile.Colors.Tag = strings.ToLower(profile.Colors.Tag)
+		if !IsSupportedColor(profile.Colors.Tag) {
+			profile.Colors.Tag = defaultTagColor
 		}
 
 		profile.SetFilter(profile.Filter)
