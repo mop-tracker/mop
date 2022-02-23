@@ -82,26 +82,22 @@ func NewProfile(filename string) *Profile {
 	} else {
 		json.Unmarshal(data, profile)
 
-		profile.Colors.Gain = strings.ToLower(profile.Colors.Gain)
-		if !IsSupportedColor(profile.Colors.Gain) {
-			profile.Colors.Gain = defaultGainColor
-		}
-
-		profile.Colors.Loss = strings.ToLower(profile.Colors.Loss)
-		if !IsSupportedColor(profile.Colors.Loss) {
-			profile.Colors.Loss = defaultLossColor
-		}
-
-		profile.Colors.Tag = strings.ToLower(profile.Colors.Tag)
-		if !IsSupportedColor(profile.Colors.Tag) {
-			profile.Colors.Tag = defaultTagColor
-		}
+		InitColor(profile.Colors.Gain, defaultGainColor)
+		InitColor(profile.Colors.Loss, defaultLossColor)
+		InitColor(profile.Colors.Tag, defaultTagColor)
 
 		profile.SetFilter(profile.Filter)
 	}
 	profile.selectedColumn = -1
 
 	return profile
+}
+
+func InitColor(color string, defaultValue string) {
+	color = strings.ToLower(color)
+	if !IsSupportedColor(color) {
+		color = defaultValue;
+	}
 }
 
 // Save serializes settings using JSON and saves them in ~/.moprc file.
