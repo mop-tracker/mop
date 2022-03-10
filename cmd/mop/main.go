@@ -143,5 +143,5 @@ func main() {
 	defer screen.Close()
 
 	mainLoop(screen, profile)
-        profile.Save()
+	profile.Save()
 }

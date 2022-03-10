@@ -5,9 +5,10 @@
 package mop
 
 import (
-	`github.com/nsf/termbox-go`
-	`regexp`
-	`strings`
+	"regexp"
+	"strings"
+
+	"github.com/nsf/termbox-go"
 )
 
 // Markup implements some minimalistic text formatting conventions that
@@ -35,9 +36,6 @@ type Markup struct {
 // colors and column alignments.
 func NewMarkup(profile *Profile) *Markup {
 	markup := &Markup{}
-	markup.Foreground = termbox.ColorDefault
-	markup.Background = termbox.ColorDefault
-	markup.RightAligned = false
 
 	markup.tags = make(map[string]termbox.Attribute)
 	markup.tags[`/`] = termbox.ColorDefault
@@ -67,6 +65,14 @@ func NewMarkup(profile *Profile) *Markup {
 	markup.tags[`gain`] = markup.tags[profile.Colors.Gain]
 	markup.tags[`loss`] = markup.tags[profile.Colors.Loss]
 	markup.tags[`tag`] = markup.tags[profile.Colors.Tag]
+	markup.tags[`header`] = markup.tags[profile.Colors.Header]
+	markup.tags[`time`] = markup.tags[profile.Colors.Time]
+	markup.tags[`default`] = markup.tags[profile.Colors.Default]
+
+	markup.Foreground = markup.tags[profile.Colors.Default]
+
+	markup.Background = termbox.ColorDefault
+	markup.RightAligned = false
 
 	markup.regex = markup.supportedTags() // Once we have the hash we could build the regex.
 
@@ -138,7 +144,7 @@ func (markup *Markup) process(tag string, open bool) bool {
 				if attribute >= termbox.AttrBold {
 					markup.Foreground &= ^attribute // Clear the Termbox attribute.
 				} else {
-					markup.Foreground = termbox.ColorDefault
+					markup.Foreground = markup.tags[`default`]
 				}
 			}
 		}

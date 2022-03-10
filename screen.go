@@ -5,11 +5,12 @@
 package mop
 
 import (
-	`github.com/nsf/termbox-go`
-	`strings`
-	`time`
-        `strconv`
-        `fmt`
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/nsf/termbox-go"
 )
 
 // Screen is thin wrapper around Termbox library to provide basic display
@@ -90,7 +91,7 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 func (screen *Screen) Draw(objects ...interface{}) *Screen {
 	zonename, _ := time.Now().In(time.Local).Zone()
 	if screen.pausedAt != nil {
-		defer screen.DrawLine(0, 0, `<right><r>`+screen.pausedAt.Format(`3:04:05pm ` + zonename)+`</r></right>`)
+		defer screen.DrawLine(0, 0, `<right><r>`+screen.pausedAt.Format(`3:04:05pm `+zonename)+`</r></right>`)
 	}
 	for _, ptr := range objects {
 		switch ptr.(type) {
@@ -102,7 +103,7 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 			screen.draw(screen.layout.Quotes(object.Fetch()))
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm ` + zonename)
-			screen.DrawLine(0, 0, `<right>`+timestamp+`</right>`)
+			screen.DrawLine(0, 0, `<right><time>`+timestamp+`</></right>`)
 		default:
 			screen.draw(ptr.(string))
 		}
@@ -146,7 +147,7 @@ func (screen *Screen) draw(str string) {
 	drewHeading := false
 
 	tempFormat := "%" + strconv.Itoa(screen.width) + "s"
-	blankLine := fmt.Sprintf(tempFormat,"")
+	blankLine := fmt.Sprintf(tempFormat, "")
 	allLines = strings.Split(str, "\n")
 
 	// Write the lines being updated.
@@ -154,9 +155,9 @@ func (screen *Screen) draw(str string) {
 		screen.DrawLine(0, row, allLines[row])
 		// Did we draw the underlined heading row?  This is a crude
 		// check, but--see comments below...
-		if strings.Contains(allLines[row],"Ticker") &&
-		   strings.Contains(allLines[row],"Last")   &&
-		   strings.Contains(allLines[row],"Change") {
+		if strings.Contains(allLines[row], "Ticker") &&
+			strings.Contains(allLines[row], "Last") &&
+			strings.Contains(allLines[row], "Change") {
 			drewHeading = true
 		}
 	}
@@ -173,7 +174,7 @@ func (screen *Screen) draw(str string) {
 	// cycle.  In that case, padding with blank lines would overwrite the
 	// stocks list.)
 	if drewHeading {
-		for i := len(allLines)-1; i < screen.height; i++ {
+		for i := len(allLines) - 1; i < screen.height; i++ {
 			screen.DrawLine(0, i, blankLine)
 		}
 	}

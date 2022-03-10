@@ -168,7 +168,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 
 	profile := quotes.profile
 
-	if profile.Filter != ""{ // Fix for blank display if invalid filter expression was cleared.
+	if profile.Filter != "" { // Fix for blank display if invalid filter expression was cleared.
 		if profile.filterExpression != nil {
 			if layout.filter == nil { // Initialize filter on first invocation.
 				layout.filter = NewFilter(profile)
@@ -218,11 +218,11 @@ func buildMarketTemplate() *template.Template {
 
 //-----------------------------------------------------------------------------
 func buildQuotesTemplate() *template.Template {
-	markup := `<right><white>{{.Now}}</></right>
+	markup := `<right><time>{{.Now}}</></right>
 
 
 
-{{.Header}}
+<header>{{.Header}}</>
 {{range.Stocks}}{{if eq .Direction 1}}<gain>{{else if eq .Direction -1}}<loss>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}{{.PreOpen}}{{.AfterHours}}</>
 {{end}}`
 
@@ -234,7 +234,7 @@ func highlight(collections ...map[string]string) {
 	for _, collection := range collections {
 		change := collection[`change`]
 		if change[len(change)-1:] == `%` {
-			change = change[0:len(change)-1]
+			change = change[0 : len(change)-1]
 		}
 		adv, err := strconv.ParseFloat(change, 64)
 		if err == nil {
@@ -272,9 +272,9 @@ func group(stocks []Stock) []Stock {
 func arrowFor(column int, profile *Profile) string {
 	if column == profile.SortColumn {
 		if profile.Ascending {
-			return string('\U00002191')
+			return string('▲')
 		}
-		return string('\U00002193')
+		return string('▼')
 	}
 	return ``
 }

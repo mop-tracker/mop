@@ -16,22 +16,28 @@ import (
 const defaultGainColor = "green"
 const defaultLossColor = "red"
 const defaultTagColor = "yellow"
+const defaultHeaderColor = "lightgray"
+const defaultTimeColor = "lightgray"
+const defaultColor = "lightgray"
 
 // Profile manages Mop program settings as defined by user (ex. list of
 // stock tickers). The settings are serialized using JSON and saved in
 // the ~/.moprc file.
 type Profile struct {
-	Tickers          []string                       // List of stock tickers to display.
-	MarketRefresh    int                            // Time interval to refresh market data.
-	QuotesRefresh    int                            // Time interval to refresh stock quotes.
-	SortColumn       int                            // Column number by which we sort stock quotes.
-	Ascending        bool                           // True when sort order is ascending.
-	Grouped          bool                           // True when stocks are grouped by advancing/declining.
-	Filter           string                         // Filter in human form
-	Colors           struct {                       // User defined colors
-		Gain             string
-		Loss             string
-		Tag              string
+	Tickers       []string // List of stock tickers to display.
+	MarketRefresh int      // Time interval to refresh market data.
+	QuotesRefresh int      // Time interval to refresh stock quotes.
+	SortColumn    int      // Column number by which we sort stock quotes.
+	Ascending     bool     // True when sort order is ascending.
+	Grouped       bool     // True when stocks are grouped by advancing/declining.
+	Filter        string   // Filter in human form
+	Colors        struct { // User defined colors
+		Gain    string
+		Loss    string
+		Tag     string
+		Header  string
+		Time    string
+		Default string
 	}
 	filterExpression *govaluate.EvaluableExpression // The filter as a govaluate expression
 	selectedColumn   int                            // Stores selected column number when the column editor is active.
@@ -40,24 +46,24 @@ type Profile struct {
 
 func IsSupportedColor(colorName string) bool {
 	switch colorName {
-		case
-			"black",
-			"red",
-			"green",
-			"yellow",
-			"blue",
-			"magenta",
-			"cyan",
-			"white",
-			"darkgray",
-			"lightred",
-			"lightgreen",
-			"lightyellow",
-			"lightblue",
-			"lightmagenta",
-			"lightcyan",
-			"lightgray":
-			return true
+	case
+		"black",
+		"red",
+		"green",
+		"yellow",
+		"blue",
+		"magenta",
+		"cyan",
+		"white",
+		"darkgray",
+		"lightred",
+		"lightgreen",
+		"lightyellow",
+		"lightblue",
+		"lightmagenta",
+		"lightcyan",
+		"lightgray":
+		return true
 	}
 	return false
 }
@@ -78,13 +84,19 @@ func NewProfile(filename string) *Profile {
 		profile.Colors.Gain = defaultGainColor
 		profile.Colors.Loss = defaultLossColor
 		profile.Colors.Tag = defaultTagColor
+		profile.Colors.Header = defaultHeaderColor
+		profile.Colors.Time = defaultTimeColor
+		profile.Colors.Default = defaultColor
 		profile.Save()
 	} else {
 		json.Unmarshal(data, profile)
 
-		InitColor(profile.Colors.Gain, defaultGainColor)
-		InitColor(profile.Colors.Loss, defaultLossColor)
-		InitColor(profile.Colors.Tag, defaultTagColor)
+		InitColor(&profile.Colors.Gain, defaultGainColor)
+		InitColor(&profile.Colors.Loss, defaultLossColor)
+		InitColor(&profile.Colors.Tag, defaultTagColor)
+		InitColor(&profile.Colors.Header, defaultHeaderColor)
+		InitColor(&profile.Colors.Time, defaultTimeColor)
+		InitColor(&profile.Colors.Default, defaultColor)
 
 		profile.SetFilter(profile.Filter)
 	}
@@ -93,10 +105,10 @@ func NewProfile(filename string) *Profile {
 	return profile
 }
 
-func InitColor(color string, defaultValue string) {
-	color = strings.ToLower(color)
-	if !IsSupportedColor(color) {
-		color = defaultValue;
+func InitColor(color *string, defaultValue string) {
+	*color = strings.ToLower(*color)
+	if !IsSupportedColor(*color) {
+		*color = defaultValue
 	}
 }
 
