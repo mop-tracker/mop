@@ -63,7 +63,7 @@ func (filter *Filter) Apply(stocks []Stock) []Stock {
 		values["avgVolume"]     = stringToNumber(stock.AvgVolume)
 		values["pe"]            = stringToNumber(stock.PeRatio)
 		values["peX"]           = stringToNumber(stock.PeRatioX)
-		values["advancing"]     = stock.Advancing                 // Remains bool.
+		values["direction"]     = stock.Direction                 // Remains int.
 
 		result, err := filter.profile.filterExpression.Evaluate(values)
 

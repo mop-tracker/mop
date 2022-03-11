@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -82,7 +83,7 @@ func (layout *Layout) Market(market *Market) string {
 
 	highlight(market.Dow, market.Sp500, market.Nasdaq,
 		market.Tokyo, market.HongKong, market.London, market.Frankfurt,
-		market.Yield, market.Oil, market.Euro, market.Gold)
+		market.Yield, market.Oil, market.Euro, market.Yen, market.Gold)
 	buffer := new(bytes.Buffer)
 	layout.marketTemplate.Execute(buffer, market)
 
@@ -146,7 +147,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 	// Iterate over the list of stocks and properly format all its columns.
 	//
 	for i, stock := range quotes.stocks {
-		pretty[i].Advancing = stock.Advancing
+		pretty[i].Direction = stock.Direction
 		//
 		// Iterate over the list of stock columns. For each column name:
 		// - Get current column value.
@@ -167,7 +168,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 
 	profile := quotes.profile
 
-	if profile.Filter != ""{ // Fix for blank display if invalid filter expression was cleared.
+	if profile.Filter != "" { // Fix for blank display if invalid filter expression was cleared.
 		if profile.filterExpression != nil {
 			if layout.filter == nil { // Initialize filter on first invocation.
 				layout.filter = NewFilter(profile)
@@ -208,21 +209,21 @@ func (layout *Layout) pad(str string, width int) string {
 
 //-----------------------------------------------------------------------------
 func buildMarketTemplate() *template.Template {
-	markup := `<yellow>Dow</> {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}} <yellow>S&P 500</> {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}} <yellow>NASDAQ</> {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
-<yellow>Tokyo</> {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}} <yellow>HK</> {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}} <yellow>London</> {{.London.change}} ({{.London.percent}}) at {{.London.latest}} <yellow>Frankfurt</> {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
-<yellow>10-Year Yield</> {{.Yield.latest}}% ({{.Yield.change}}) <yellow>Euro</> ${{.Euro.latest}} ({{.Euro.change}}%) <yellow>Yen</> ¥{{.Yen.latest}} ({{.Yen.change}}%) <yellow>Oil</> ${{.Oil.latest}} ({{.Oil.change}}%) <yellow>Gold</> ${{.Gold.latest}} ({{.Gold.change}}%)`
+	markup := `<tag>Dow</> {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}} <tag>S&P 500</> {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}} <tag>NASDAQ</> {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
+<tag>Tokyo</> {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}} <tag>HK</> {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}} <tag>London</> {{.London.change}} ({{.London.percent}}) at {{.London.latest}} <tag>Frankfurt</> {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
+<tag>10-Year Yield</> {{.Yield.latest}} ({{.Yield.change}}) <tag>Euro</> ${{.Euro.latest}} ({{.Euro.change}}) <tag>Yen</> ¥{{.Yen.latest}} ({{.Yen.change}}) <tag>Oil</> ${{.Oil.latest}} ({{.Oil.change}}) <tag>Gold</> ${{.Gold.latest}} ({{.Gold.change}})`
 
 	return template.Must(template.New(`market`).Parse(markup))
 }
 
 //-----------------------------------------------------------------------------
 func buildQuotesTemplate() *template.Template {
-	markup := `<right><white>{{.Now}}</></right>
+	markup := `<right><time>{{.Now}}</></right>
 
 
 
-{{.Header}}
-{{range.Stocks}}{{if .Advancing}}<green>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}{{.PreOpen}}{{.AfterHours}}</>
+<header>{{.Header}}</>
+{{range.Stocks}}{{if eq .Direction 1}}<gain>{{else if eq .Direction -1}}<loss>{{end}}{{.Ticker}}{{.LastTrade}}{{.Change}}{{.ChangePct}}{{.Open}}{{.Low}}{{.High}}{{.Low52}}{{.High52}}{{.Volume}}{{.AvgVolume}}{{.PeRatio}}{{.Dividend}}{{.Yield}}{{.MarketCap}}{{.PreOpen}}{{.AfterHours}}</>
 {{end}}`
 
 	return template.Must(template.New(`quotes`).Parse(markup))
@@ -231,8 +232,17 @@ func buildQuotesTemplate() *template.Template {
 //-----------------------------------------------------------------------------
 func highlight(collections ...map[string]string) {
 	for _, collection := range collections {
-		if collection[`change`][0:1] != `-` {
-			collection[`change`] = `<green>` + collection[`change`] + `</>`
+		change := collection[`change`]
+		if change[len(change)-1:] == `%` {
+			change = change[0 : len(change)-1]
+		}
+		adv, err := strconv.ParseFloat(change, 64)
+		if err == nil {
+			if adv < 0.0 {
+				collection[`change`] = `<loss>` + collection[`change`] + `</>`
+			} else if adv > 0.0 {
+				collection[`change`] = `<gain>` + collection[`change`] + `</>`
+			}
 		}
 	}
 }
@@ -243,13 +253,13 @@ func group(stocks []Stock) []Stock {
 	current := 0
 
 	for _, stock := range stocks {
-		if stock.Advancing {
+		if stock.Direction >= 0 {
 			grouped[current] = stock
 			current++
 		}
 	}
 	for _, stock := range stocks {
-		if !stock.Advancing {
+		if stock.Direction < 0 {
 			grouped[current] = stock
 			current++
 		}
@@ -262,9 +272,9 @@ func group(stocks []Stock) []Stock {
 func arrowFor(column int, profile *Profile) string {
 	if column == profile.SortColumn {
 		if profile.Ascending {
-			return string('\U00002191')
+			return string('▲')
 		}
-		return string('\U00002193')
+		return string('▼')
 	}
 	return ``
 }

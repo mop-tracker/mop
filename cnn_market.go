@@ -108,7 +108,7 @@ func (market *Market) Fetch() (self *Market) {
 	return market.extract(market.trim(body))
 }
 
-// Ok returns two values: 1) boolean indicating whether the error has occured,
+// Ok returns two values: 1) boolean indicating whether the error has occurred,
 // and 2) the error text itself.
 func (market *Market) Ok() (bool, string) {
 	return market.errors == ``, market.errors
@@ -156,16 +156,16 @@ func (market *Market) extract(snippet []byte) *Market {
 	market.Yield[`change`] = matches[11]
 
 	market.Oil[`latest`] = matches[12]
-	market.Oil[`change`] = matches[13]
+	market.Oil[`change`] = matches[13] + `%`
 
 	market.Yen[`latest`] = matches[14]
-	market.Yen[`change`] = matches[15]
+	market.Yen[`change`] = matches[15] + `%`
 
 	market.Euro[`latest`] = matches[16]
-	market.Euro[`change`] = matches[17]
+	market.Euro[`change`] = matches[17] + `%`
 
 	market.Gold[`latest`] = matches[18]
-	market.Gold[`change`] = matches[19]
+	market.Gold[`change`] = matches[19] + `%`
 
 	market.Tokyo[`change`] = matches[20]
 	market.Tokyo[`latest`] = matches[21]
