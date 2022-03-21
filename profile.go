@@ -44,6 +44,7 @@ type Profile struct {
 	filename         string                         // Path to the file in which the configuration is stored
 }
 
+// Checks if a string represents a supported color or not.
 func IsSupportedColor(colorName string) bool {
 	switch colorName {
 	case
@@ -70,41 +71,51 @@ func IsSupportedColor(colorName string) bool {
 
 // Creates the profile and attempts to load the settings from ~/.moprc file.
 // If the file is not there it gets created with default values.
-func NewProfile(filename string) *Profile {
+func NewProfile(filename string) (*Profile, error) {
 	profile := &Profile{filename: filename}
 	data, err := ioutil.ReadFile(filename)
-	if err != nil { // Set default values:
-		profile.MarketRefresh = 12 // Market data gets fetched every 12s (5 times per minute).
-		profile.QuotesRefresh = 5  // Stock quotes get updated every 5s (12 times per minute).
-		profile.Grouped = false    // Stock quotes are *not* grouped by advancing/declining.
-		profile.Tickers = []string{`AAPL`, `C`, `GOOG`, `IBM`, `KO`, `ORCL`, `V`}
-		profile.SortColumn = 0   // Stock quotes are sorted by ticker name.
-		profile.Ascending = true // A to Z.
-		profile.Filter = ""
-		profile.Colors.Gain = defaultGainColor
-		profile.Colors.Loss = defaultLossColor
-		profile.Colors.Tag = defaultTagColor
-		profile.Colors.Header = defaultHeaderColor
-		profile.Colors.Time = defaultTimeColor
-		profile.Colors.Default = defaultColor
-		profile.Save()
+	if err == nil {
+		err = json.Unmarshal(data, profile)
+
+		if err == nil {
+			InitColor(&profile.Colors.Gain, defaultGainColor)
+			InitColor(&profile.Colors.Loss, defaultLossColor)
+			InitColor(&profile.Colors.Tag, defaultTagColor)
+			InitColor(&profile.Colors.Header, defaultHeaderColor)
+			InitColor(&profile.Colors.Time, defaultTimeColor)
+			InitColor(&profile.Colors.Default, defaultColor)
+
+			profile.SetFilter(profile.Filter)
+		}
 	} else {
-		json.Unmarshal(data, profile)
-
-		InitColor(&profile.Colors.Gain, defaultGainColor)
-		InitColor(&profile.Colors.Loss, defaultLossColor)
-		InitColor(&profile.Colors.Tag, defaultTagColor)
-		InitColor(&profile.Colors.Header, defaultHeaderColor)
-		InitColor(&profile.Colors.Time, defaultTimeColor)
-		InitColor(&profile.Colors.Default, defaultColor)
-
-		profile.SetFilter(profile.Filter)
+		profile.InitDefaultProfile()
+		err = nil
 	}
 	profile.selectedColumn = -1
 
-	return profile
+	return profile, err
 }
 
+// Initializes a profile with the default values
+func (profile *Profile) InitDefaultProfile() {
+	profile.MarketRefresh = 12 // Market data gets fetched every 12s (5 times per minute).
+	profile.QuotesRefresh = 5  // Stock quotes get updated every 5s (12 times per minute).
+	profile.Grouped = false    // Stock quotes are *not* grouped by advancing/declining.
+	profile.Tickers = []string{`AAPL`, `C`, `GOOG`, `IBM`, `KO`, `ORCL`, `V`}
+	profile.SortColumn = 0   // Stock quotes are sorted by ticker name.
+	profile.Ascending = true // A to Z.
+	profile.Filter = ""
+	profile.Colors.Gain = defaultGainColor
+	profile.Colors.Loss = defaultLossColor
+	profile.Colors.Tag = defaultTagColor
+	profile.Colors.Header = defaultHeaderColor
+	profile.Colors.Time = defaultTimeColor
+	profile.Colors.Default = defaultColor
+	profile.Save()
+}
+
+// Initializes a color to the given string, or to the default value if the given
+// string does not represent a supported color.
 func InitColor(color *string, defaultValue string) {
 	*color = strings.ToLower(*color)
 	if !IsSupportedColor(*color) {

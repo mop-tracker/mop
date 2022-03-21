@@ -6,10 +6,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
 	"os/user"
 	"path"
+	"strings"
 	"time"
 
+	"github.com/eiannone/keyboard"
 	"github.com/mop-tracker/mop"
 	"github.com/nsf/termbox-go"
 )
@@ -138,7 +142,29 @@ func main() {
 	profileName := flag.String("profile", path.Join(usr.HomeDir, defaultProfile), "path to profile")
 	flag.Parse()
 
-	profile := mop.NewProfile(*profileName)
+	profile, err := mop.NewProfile(*profileName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "The profile read from `%s` is corrupted.\n\tError: %s\n\n", *profileName, err)
+
+		// Loop until we get a "y" or "n" answer.
+		// Note: This is only for the interactive mode. Once we have the "one-shot", this should be skipped
+		for {
+			fmt.Fprintln(os.Stderr, "Do you want to overwrite the current profile with the default one? [y/n]")
+			rne, _, _ := keyboard.GetSingleKey()
+			res := strings.ToLower(string(rne))
+			if res != "y" && res != "n" {
+				fmt.Fprintf(os.Stderr, "Invalid answer `%s`\n\n", res)
+				continue
+			}
+
+			if res == "y" {
+				profile.InitDefaultProfile()
+				break
+			} else {
+				os.Exit(1)
+			}
+		}
+	}
 	screen := mop.NewScreen(profile)
 	defer screen.Close()
 
