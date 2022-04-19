@@ -63,9 +63,13 @@ To clear the filter, press `Shift+F`.
 
 You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 
+### Saving & Downloading to CSV
+Please refer to the following guide by contributor @joce to download data displayed in MOP to CSV for use in spreadsheets and other software.
+
+[Pulling Yahoo! Finance data to CSV](https://jocelyn.legau.lt/posts/pulling-yahoo-finance-tickers-to-csv/)
+
 ### Contributing
 * Pull requests accepted.
-* Commit without changing program version or commit history.
 
 ### License
 Copyright (c) 2013-2019 by Michael Dvorkin and contributors. All Rights Reserved.
