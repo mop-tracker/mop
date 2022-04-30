@@ -16,12 +16,14 @@ import (
 // Screen is thin wrapper around Termbox library to provide basic display
 // capabilities as required by Mop.
 type Screen struct {
-	width    int        // Current number of columns.
-	height   int        // Current number of rows.
-	cleared  bool       // True after the screens gets cleared.
-	layout   *Layout    // Pointer to layout (gets created by screen).
-	markup   *Markup    // Pointer to markup processor (gets created by screen).
-	pausedAt *time.Time // Timestamp of the pause request or nil if none.
+	width      int        // Current number of columns.
+	height     int        // Current number of rows.
+	cleared    bool       // True after the screens gets cleared.
+	layout     *Layout    // Pointer to layout (gets created by screen).
+	markup     *Markup    // Pointer to markup processor (gets created by screen).
+	pausedAt   *time.Time // Timestamp of the pause request or nil if none.
+	offset     int        // Offset for scolling
+	headerLine int        // Line number of header for scroll feature
 }
 
 // Initializes Termbox, creates screen along with layout and markup, and
@@ -34,6 +36,7 @@ func NewScreen(profile *Profile) *Screen {
 	screen := &Screen{}
 	screen.layout = NewLayout()
 	screen.markup = NewMarkup(profile)
+	screen.offset = 0
 
 	return screen.Resize()
 }
@@ -86,6 +89,23 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 	return screen
 }
 
+// Increase the offset for scrolling feature by n
+// Takes number of tickers as max, so not scrolling down forever
+func (screen *Screen) IncreaseOffset(n int, max int) {
+	if screen.offset+n < max {
+		screen.offset += n
+	}
+}
+
+// Decrease the offset for scrolling feature by n
+func (screen *Screen) DecreaseOffset(n int) {
+	if screen.offset > n {
+		screen.offset -= n
+	} else {
+		screen.offset = 0
+	}
+}
+
 // Draw accepts variable number of arguments and knows how to display the
 // market data, stock quotes, current time, and an arbitrary string.
 func (screen *Screen) Draw(objects ...interface{}) *Screen {
@@ -97,15 +117,15 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 		switch ptr.(type) {
 		case *Market:
 			object := ptr.(*Market)
-			screen.draw(screen.layout.Market(object.Fetch()))
+			screen.draw(screen.layout.Market(object.Fetch()), false)
 		case *Quotes:
 			object := ptr.(*Quotes)
-			screen.draw(screen.layout.Quotes(object.Fetch()))
+			screen.draw(screen.layout.Quotes(object.Fetch()), true)
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm ` + zonename)
 			screen.DrawLine(0, 0, `<right><time>`+timestamp+`</></right>`)
 		default:
-			screen.draw(ptr.(string))
+			screen.draw(ptr.(string), false)
 		}
 	}
 
@@ -139,7 +159,7 @@ func (screen *Screen) DrawLine(x int, y int, str string) {
 
 // Underlying workhorse function that takes multiline string, splits it into
 // lines, and displays them row by row.
-func (screen *Screen) draw(str string) {
+func (screen *Screen) draw(str string, offset bool) {
 	if !screen.cleared {
 		screen.Clear()
 	}
@@ -152,13 +172,24 @@ func (screen *Screen) draw(str string) {
 
 	// Write the lines being updated.
 	for row := 0; row < len(allLines); row++ {
-		screen.DrawLine(0, row, allLines[row])
-		// Did we draw the underlined heading row?  This is a crude
-		// check, but--see comments below...
-		if strings.Contains(allLines[row], "Ticker") &&
-			strings.Contains(allLines[row], "Last") &&
-			strings.Contains(allLines[row], "Change") {
-			drewHeading = true
+		if offset {
+            // Did we draw the underlined heading row?  This is a crude
+            // check, but--see comments below...
+            // --- Heading row only appears for quotes, so offset is true
+			if strings.Contains(allLines[row], "Ticker") &&
+				strings.Contains(allLines[row], "Last") &&
+				strings.Contains(allLines[row], "Change") {
+				drewHeading = true
+				screen.headerLine = row
+				screen.DrawLine(0, row, allLines[row])
+			} else {
+				if row+screen.offset < len(allLines) &&
+					row > screen.headerLine {
+					screen.DrawLine(0, row, allLines[row+screen.offset])
+				}
+			}
+		} else {
+            screen.DrawLine(0, row, allLines[row])
 		}
 	}
 	// If the quotes lines in this cycle are shorter than in the previous

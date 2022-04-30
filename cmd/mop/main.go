@@ -33,6 +33,8 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
    g       Group stocks by advancing/declining issues.
    o       Change column sort order.
    p       Pause market data and stock updates.
+   PgDn    Scroll Down, down arrow key also works.
+   PgUp    Scroll up, up arrow key also works.
    q       Quit mop.
   esc      Ditto.
 
@@ -52,6 +54,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	marketQueue := time.NewTicker(12 * time.Second)
 	showingHelp := false
 	paused := false
+	pgUpDownLines := 10
 
 	go func() {
 		for {
@@ -92,6 +95,14 @@ loop:
 					} else if event.Ch == '?' || event.Ch == 'h' || event.Ch == 'H' {
 						showingHelp = true
 						screen.Clear().Draw(help)
+					} else if event.Key == termbox.KeyPgdn ||
+						event.Key == termbox.KeyArrowDown {
+						screen.IncreaseOffset(pgUpDownLines, len(profile.Tickers))
+						screen.Clear().Draw(market, quotes)
+					} else if event.Key == termbox.KeyPgup ||
+						event.Key == termbox.KeyArrowUp {
+						screen.DecreaseOffset(pgUpDownLines)
+						screen.Clear().Draw(market, quotes)
 					}
 				} else if lineEditor != nil {
 					if done := lineEditor.Handle(event); done {
