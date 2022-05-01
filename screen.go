@@ -106,6 +106,19 @@ func (screen *Screen) DecreaseOffset(n int) {
 	}
 }
 
+func (screen *Screen) ScrollTop() {
+	screen.offset = 0
+}
+
+func (screen *Screen) ScrollBottom(max int) {
+	bottom := max - screen.height + screen.headerLine
+	if bottom > 0 {
+		screen.offset = bottom
+	} else {
+		screen.offset = 0
+	}
+}
+
 // Draw accepts variable number of arguments and knows how to display the
 // market data, stock quotes, current time, and an arbitrary string.
 func (screen *Screen) Draw(objects ...interface{}) *Screen {

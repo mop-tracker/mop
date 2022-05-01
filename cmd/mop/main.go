@@ -114,6 +114,10 @@ loop:
 					} else if event.Key == termbox.KeyArrowDown || event.Ch == 'j' {
 						screen.IncreaseOffset(1, len(profile.Tickers))
 						redrawQuotesFlag = true
+					} else if event.Key == termbox.KeyHome {
+						screen.ScrollTop()
+					} else if event.Key == termbox.KeyEnd {
+						screen.ScrollBottom(len(profile.Tickers))
 					}
 				} else if lineEditor != nil {
 					if done := lineEditor.Handle(event); done {
