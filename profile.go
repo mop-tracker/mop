@@ -31,6 +31,7 @@ type Profile struct {
 	Ascending     bool     // True when sort order is ascending.
 	Grouped       bool     // True when stocks are grouped by advancing/declining.
 	Filter        string   // Filter in human form
+	UpDownJump    int      // Number of lines to go up/down when scrolling.
 	Colors        struct { // User defined colors
 		Gain    string
 		Loss    string
@@ -93,6 +94,10 @@ func NewProfile(filename string) (*Profile, error) {
 	}
 	profile.selectedColumn = -1
 
+	if profile.UpDownJump < 1 {
+		profile.UpDownJump = 10
+	}
+
 	return profile, err
 }
 
@@ -105,6 +110,7 @@ func (profile *Profile) InitDefaultProfile() {
 	profile.SortColumn = 0   // Stock quotes are sorted by ticker name.
 	profile.Ascending = true // A to Z.
 	profile.Filter = ""
+	profile.UpDownJump = 10
 	profile.Colors.Gain = defaultGainColor
 	profile.Colors.Loss = defaultLossColor
 	profile.Colors.Tag = defaultTagColor

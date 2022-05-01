@@ -33,8 +33,8 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
    g       Group stocks by advancing/declining issues.
    o       Change column sort order.
    p       Pause market data and stock updates.
-   PgDn    Scroll Down, down arrow key also works.
-   PgUp    Scroll up, up arrow key also works.
+   Scroll  Scroll up/down.
+   PgUp/PgDn; Up/Down arrow; j/k;J/K also all scroll up/down
    q       Quit mop.
   esc      Ditto.
 
@@ -48,13 +48,18 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	var lineEditor *mop.LineEditor
 	var columnEditor *mop.ColumnEditor
 
-	keyboardQueue := make(chan termbox.Event)
+	termbox.SetInputMode(termbox.InputMouse)
+
+	// use buffered channel for keyboard event queue
+	keyboardQueue := make(chan termbox.Event, 16)
+
 	timestampQueue := time.NewTicker(1 * time.Second)
 	quotesQueue := time.NewTicker(5 * time.Second)
 	marketQueue := time.NewTicker(12 * time.Second)
 	showingHelp := false
 	paused := false
-	pgUpDownLines := 10
+	upDownJump := profile.UpDownJump
+	redrawQuotesFlag := false
 
 	go func() {
 		for {
@@ -96,13 +101,19 @@ loop:
 						showingHelp = true
 						screen.Clear().Draw(help)
 					} else if event.Key == termbox.KeyPgdn ||
-						event.Key == termbox.KeyArrowDown {
-						screen.IncreaseOffset(pgUpDownLines, len(profile.Tickers))
-						screen.Clear().Draw(market, quotes)
+						event.Ch == 'J' {
+						screen.IncreaseOffset(upDownJump, len(profile.Tickers))
+						redrawQuotesFlag = true
 					} else if event.Key == termbox.KeyPgup ||
-						event.Key == termbox.KeyArrowUp {
-						screen.DecreaseOffset(pgUpDownLines)
-						screen.Clear().Draw(market, quotes)
+						event.Ch == 'K' {
+						screen.DecreaseOffset(upDownJump)
+						redrawQuotesFlag = true
+					} else if event.Key == termbox.KeyArrowUp || event.Ch == 'k' {
+						screen.DecreaseOffset(1)
+						redrawQuotesFlag = true
+					} else if event.Key == termbox.KeyArrowDown || event.Ch == 'j' {
+						screen.IncreaseOffset(1, len(profile.Tickers))
+						redrawQuotesFlag = true
 					}
 				} else if lineEditor != nil {
 					if done := lineEditor.Handle(event); done {
@@ -123,6 +134,17 @@ loop:
 				} else {
 					screen.Draw(help)
 				}
+			case termbox.EventMouse:
+				if lineEditor == nil && columnEditor == nil && !showingHelp {
+					switch event.Key {
+					case termbox.MouseWheelUp:
+						screen.DecreaseOffset(1)
+						redrawQuotesFlag = true
+					case termbox.MouseWheelDown:
+						screen.IncreaseOffset(1, len(profile.Tickers))
+						redrawQuotesFlag = true
+					}
+				}
 			}
 
 		case <-timestampQueue.C:
@@ -139,6 +161,10 @@ loop:
 			if !showingHelp && !paused {
 				screen.Draw(market)
 			}
+		}
+
+		if redrawQuotesFlag && len(keyboardQueue) == 0 {
+			screen.Draw(quotes)
 		}
 	}
 }

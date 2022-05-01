@@ -92,7 +92,7 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 // Increase the offset for scrolling feature by n
 // Takes number of tickers as max, so not scrolling down forever
 func (screen *Screen) IncreaseOffset(n int, max int) {
-	if screen.offset+n < max {
+	if screen.offset+n+1 < max {
 		screen.offset += n
 	}
 }
@@ -173,9 +173,9 @@ func (screen *Screen) draw(str string, offset bool) {
 	// Write the lines being updated.
 	for row := 0; row < len(allLines); row++ {
 		if offset {
-            // Did we draw the underlined heading row?  This is a crude
-            // check, but--see comments below...
-            // --- Heading row only appears for quotes, so offset is true
+			// Did we draw the underlined heading row?  This is a crude
+			// check, but--see comments below...
+			// --- Heading row only appears for quotes, so offset is true
 			if strings.Contains(allLines[row], "Ticker") &&
 				strings.Contains(allLines[row], "Last") &&
 				strings.Contains(allLines[row], "Change") {
@@ -189,7 +189,7 @@ func (screen *Screen) draw(str string, offset bool) {
 				}
 			}
 		} else {
-            screen.DrawLine(0, row, allLines[row])
+			screen.DrawLine(0, row, allLines[row])
 		}
 	}
 	// If the quotes lines in this cycle are shorter than in the previous
@@ -205,7 +205,7 @@ func (screen *Screen) draw(str string, offset bool) {
 	// cycle.  In that case, padding with blank lines would overwrite the
 	// stocks list.)
 	if drewHeading {
-		for i := len(allLines) - 1; i < screen.height; i++ {
+		for i := len(allLines) - 1 - screen.offset; i < screen.height; i++ {
 			screen.DrawLine(0, i, blankLine)
 		}
 	}
