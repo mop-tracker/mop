@@ -64,9 +64,8 @@ To clear the filter, press `Shift+F`.
 You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 
 ### Saving & Downloading to CSV
-Please refer to the following guide by contributor @joce to download data displayed in MOP to CSV for use in spreadsheets and other software.
-
-[Pulling Yahoo! Finance data to CSV](https://jocelyn.legau.lt/posts/pulling-yahoo-finance-tickers-to-csv/)
+Please refer to the wiki by contributor @joce: [How to fetch market data from Yahoo! Finance in CSV form, from the command line](https://github.com/mop-tracker/mop/wiki/How-to-fetch-market-data-from-Yahoo!-Finance-in-CSV-form,-from-the-command-line).
+Further information may be found in the following article: [Pulling Yahoo! Finance data to CSV](https://jocelyn.legau.lt/posts/pulling-yahoo-finance-tickers-to-csv/)
 
 ### Contributing
 * Pull requests accepted.
