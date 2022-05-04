@@ -179,6 +179,8 @@ func (screen *Screen) draw(str string, offset bool) {
 	var allLines []string
 	drewHeading := false
 
+	screen.width, screen.height = termbox.Size()
+
 	tempFormat := "%" + strconv.Itoa(screen.width) + "s"
 	blankLine := fmt.Sprintf(tempFormat, "")
 	allLines = strings.Split(str, "\n")
@@ -189,16 +191,23 @@ func (screen *Screen) draw(str string, offset bool) {
 			// Did we draw the underlined heading row?  This is a crude
 			// check, but--see comments below...
 			// --- Heading row only appears for quotes, so offset is true
-			if strings.Contains(allLines[row], "Ticker") &&
-				strings.Contains(allLines[row], "Last") &&
-				strings.Contains(allLines[row], "Change") {
-				drewHeading = true
-				screen.headerLine = row
-				screen.DrawLine(0, row, allLines[row])
+			if !drewHeading {
+				if strings.Contains(allLines[row], "Ticker") &&
+					strings.Contains(allLines[row], "Last") &&
+					strings.Contains(allLines[row], "Change") {
+					drewHeading = true
+					screen.headerLine = row
+					screen.DrawLine(0, row, allLines[row])
+					// move on to the point to offset to
+					row += screen.offset
+				}
 			} else {
-				if row+screen.offset < len(allLines) &&
+				// only write the necessary lines
+				if row <= len(allLines) &&
 					row > screen.headerLine {
-					screen.DrawLine(0, row, allLines[row+screen.offset])
+					screen.DrawLine(0, row-screen.offset, allLines[row])
+				} else if row > len(allLines) {
+					row = len(allLines)
 				}
 			}
 		} else {

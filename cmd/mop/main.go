@@ -51,7 +51,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	termbox.SetInputMode(termbox.InputMouse)
 
 	// use buffered channel for keyboard event queue
-	keyboardQueue := make(chan termbox.Event, 16)
+	keyboardQueue := make(chan termbox.Event, 128)
 
 	timestampQueue := time.NewTicker(1 * time.Second)
 	quotesQueue := time.NewTicker(5 * time.Second)
@@ -142,10 +142,10 @@ loop:
 				if lineEditor == nil && columnEditor == nil && !showingHelp {
 					switch event.Key {
 					case termbox.MouseWheelUp:
-						screen.DecreaseOffset(1)
+						screen.DecreaseOffset(5)
 						redrawQuotesFlag = true
 					case termbox.MouseWheelDown:
-						screen.IncreaseOffset(1, len(profile.Tickers))
+						screen.IncreaseOffset(5, len(profile.Tickers))
 						redrawQuotesFlag = true
 					}
 				}
@@ -169,6 +169,7 @@ loop:
 
 		if redrawQuotesFlag && len(keyboardQueue) == 0 {
 			screen.Draw(quotes)
+			redrawQuotesFlag = false
 		}
 	}
 }
