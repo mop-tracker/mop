@@ -168,7 +168,7 @@ loop:
 		}
 
 		if redrawQuotesFlag && len(keyboardQueue) == 0 {
-			screen.Draw(quotes)
+			screen.DrawOldQuotes(quotes)
 			redrawQuotesFlag = false
 		}
 	}

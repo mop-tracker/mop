@@ -119,6 +119,12 @@ func (screen *Screen) ScrollBottom(max int) {
 	}
 }
 
+func (screen *Screen) DrawOldQuotes(quotes *Quotes) {
+    screen.draw(screen.layout.Quotes(quotes), true)
+    termbox.Flush()
+}
+
+
 // Draw accepts variable number of arguments and knows how to display the
 // market data, stock quotes, current time, and an arbitrary string.
 func (screen *Screen) Draw(objects ...interface{}) *Screen {
