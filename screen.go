@@ -92,7 +92,7 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 // Increase the offset for scrolling feature by n
 // Takes number of tickers as max, so not scrolling down forever
 func (screen *Screen) IncreaseOffset(n int, max int) {
-	if screen.offset + n +1 < max {
+	if screen.offset + n + 1 < max {
 		screen.offset += n
 	}
 }
@@ -121,9 +121,8 @@ func (screen *Screen) ScrollBottom(max int) {
 
 func (screen *Screen) DrawOldQuotes(quotes *Quotes) {
     screen.draw(screen.layout.Quotes(quotes), true)
-    termbox.Flush()
+	termbox.Flush()
 }
-
 
 // Draw accepts variable number of arguments and knows how to display the
 // market data, stock quotes, current time, and an arbitrary string.
@@ -148,14 +147,22 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 		}
 	}
 
-    termbox.Flush()
+	termbox.Flush()
 
 	return screen
 }
 
 // DrawLine takes the incoming string, tokenizes it to extract markup
 // elements, and displays it all starting at (x,y) location.
+
+// DrawLineFlush gives the option to flush screen after drawing
+
+// wrapper for DrawLineFlush
 func (screen *Screen) DrawLine(x int, y int, str string) {
+	screen.DrawLineFlush(x, y, str, true)
+}
+
+func (screen *Screen) DrawLineFlush(x int, y int, str string, flush bool) {
 	start, column := 0, 0
 
 	for _, token := range screen.markup.Tokenize(str) {
@@ -175,31 +182,8 @@ func (screen *Screen) DrawLine(x int, y int, str string) {
 			termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
 		}
 	}
-	termbox.Flush()
-}
-
-// Identical to DrawLine, no flush at the end perhaps should be a part
-//  of DrawLine, with a flush parameter, or a wrapper function could be
-//  used
-func (screen *Screen) DrawLineWithoutFlush(x int, y int, str string) {
-	start, column := 0, 0
-
-	for _, token := range screen.markup.Tokenize(str) {
-		// First check if it's a tag. Tags are eaten up and not displayed.
-		if screen.markup.IsTag(token) {
-			continue
-		}
-
-		// Here comes the actual text: display it one character at a time.
-		for i, char := range token {
-			if !screen.markup.RightAligned {
-				start = x + column
-				column++
-			} else {
-				start = screen.width - len(token) + i
-			}
-			termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
-		}
+	if flush {
+		termbox.Flush()
 	}
 }
 
@@ -230,7 +214,7 @@ func (screen *Screen) draw(str string, offset bool) {
 					strings.Contains(allLines[row], "Change") {
 					drewHeading = true
 					screen.headerLine = row
-					screen.DrawLineWithoutFlush(0, row, allLines[row])
+					screen.DrawLine(0, row, allLines[row])
 					// move on to the point to offset to
 					row += screen.offset
 				}
@@ -238,13 +222,13 @@ func (screen *Screen) draw(str string, offset bool) {
 				// only write the necessary lines
 				if row <= len(allLines) &&
 					row > screen.headerLine {
-					screen.DrawLineWithoutFlush(0, row-screen.offset, allLines[row])
+					screen.DrawLineFlush(0, row-screen.offset, allLines[row], false)
 				} else if row > len(allLines) {
 					row = len(allLines)
 				}
 			}
 		} else {
-			screen.DrawLineWithoutFlush(0, row, allLines[row])
+			screen.DrawLineFlush(0, row, allLines[row], false)
 		}
 	}
 	// If the quotes lines in this cycle are shorter than in the previous
@@ -260,10 +244,10 @@ func (screen *Screen) draw(str string, offset bool) {
 	// cycle.  In that case, padding with blank lines would overwrite the
 	// stocks list.)
 	if drewHeading {
-		for i := len(allLines) - 1 - screen.offset ; i < screen.height; i++ {
-            if i > screen.headerLine {
-                screen.DrawLine(0, i, blankLine)
-            }
+		for i := len(allLines) - 1 - screen.offset; i < screen.height; i++ {
+			if i > screen.headerLine {
+				screen.DrawLine(0, i, blankLine)
+			}
 		}
 	}
 }
