@@ -116,8 +116,10 @@ loop:
 						redrawQuotesFlag = true
 					} else if event.Key == termbox.KeyHome {
 						screen.ScrollTop()
+						redrawQuotesFlag = true
 					} else if event.Key == termbox.KeyEnd {
 						screen.ScrollBottom(len(profile.Tickers))
+						redrawQuotesFlag = true
 					}
 				} else if lineEditor != nil {
 					if done := lineEditor.Handle(event); done {
@@ -158,7 +160,7 @@ loop:
 
 		case <-quotesQueue.C:
 			if !showingHelp && !paused {
-				screen.Draw(quotes)
+				redrawQuotesFlag = true
 			}
 
 		case <-marketQueue.C:

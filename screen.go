@@ -92,7 +92,7 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 // Increase the offset for scrolling feature by n
 // Takes number of tickers as max, so not scrolling down forever
 func (screen *Screen) IncreaseOffset(n int, max int) {
-	if screen.offset + n + 1 < max {
+    if screen.offset + n < max - screen.height + screen.headerLine{
 		screen.offset += n
 	}
 }
