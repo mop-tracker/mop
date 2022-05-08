@@ -69,7 +69,8 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 
 	market := mop.NewMarket()
 	quotes := mop.NewQuotes(market, profile)
-	screen.Draw(market, quotes)
+	screen.Draw(market)
+	screen.Draw(quotes)
 
 loop:
 	for {
@@ -102,7 +103,7 @@ loop:
 						screen.Clear().Draw(help)
 					} else if event.Key == termbox.KeyPgdn ||
 						event.Ch == 'J' {
-						screen.IncreaseOffset(upDownJump, len(profile.Tickers))
+						screen.IncreaseOffset(upDownJump)
 						redrawQuotesFlag = true
 					} else if event.Key == termbox.KeyPgup ||
 						event.Ch == 'K' {
@@ -112,13 +113,13 @@ loop:
 						screen.DecreaseOffset(1)
 						redrawQuotesFlag = true
 					} else if event.Key == termbox.KeyArrowDown || event.Ch == 'j' {
-						screen.IncreaseOffset(1, len(profile.Tickers))
+						screen.IncreaseOffset(1)
 						redrawQuotesFlag = true
 					} else if event.Key == termbox.KeyHome {
 						screen.ScrollTop()
 						redrawQuotesFlag = true
 					} else if event.Key == termbox.KeyEnd {
-						screen.ScrollBottom(len(profile.Tickers))
+						screen.ScrollBottom()
 						redrawQuotesFlag = true
 					}
 				} else if lineEditor != nil {
@@ -136,7 +137,8 @@ loop:
 			case termbox.EventResize:
 				screen.Resize()
 				if !showingHelp {
-					screen.Draw(market, quotes)
+					screen.Draw(market)
+                    redrawQuotesFlag = true
 				} else {
 					screen.Draw(help)
 				}
@@ -147,7 +149,7 @@ loop:
 						screen.DecreaseOffset(5)
 						redrawQuotesFlag = true
 					case termbox.MouseWheelDown:
-						screen.IncreaseOffset(5, len(profile.Tickers))
+						screen.IncreaseOffset(5)
 						redrawQuotesFlag = true
 					}
 				}
@@ -159,8 +161,8 @@ loop:
 			}
 
 		case <-quotesQueue.C:
-			if !showingHelp && !paused {
-				redrawQuotesFlag = true
+			if !showingHelp && !paused && len(keyboardQueue) == 0 {
+				screen.Draw(quotes)
 			}
 
 		case <-marketQueue.C:

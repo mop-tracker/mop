@@ -24,6 +24,7 @@ type Screen struct {
 	pausedAt   *time.Time // Timestamp of the pause request or nil if none.
 	offset     int        // Offset for scolling
 	headerLine int        // Line number of header for scroll feature
+	max        int        // highest offset
 }
 
 // Initializes Termbox, creates screen along with layout and markup, and
@@ -91,10 +92,12 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 
 // Increase the offset for scrolling feature by n
 // Takes number of tickers as max, so not scrolling down forever
-func (screen *Screen) IncreaseOffset(n int, max int) {
-    if screen.offset + n < max - screen.height + screen.headerLine{
+func (screen *Screen) IncreaseOffset(n int) {
+	if screen.offset+n <= screen.max {
 		screen.offset += n
-	}
+	} else if screen.max > screen.height {
+        screen.offset = screen.max
+    }
 }
 
 // Decrease the offset for scrolling feature by n
@@ -110,17 +113,14 @@ func (screen *Screen) ScrollTop() {
 	screen.offset = 0
 }
 
-func (screen *Screen) ScrollBottom(max int) {
-	bottom := max - screen.height + screen.headerLine
-	if bottom > 0 {
-		screen.offset = bottom
-	} else {
-		screen.offset = 0
-	}
+func (screen *Screen) ScrollBottom() {
+    if screen.max > screen.height {
+        screen.offset = screen.max
+    }
 }
 
 func (screen *Screen) DrawOldQuotes(quotes *Quotes) {
-    screen.draw(screen.layout.Quotes(quotes), true)
+	screen.draw(screen.layout.Quotes(quotes), true)
 	termbox.Flush()
 }
 
@@ -201,6 +201,10 @@ func (screen *Screen) draw(str string, offset bool) {
 	tempFormat := "%" + strconv.Itoa(screen.width) + "s"
 	blankLine := fmt.Sprintf(tempFormat, "")
 	allLines = strings.Split(str, "\n")
+
+	if offset {
+		screen.max = len(allLines) - screen.height
+	}
 
 	// Write the lines being updated.
 	for row := 0; row < len(allLines); row++ {
