@@ -138,7 +138,7 @@ loop:
 				screen.Resize()
 				if !showingHelp {
 					screen.Draw(market)
-                    redrawQuotesFlag = true
+					redrawQuotesFlag = true
 				} else {
 					screen.Draw(help)
 				}
@@ -162,7 +162,8 @@ loop:
 
 		case <-quotesQueue.C:
 			if !showingHelp && !paused && len(keyboardQueue) == 0 {
-				screen.Draw(quotes)
+				go quotes.Fetch()
+				redrawQuotesFlag = true
 			}
 
 		case <-marketQueue.C:
