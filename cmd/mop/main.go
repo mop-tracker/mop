@@ -60,6 +60,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	paused := false
 	upDownJump := profile.UpDownJump
 	redrawQuotesFlag := false
+	redrawMarketFlag := false
 
 	go func() {
 		for {
@@ -137,8 +138,12 @@ loop:
 			case termbox.EventResize:
 				screen.Resize()
 				if !showingHelp {
-					screen.Draw(market)
+					//screen.Draw(market)
+					//redrawQuotesFlag = true
+					//screen.Draw(market)
 					redrawQuotesFlag = true
+					redrawMarketFlag = true
+					//screen.DrawOldQuotes(quotes)
 				} else {
 					screen.Draw(help)
 				}
@@ -175,6 +180,10 @@ loop:
 		if redrawQuotesFlag && len(keyboardQueue) == 0 {
 			screen.DrawOldQuotes(quotes)
 			redrawQuotesFlag = false
+		}
+		if redrawMarketFlag && len(keyboardQueue) == 0 {
+			screen.Draw(market)
+			redrawMarketFlag = false
 		}
 	}
 }

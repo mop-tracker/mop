@@ -96,8 +96,8 @@ func (screen *Screen) IncreaseOffset(n int) {
 	if screen.offset+n <= screen.max {
 		screen.offset += n
 	} else if screen.max > screen.height {
-        screen.offset = screen.max
-    }
+		screen.offset = screen.max
+	}
 }
 
 // Decrease the offset for scrolling feature by n
@@ -114,13 +114,18 @@ func (screen *Screen) ScrollTop() {
 }
 
 func (screen *Screen) ScrollBottom() {
-    if screen.max > screen.height {
-        screen.offset = screen.max
-    }
+	if screen.max > screen.height {
+		screen.offset = screen.max
+	}
 }
 
 func (screen *Screen) DrawOldQuotes(quotes *Quotes) {
 	screen.draw(screen.layout.Quotes(quotes), true)
+	termbox.Flush()
+}
+
+func (screen *Screen) DrawOldMarket(market *Market) {
+	screen.draw(screen.layout.Market(market), false)
 	termbox.Flush()
 }
 
