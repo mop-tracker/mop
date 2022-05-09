@@ -232,7 +232,7 @@ func (screen *Screen) draw(str string, offset bool) {
 				if row <= len(allLines) &&
 					row > screen.headerLine {
 					screen.DrawLineFlush(0, row-screen.offset, allLines[row], false)
-				} else if row > len(allLines) {
+				} else if row > len(allLines) + 1 {
 					row = len(allLines)
 				}
 			}
