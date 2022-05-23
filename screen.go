@@ -208,7 +208,7 @@ func (screen *Screen) draw(str string, offset bool) {
 	allLines = strings.Split(str, "\n")
 
 	if offset {
-		screen.max = len(allLines) - screen.height
+		screen.max = len(allLines) - screen.height + screen.headerLine
 	}
 
 	// Write the lines being updated.
