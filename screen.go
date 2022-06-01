@@ -16,12 +16,15 @@ import (
 // Screen is thin wrapper around Termbox library to provide basic display
 // capabilities as required by Mop.
 type Screen struct {
-	width    int        // Current number of columns.
-	height   int        // Current number of rows.
-	cleared  bool       // True after the screens gets cleared.
-	layout   *Layout    // Pointer to layout (gets created by screen).
-	markup   *Markup    // Pointer to markup processor (gets created by screen).
-	pausedAt *time.Time // Timestamp of the pause request or nil if none.
+	width      int        // Current number of columns.
+	height     int        // Current number of rows.
+	cleared    bool       // True after the screens gets cleared.
+	layout     *Layout    // Pointer to layout (gets created by screen).
+	markup     *Markup    // Pointer to markup processor (gets created by screen).
+	pausedAt   *time.Time // Timestamp of the pause request or nil if none.
+	offset     int        // Offset for scolling
+	headerLine int        // Line number of header for scroll feature
+	max        int        // highest offset
 }
 
 // Initializes Termbox, creates screen along with layout and markup, and
@@ -34,6 +37,7 @@ func NewScreen(profile *Profile) *Screen {
 	screen := &Screen{}
 	screen.layout = NewLayout()
 	screen.markup = NewMarkup(profile)
+	screen.offset = 0
 
 	return screen.Resize()
 }
@@ -86,6 +90,45 @@ func (screen *Screen) ClearLine(x int, y int) *Screen {
 	return screen
 }
 
+// Increase the offset for scrolling feature by n
+// Takes number of tickers as max, so not scrolling down forever
+func (screen *Screen) IncreaseOffset(n int) {
+	if screen.offset+n <= screen.max {
+		screen.offset += n
+	} else if screen.max > screen.height {
+		screen.offset = screen.max
+	}
+}
+
+// Decrease the offset for scrolling feature by n
+func (screen *Screen) DecreaseOffset(n int) {
+	if screen.offset > n {
+		screen.offset -= n
+	} else {
+		screen.offset = 0
+	}
+}
+
+func (screen *Screen) ScrollTop() {
+	screen.offset = 0
+}
+
+func (screen *Screen) ScrollBottom() {
+	if screen.max > screen.height {
+		screen.offset = screen.max
+	}
+}
+
+func (screen *Screen) DrawOldQuotes(quotes *Quotes) {
+	screen.draw(screen.layout.Quotes(quotes), true)
+	termbox.Flush()
+}
+
+func (screen *Screen) DrawOldMarket(market *Market) {
+	screen.draw(screen.layout.Market(market), false)
+	termbox.Flush()
+}
+
 // Draw accepts variable number of arguments and knows how to display the
 // market data, stock quotes, current time, and an arbitrary string.
 func (screen *Screen) Draw(objects ...interface{}) *Screen {
@@ -97,24 +140,34 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 		switch ptr.(type) {
 		case *Market:
 			object := ptr.(*Market)
-			screen.draw(screen.layout.Market(object.Fetch()))
+			screen.draw(screen.layout.Market(object.Fetch()), false)
 		case *Quotes:
 			object := ptr.(*Quotes)
-			screen.draw(screen.layout.Quotes(object.Fetch()))
+			screen.draw(screen.layout.Quotes(object.Fetch()), true)
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm ` + zonename)
 			screen.DrawLine(0, 0, `<right><time>`+timestamp+`</></right>`)
 		default:
-			screen.draw(ptr.(string))
+			screen.draw(ptr.(string), false)
 		}
 	}
+
+	termbox.Flush()
 
 	return screen
 }
 
 // DrawLine takes the incoming string, tokenizes it to extract markup
 // elements, and displays it all starting at (x,y) location.
+
+// DrawLineFlush gives the option to flush screen after drawing
+
+// wrapper for DrawLineFlush
 func (screen *Screen) DrawLine(x int, y int, str string) {
+	screen.DrawLineFlush(x, y, str, true)
+}
+
+func (screen *Screen) DrawLineFlush(x int, y int, str string, flush bool) {
 	start, column := 0, 0
 
 	for _, token := range screen.markup.Tokenize(str) {
@@ -134,31 +187,57 @@ func (screen *Screen) DrawLine(x int, y int, str string) {
 			termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
 		}
 	}
-	termbox.Flush()
+	if flush {
+		termbox.Flush()
+	}
 }
 
 // Underlying workhorse function that takes multiline string, splits it into
 // lines, and displays them row by row.
-func (screen *Screen) draw(str string) {
+func (screen *Screen) draw(str string, offset bool) {
 	if !screen.cleared {
 		screen.Clear()
 	}
 	var allLines []string
 	drewHeading := false
 
+	screen.width, screen.height = termbox.Size()
+
 	tempFormat := "%" + strconv.Itoa(screen.width) + "s"
 	blankLine := fmt.Sprintf(tempFormat, "")
 	allLines = strings.Split(str, "\n")
 
+	if offset {
+		screen.max = len(allLines) - screen.height + screen.headerLine
+	}
+
 	// Write the lines being updated.
 	for row := 0; row < len(allLines); row++ {
-		screen.DrawLine(0, row, allLines[row])
-		// Did we draw the underlined heading row?  This is a crude
-		// check, but--see comments below...
-		if strings.Contains(allLines[row], "Ticker") &&
-			strings.Contains(allLines[row], "Last") &&
-			strings.Contains(allLines[row], "Change") {
-			drewHeading = true
+		if offset {
+			// Did we draw the underlined heading row?  This is a crude
+			// check, but--see comments below...
+			// --- Heading row only appears for quotes, so offset is true
+			if !drewHeading {
+				if strings.Contains(allLines[row], "Ticker") &&
+					strings.Contains(allLines[row], "Last") &&
+					strings.Contains(allLines[row], "Change") {
+					drewHeading = true
+					screen.headerLine = row
+					screen.DrawLine(0, row, allLines[row])
+					// move on to the point to offset to
+					row += screen.offset
+				}
+			} else {
+				// only write the necessary lines
+				if row <= len(allLines) &&
+					row > screen.headerLine {
+					screen.DrawLineFlush(0, row-screen.offset, allLines[row], false)
+				} else if row > len(allLines) + 1 {
+					row = len(allLines)
+				}
+			}
+		} else {
+			screen.DrawLineFlush(0, row, allLines[row], false)
 		}
 	}
 	// If the quotes lines in this cycle are shorter than in the previous
@@ -174,8 +253,10 @@ func (screen *Screen) draw(str string) {
 	// cycle.  In that case, padding with blank lines would overwrite the
 	// stocks list.)
 	if drewHeading {
-		for i := len(allLines) - 1; i < screen.height; i++ {
-			screen.DrawLine(0, i, blankLine)
+		for i := len(allLines) - 1 - screen.offset; i < screen.height; i++ {
+			if i > screen.headerLine {
+				screen.DrawLine(0, i, blankLine)
+			}
 		}
 	}
 }

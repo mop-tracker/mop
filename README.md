@@ -37,6 +37,8 @@ For demonstration purposes Mop comes preconfigured with a number of stock ticker
     g       Group stocks by advancing/declining issues.
     f       Set a filtering expression.
     F       Unset a filtering expression.
+    PgDn    Scroll Down, down arrow key also works.
+    PgUp    Scroll up, up arrow key also works.
     ?       Display help screen.
     esc     Quit mop.
 
