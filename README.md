@@ -3,21 +3,7 @@ A command-line utility that displays continuous up-to-date information about sel
 
 ![image](https://user-images.githubusercontent.com/12674437/144474220-5f35f893-6860-4ba5-9c3a-58b80df16255.png)
 
-### Downloading mop
-
-<!-- #### ready-to-use program
-
-```
-https://github.com/mop-tracker/mop/releases/download/v1.0.0/mop.exe
-```
--->
-#### source code
-
-```
-https://github.com/mop-tracker/mop/releases/tag/v1.0.0
-```
-
-#### Installing mop from source
+### Installing mop from source
 
 Ensure GO language is installed. Download from: https://go.dev/dl/ and the $GOPATH is set then:
 
