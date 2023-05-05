@@ -15,9 +15,11 @@ import (
 	"strings"
 )
 
-// const quotesURL = `http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=sl1c1p2oghjkva2r2rdyj3j1`
-const quotesURLv7 = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s`
-const quotesURLv7QueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
+// Ongoing issue with Yahoo API version
+// const quotesURLv7 = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s`
+const quotesURL = `https://query1.finance.yahoo.com/v6/finance/quote?symbols=%s`
+// const quotesURLv7QueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
+const quotesURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 
 const noDataIndicator = `N/A`
 
@@ -78,8 +80,8 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 			}
 		}()
 
-		url := fmt.Sprintf(quotesURLv7, strings.Join(quotes.profile.Tickers, `,`))
-		response, err := http.Get(url + quotesURLv7QueryParts)
+		url := fmt.Sprintf(quotesURL, strings.Join(quotes.profile.Tickers, `,`))
+		response, err := http.Get(url + quotesURLQueryParts)
 		if err != nil {
 			panic(err)
 		}

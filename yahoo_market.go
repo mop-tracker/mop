@@ -11,7 +11,8 @@ import (
 	"encoding/json"
 )
 
-const marketURL = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s`
+// Ongoing issue with Yahoo API version
+const marketURL = `https://query1.finance.yahoo.com/v6/finance/quote?symbols=%s`
 const marketURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 
 // Market stores current market information displayed in the top three lines of
