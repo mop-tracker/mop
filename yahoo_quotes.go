@@ -15,9 +15,17 @@ import (
 	"strings"
 )
 
+// https://query1.finance.yahoo.com/v8/finance/chart/AAPL?region=US&lang=en-US&includePrePost=false&interval=2m&useYfid=true&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance
+
+// https://query2.finance.yahoo.com/v7/finance/quote?symbols=AAPL&formatted=true&crumb=kMlYCsQaDFr&lang=en-US&region=US&corsDomain=finance.yahoo.com&fields=exchangeTimezoneName%2CexchangeTimezoneShortName%2CregularMarketTime%2CgmtOffSetMilliseconds
+
+// https://query1.finance.yahoo.com/v1/test/getcrumb
+
 // Ongoing issue with Yahoo API version
 // const quotesURLv7 = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s`
-const quotesURL = `https://query1.finance.yahoo.com/v6/finance/quote?symbols=%s`
+// //const quotesURL = `https://query1.finance.yahoo.com/v6/finance/quote?symbols=%s`
+const quotesURL = `https://query2.finance.yahoo.com/v7/finance/quote?crumb=kMlYCsQaDFr&symbols=%s`
+
 // const quotesURLv7QueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 const quotesURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 
@@ -44,7 +52,7 @@ type Stock struct {
 	MarketCap  string `json:"marketCap"`                   // j3: market cap real time.
 	MarketCapX string `json:"marketCap"`                   // j1: market cap (fallback when real time is N/A).
 	Currency   string `json:"currency"`                    // String code for currency of stock.
-	Direction  int     // -1 when change is < $0, 0 when change is = $0, 1 when change is > $0.
+	Direction  int    // -1 when change is < $0, 0 when change is = $0, 1 when change is > $0.
 	PreOpen    string `json:"preMarketChangePercent,omitempty"`
 	AfterHours string `json:"postMarketChangePercent,omitempty"`
 }
@@ -81,7 +89,36 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 		}()
 
 		url := fmt.Sprintf(quotesURL, strings.Join(quotes.profile.Tickers, `,`))
-		response, err := http.Get(url + quotesURLQueryParts)
+
+		client := http.Client{}
+		request, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		request.Header = http.Header{
+			"Accept": {"application/json"},
+			// TODO: handle compressed responses
+			// "Accept-Encoding": {"gzip, deflate, br"},
+			"Accept-Language": {"en-US,en;q=0.5"},
+			// "Cache-Control":   {"no-cache"},
+			"Connection":   {"keep-alive"},
+			"Content-Type": {"application/json"},
+			// TODO: Cookie appears to contain the auth key now.  Need to find out where it gets set.
+			"Cookie": {"A1=d=AQABBFB6cWQCELQ4s6JOxQKTKNPvBOFxDqUFEgEBAQHLcmR7ZNxW0iMA_eMAAA&S=AQAAAq1FEm1oxGDI_QKzTM7o4Xk; A3=d=AQABBFB6cWQCELQ4s6JOxQKTKNPvBOFxDqUFEgEBAQHLcmR7ZNxW0iMA_eMAAA&S=AQAAAq1FEm1oxGDI_QKzTM7o4Xk; A1S=d=AQABBFB6cWQCELQ4s6JOxQKTKNPvBOFxDqUFEgEBAQHLcmR7ZNxW0iMA_eMAAA&S=AQAAAq1FEm1oxGDI_QKzTM7o4Xk&j=US; PRF=t%3DAAPL%26newChartbetateaser%3D0%252C1686368084930"},
+			"Host":   {"query2.finance.yahoo.com"},
+			"Origin": {"https://finance.yahoo.com"},
+			// "Pragma":          {"no-cache"},
+			"Referer":        {"https://finance.yahoo.com/"},
+			"Sec-Fetch-Dest": {"empty"},
+			"Sec-Fetch-Mode": {"cors"},
+			"Sec-Fetch-Site": {"same-site"},
+			"TE":             {"trailers"},
+			"User-Agent":     {"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"},
+		}
+
+		response, err := client.Do(request)
+		// response, err := http.Get(url + quotesURLQueryParts)
 		if err != nil {
 			panic(err)
 		}
@@ -240,7 +277,7 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 		if err == nil {
 			if adv < 0 {
 				quotes.stocks[i].Direction = -1
-			} else if (adv > 0) {
+			} else if adv > 0 {
 				quotes.stocks[i].Direction = 1
 			}
 		}
@@ -249,7 +286,7 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 	return quotes
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func sanitize(body []byte) []byte {
 	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
 }
