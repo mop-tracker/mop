@@ -1,5 +1,5 @@
 ### mop: track stocks the hacker way
-A command-line utility that displays continuous up-to-date information about select markets and individual stocks.
+A command-line utility that displays current information on select markets and individual stocks.
 
 ![image](https://user-images.githubusercontent.com/12674437/144474220-5f35f893-6860-4ba5-9c3a-58b80df16255.png)
 
