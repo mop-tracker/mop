@@ -15,6 +15,8 @@ go build ./cmd/mop
 ```
 
 ### Using mop
+By default, Mop refreshes quotes and market data on a 5 minute (600s) interval.  These values can be changed in the .moprc file.
+
 For demonstration purposes Mop comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
 
     +       Add stocks to the list.
