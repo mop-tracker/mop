@@ -21,7 +21,7 @@ import (
 // File name in user's home directory where we store the settings.
 const defaultProfile = `.moprc`
 
-const help = `Mop v1.0.0 -- Copyright (c) 2013-2022 by Michael Dvorkin. All Rights Reserved.
+const help = `Mop v1.0.0 -- Copyright (c) 2013-2023 by Michael Dvorkin and contributors. All Rights Reserved.
 NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 
 <u>Command</u>    <u>Description                                </u>
@@ -43,7 +43,7 @@ Enter comma-delimited list of stock tickers when prompted.
 <r> Press any key to continue </r>
 `
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	var lineEditor *mop.LineEditor
 	var columnEditor *mop.ColumnEditor
@@ -54,8 +54,8 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	keyboardQueue := make(chan termbox.Event, 128)
 
 	timestampQueue := time.NewTicker(1 * time.Second)
-	quotesQueue := time.NewTicker(5 * time.Second)
-	marketQueue := time.NewTicker(12 * time.Second)
+	quotesQueue := time.NewTicker(time.Duration(profile.QuotesRefresh) * time.Second)
+	marketQueue := time.NewTicker(time.Duration(profile.MarketRefresh) * time.Second)
 	showingHelp := false
 	paused := false
 	upDownJump := profile.UpDownJump
@@ -188,7 +188,7 @@ loop:
 	}
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func main() {
 	usr, err := user.Current()
 	if err != nil {
