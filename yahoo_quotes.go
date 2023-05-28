@@ -15,9 +15,8 @@ import (
 	"strings"
 )
 
-// Ongoing issue with Yahoo API version
-// const quotesURLv7 = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s`
-const quotesURL = `https://query1.finance.yahoo.com/v6/finance/quote?symbols=%s`
+const quotesURL = `https://query1.finance.yahoo.com/v7/finance/quote?crumb=%s&symbols=%s`
+
 // const quotesURLv7QueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 const quotesURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 
@@ -44,7 +43,7 @@ type Stock struct {
 	MarketCap  string `json:"marketCap"`                   // j3: market cap real time.
 	MarketCapX string `json:"marketCap"`                   // j1: market cap (fallback when real time is N/A).
 	Currency   string `json:"currency"`                    // String code for currency of stock.
-	Direction  int     // -1 when change is < $0, 0 when change is = $0, 1 when change is > $0.
+	Direction  int    // -1 when change is < $0, 0 when change is = $0, 1 when change is > $0.
 	PreOpen    string `json:"preMarketChangePercent,omitempty"`
 	AfterHours string `json:"postMarketChangePercent,omitempty"`
 }
@@ -80,8 +79,33 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 			}
 		}()
 
-		url := fmt.Sprintf(quotesURL, strings.Join(quotes.profile.Tickers, `,`))
-		response, err := http.Get(url + quotesURLQueryParts)
+		cookies := fetchCookies()
+		url := fmt.Sprintf(quotesURL, fetchCrumb(cookies), strings.Join(quotes.profile.Tickers, `,`))
+
+		client := http.Client{}
+		request, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		request.Header = http.Header{
+			"Accept":          {"*/*"},
+			"Accept-Language": {"en-US,en;q=0.5"},
+			"Connection":      {"keep-alive"},
+			"Content-Type":    {"application/json"},
+			"Cookie":          {cookies},
+			"Host":            {"query1.finance.yahoo.com"},
+			"Origin":          {"https://finance.yahoo.com"},
+			"Referer":         {"https://finance.yahoo.com"},
+			"Sec-Fetch-Dest":  {"empty"},
+			"Sec-Fetch-Mode":  {"cors"},
+			"Sec-Fetch-Site":  {"same-site"},
+			"TE":              {"trailers"},
+			"User-Agent":      {userAgent},
+		}
+
+		response, err := client.Do(request)
+		// response, err := http.Get(url + quotesURLQueryParts)
 		if err != nil {
 			panic(err)
 		}
@@ -240,7 +264,7 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 		if err == nil {
 			if adv < 0 {
 				quotes.stocks[i].Direction = -1
-			} else if (adv > 0) {
+			} else if adv > 0 {
 				quotes.stocks[i].Direction = 1
 			}
 		}
@@ -249,7 +273,7 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 	return quotes
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func sanitize(body []byte) []byte {
 	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
 }
