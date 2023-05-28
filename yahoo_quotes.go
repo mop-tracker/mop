@@ -79,8 +79,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 			}
 		}()
 
-		cookies := fetchCookies()
-		url := fmt.Sprintf(quotesURL, fetchCrumb(cookies), strings.Join(quotes.profile.Tickers, `,`))
+		url := fmt.Sprintf(quotesURL, quotes.market.crumb, strings.Join(quotes.profile.Tickers, `,`))
 
 		client := http.Client{}
 		request, err := http.NewRequest("GET", url, nil)
@@ -93,7 +92,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 			"Accept-Language": {"en-US,en;q=0.5"},
 			"Connection":      {"keep-alive"},
 			"Content-Type":    {"application/json"},
-			"Cookie":          {cookies},
+			"Cookie":          {quotes.market.cookies},
 			"Host":            {"query1.finance.yahoo.com"},
 			"Origin":          {"https://finance.yahoo.com"},
 			"Referer":         {"https://finance.yahoo.com"},
