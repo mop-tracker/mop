@@ -88,7 +88,7 @@ func (market *Market) Fetch() (self *Market) {
 		"Connection":      {"keep-alive"},
 		"Content-Type":    {"application/json"},
 		"Cookie":          {market.cookies},
-		"Host":            {"query2.finance.yahoo.com"},
+		"Host":            {"query1.finance.yahoo.com"},
 		"Origin":          {"https://finance.yahoo.com"},
 		"Referer":         {"https://finance.yahoo.com"},
 		"Sec-Fetch-Dest":  {"empty"},

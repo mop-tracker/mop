@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-const quotesURL = `https://query2.finance.yahoo.com/v7/finance/quote?crumb=%s&symbols=%s`
+const quotesURL = `https://query1.finance.yahoo.com/v7/finance/quote?crumb=%s&symbols=%s`
 
 // const quotesURLv7QueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 const quotesURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
@@ -94,7 +94,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 			"Connection":      {"keep-alive"},
 			"Content-Type":    {"application/json"},
 			"Cookie":          {cookies},
-			"Host":            {"query2.finance.yahoo.com"},
+			"Host":            {"query1.finance.yahoo.com"},
 			"Origin":          {"https://finance.yahoo.com"},
 			"Referer":         {"https://finance.yahoo.com"},
 			"Sec-Fetch-Dest":  {"empty"},
