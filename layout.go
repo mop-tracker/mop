@@ -140,9 +140,23 @@ func (layout *Layout) TotalColumns() int {
 	return len(layout.columns)
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (layout *Layout) prettify(quotes *Quotes) []Stock {
 	pretty := make([]Stock, len(quotes.stocks))
+
+	//
+	// Iterate over the list of stocks to get the longest ticker name (some tickers will exceed the allotted 10 char length for the Ticker column)
+	// Save the longest ticker length and use max(longestlength, column.width) later in the second loop to keep the ticker indentations consistent
+	//
+	tickerWidth := 0
+	for _, stock := range quotes.stocks {
+		value := reflect.ValueOf(&stock).Elem().FieldByName(`Ticker`).String()
+		currentLength := len(value)
+		if currentLength > tickerWidth {
+			tickerWidth = currentLength
+		}
+	}
+
 	//
 	// Iterate over the list of stocks and properly format all its columns.
 	//
@@ -162,6 +176,9 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 				value = column.formatter(value, stock.Currency)
 			}
 			// ex. pretty[i].Change = layout.pad(value, 10)
+			if column.name == `Ticker` && (0-tickerWidth) < column.width {
+				column.width = (0 - tickerWidth)
+			}
 			reflect.ValueOf(&pretty[i]).Elem().FieldByName(column.name).SetString(layout.pad(value, column.width))
 		}
 	}
@@ -192,7 +209,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 	return pretty
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (layout *Layout) pad(str string, width int) string {
 	match := layout.regex.FindStringSubmatch(str)
 	if len(match) > 0 {
@@ -207,7 +224,7 @@ func (layout *Layout) pad(str string, width int) string {
 	return fmt.Sprintf(`%*s`, width, str)
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func buildMarketTemplate() *template.Template {
 	markup := `<tag>Dow</> {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}} <tag>S&P 500</> {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}} <tag>NASDAQ</> {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
 <tag>Tokyo</> {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}} <tag>HK</> {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}} <tag>London</> {{.London.change}} ({{.London.percent}}) at {{.London.latest}} <tag>Frankfurt</> {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
@@ -216,7 +233,7 @@ func buildMarketTemplate() *template.Template {
 	return template.Must(template.New(`market`).Parse(markup))
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func buildQuotesTemplate() *template.Template {
 	markup := `<right><time>{{.Now}}</></right>
 
@@ -229,7 +246,7 @@ func buildQuotesTemplate() *template.Template {
 	return template.Must(template.New(`quotes`).Parse(markup))
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func highlight(collections ...map[string]string) {
 	for _, collection := range collections {
 		change := collection[`change`]
@@ -247,7 +264,7 @@ func highlight(collections ...map[string]string) {
 	}
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func group(stocks []Stock) []Stock {
 	grouped := make([]Stock, len(stocks))
 	current := 0
@@ -268,7 +285,7 @@ func group(stocks []Stock) []Stock {
 	return grouped
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func arrowFor(column int, profile *Profile) string {
 	if column == profile.SortColumn {
 		if profile.Ascending {
@@ -279,7 +296,7 @@ func arrowFor(column int, profile *Profile) string {
 	return ``
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func blank(str ...string) string {
 	if len(str) < 1 {
 		return "ERR"
@@ -291,7 +308,7 @@ func blank(str ...string) string {
 	return str[0]
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func zero(str ...string) string {
 	if len(str) < 2 {
 		return "ERR"
@@ -303,7 +320,7 @@ func zero(str ...string) string {
 	return currency(str[0], str[1])
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func last(str ...string) string {
 	if len(str) < 1 {
 		return "ERR"
@@ -315,7 +332,7 @@ func last(str ...string) string {
 	return percent(str[0])
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func currency(str ...string) string {
 	if len(str) < 2 {
 		return "ERR"
@@ -337,7 +354,7 @@ func currency(str ...string) string {
 }
 
 // Returns percent value truncated at 2 decimal points.
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func percent(str ...string) string {
 	if len(str) < 1 {
 		return "ERR"
@@ -361,7 +378,7 @@ func percent(str ...string) string {
 }
 
 // Returns value as integer (no trailing digits after a '.').
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func integer(str ...string) string {
 	if len(str) < 1 {
 		return "ERR"
