@@ -25,19 +25,21 @@ const help = `Mop v1.0.0 -- Copyright (c) 2013-2023 by Michael Dvorkin and contr
 NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
 
 <u>Command</u>    <u>Description                                </u>
-   +       Add stocks to the list.
-   -       Remove stocks from the list.
-   ?       Display this help screen.
-   f       Set filtering expression.
-   F       Unset filtering expression.
-   g       Group stocks by advancing/declining issues.
-   o       Change column sort order.
-   p       Pause market data and stock updates.
-   Scroll  Scroll up/down.
-   PgUp/PgDn; Up/Down arrow; j/k;J/K also all scroll up/down
-   t       Toggle timestamp on/off
-   q       Quit mop.
-  esc      Ditto.
+   +                  Add stocks to list
+   -                  Remove stocks from list
+   ? h H              Display this help screen
+   f                  Set filtering expression
+   F                  Unset filtering expression
+   g G                Group stocks by advancing/declining issues
+   o                  Change column sort order
+   p P                Pause market data and stock updates
+   t                  Toggle timestamp on/off
+   Mouse Scroll       Scroll up/down
+   PgUp/PgDn          Scroll up/down
+   Up/Down arrows     Scroll up
+   j J                Scroll up
+   k K                Scroll down
+   q esc              Quit mop
 
 Enter comma-delimited list of stock tickers when prompted.
 

@@ -17,20 +17,35 @@ go build ./cmd/mop
 ### Using mop
 By default, mop refreshes quotes and market data on a 5 minute (600s) interval.  These values can be changed in the .moprc file.
 
-For demonstration purposes Mop comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
+For demonstration purposes mop comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
 
-    +       Add stocks to the list.
-    -       Remove stocks from the list.
-    o       Change column sort order.
-    g       Group stocks by advancing/declining issues.
-    f       Set a filtering expression.
-    F       Unset a filtering expression.
-    PgDn    Scroll Down, down arrow key also works.
-    PgUp    Scroll up, up arrow key also works.
-    ?       Display help screen.
-    esc     Quit mop.
+```
+   +                  Add stocks to list
+   -                  Remove stocks from list
+   ? h H              Display this help screen
+   f                  Set filtering expression
+   F                  Unset filtering expression
+   g G                Group stocks by advancing/declining issues
+   o                  Change column sort order
+   p P                Pause market data and stock updates
+   t                  Toggle timestamp on/off
+   Mouse Scroll       Scroll up/down
+   PgUp/PgDn          Scroll up/down
+   Up/Down arrows     Scroll up
+   j J                Scroll up
+   k K                Scroll down
+   q esc              Quit mop
+```
 
-When prompted please enter comma-delimited list of stock tickers. The list and other settings are stored in the profile file (default: ``.moprc`` in your ``$HOME`` directory)
+When prompted please enter comma-delimited list of stock tickers.
+
+The list and other settings are stored in the profile file (default: ``.moprc`` in your ``$HOME`` directory).
+
+### No Timestamp
+![image](https://github.com/mop-tracker/mop/assets/12674437/f753ce40-c9b2-4ed1-bf51-2a79c83f3f1c)
+
+### With Timestamp
+![image](https://github.com/mop-tracker/mop/assets/12674437/8d732111-d25a-425f-bdbf-f0ada6e04b75)
 
 ### Expression-based Filtering
 Mop has an in realtime expression-based filtering engine that is very easy to use.
