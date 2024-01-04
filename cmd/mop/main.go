@@ -35,6 +35,7 @@ NO WARRANTIES OF ANY KIND WHATSOEVER. SEE THE LICENSE FILE FOR DETAILS.
    p       Pause market data and stock updates.
    Scroll  Scroll up/down.
    PgUp/PgDn; Up/Down arrow; j/k;J/K also all scroll up/down
+   t       Toggle timestamp on/off
    q       Quit mop.
   esc      Ditto.
 
@@ -58,6 +59,7 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	marketQueue := time.NewTicker(time.Duration(profile.MarketRefresh) * time.Second)
 	showingHelp := false
 	paused := false
+	showingTimestamp := profile.ShowTimestamp
 	upDownJump := profile.UpDownJump
 	redrawQuotesFlag := false
 	redrawMarketFlag := false
@@ -122,6 +124,11 @@ loop:
 					} else if event.Key == termbox.KeyEnd {
 						screen.ScrollBottom()
 						redrawQuotesFlag = true
+					} else if event.Ch == 't' || event.Ch == 'T' {
+						if profile.ToggleTimestamp() == nil {
+							showingTimestamp = !showingTimestamp
+							screen.Clear().Draw(market, quotes)
+						}
 					}
 				} else if lineEditor != nil {
 					if done := lineEditor.Handle(event); done {
@@ -161,7 +168,7 @@ loop:
 			}
 
 		case <-timestampQueue.C:
-			if !showingHelp && !paused {
+			if !showingHelp && !paused && showingTimestamp {
 				screen.Draw(time.Now())
 			}
 

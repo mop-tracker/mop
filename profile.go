@@ -40,6 +40,7 @@ type Profile struct {
 		Time    string
 		Default string
 	}
+	ShowTimestamp    bool                           // Show or hide current time in the top right of the screen
 	filterExpression *govaluate.EvaluableExpression // The filter as a govaluate expression
 	selectedColumn   int                            // Stores selected column number when the column editor is active.
 	filename         string                         // Path to the file in which the configuration is stored
@@ -117,6 +118,7 @@ func (profile *Profile) InitDefaultProfile() {
 	profile.Colors.Header = defaultHeaderColor
 	profile.Colors.Time = defaultTimeColor
 	profile.Colors.Default = defaultColor
+	profile.ShowTimestamp = false
 	profile.Save()
 }
 
@@ -220,4 +222,9 @@ func (profile *Profile) SetFilter(filter string) {
 	}
 
 	profile.Filter = filter
+}
+
+func (profile *Profile) ToggleTimestamp() error {
+	profile.ShowTimestamp = !profile.ShowTimestamp
+	return profile.Save()
 }

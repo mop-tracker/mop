@@ -146,7 +146,7 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 			screen.draw(screen.layout.Quotes(object.Fetch()), true)
 		case time.Time:
 			timestamp := ptr.(time.Time).Format(`3:04:05pm ` + zonename)
-			screen.DrawLine(0, 0, `<right><time>`+timestamp+`</></right>`)
+			screen.DrawLineInverted(0, 0, `<right><time>`+timestamp+`</></right>`)
 		default:
 			screen.draw(ptr.(string), false)
 		}
@@ -167,6 +167,10 @@ func (screen *Screen) DrawLine(x int, y int, str string) {
 	screen.DrawLineFlush(x, y, str, true)
 }
 
+func (screen *Screen) DrawLineInverted(x int, y int, str string) {
+	screen.DrawLineFlushInverted(x, y, str, true)
+}
+
 func (screen *Screen) DrawLineFlush(x int, y int, str string, flush bool) {
 	start, column := 0, 0
 
@@ -185,6 +189,31 @@ func (screen *Screen) DrawLineFlush(x int, y int, str string, flush bool) {
 				start = screen.width - len(token) + i
 			}
 			termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
+		}
+	}
+	if flush {
+		termbox.Flush()
+	}
+}
+
+func (screen *Screen) DrawLineFlushInverted(x int, y int, str string, flush bool) {
+	start, column := 0, 0
+
+	for _, token := range screen.markup.Tokenize(str) {
+		// First check if it's a tag. Tags are eaten up and not displayed.
+		if screen.markup.IsTag(token) {
+			continue
+		}
+
+		// Here comes the actual text: display it one character at a time.
+		for i, char := range token {
+			if !screen.markup.RightAligned {
+				start = x + column
+				column++
+			} else {
+				start = screen.width - len(token) + i
+			}
+			termbox.SetCell(start, y, char, screen.markup.tags[`black`], screen.markup.Foreground)
 		}
 	}
 	if flush {
@@ -232,7 +261,7 @@ func (screen *Screen) draw(str string, offset bool) {
 				if row <= len(allLines) &&
 					row > screen.headerLine {
 					screen.DrawLineFlush(0, row-screen.offset, allLines[row], false)
-				} else if row > len(allLines) + 1 {
+				} else if row > len(allLines)+1 {
 					row = len(allLines)
 				}
 			}
