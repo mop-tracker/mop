@@ -17,22 +17,24 @@ go build ./cmd/mop
 ### Using mop
 By default, mop refreshes quotes and market data on a 5 minute (600s) interval.  These values can be changed in the .moprc file.
 
-For demonstration purposes Mop comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
+For demonstration purposes mop comes preconfigured with a number of stock tickers. You can easily change the default list by using the following keyboard commands:
 
 ```
-   +       Add stocks to the list.
-   -       Remove stocks from the list.
-   ?       Display this help screen.
-   f       Set filtering expression.
-   F       Unset filtering expression.
-   g       Group stocks by advancing/declining issues.
-   o       Change column sort order.
-   p       Pause market data and stock updates.
-   Scroll  Scroll up/down.
-   PgUp/PgDn; Up/Down arrow; j/k;J/K also all scroll up/down
-   t       Toggle timestamp on/off
-   q       Quit mop.
-  esc      Ditto.
+   +                  Add stocks to list
+   -                  Remove stocks from list
+   ? h H              Display this help screen
+   f                  Set filtering expression
+   F                  Unset filtering expression
+   g G                Group stocks by advancing/declining issues
+   o                  Change column sort order
+   p P                Pause market data and stock updates
+   t                  Toggle timestamp on/off
+   Mouse Scroll       Scroll up/down
+   PgUp/PgDn          Scroll up/down
+   Up/Down arrows     Scroll up
+   j J                Scroll up
+   k K                Scroll down
+   q esc              Quit mop
 ```
 
 When prompted please enter comma-delimited list of stock tickers.
