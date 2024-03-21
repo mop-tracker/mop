@@ -27,6 +27,7 @@ import (
 type Markup struct {
 	Foreground   termbox.Attribute            // Foreground color.
 	Background   termbox.Attribute            // Background color (so far always termbox.ColorDefault).
+        RowShading   termbox.Attribute            // Background color for Row Shading.
 	RightAligned bool                         // True when the string is right aligned.
 	tags         map[string]termbox.Attribute // Tags to Termbox translation hash.
 	regex        *regexp.Regexp               // Regex to identify the supported tag names.
@@ -73,6 +74,8 @@ func NewMarkup(profile *Profile) *Markup {
 
 	markup.Background = termbox.ColorDefault
 	markup.RightAligned = false
+
+        markup.RowShading = markup.tags[profile.Colors.RowShading]
 
 	markup.regex = markup.supportedTags() // Once we have the hash we could build the regex.
 
