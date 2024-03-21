@@ -32,6 +32,7 @@ type Profile struct {
 	Grouped       bool     // True when stocks are grouped by advancing/declining.
 	Filter        string   // Filter in human form
 	UpDownJump    int      // Number of lines to go up/down when scrolling.
+        RowShading    bool     // Should alternate rows be shaded?
 	Colors        struct { // User defined colors
 		Gain    string
 		Loss    string
@@ -39,6 +40,7 @@ type Profile struct {
 		Header  string
 		Time    string
 		Default string
+                RowShading  string
 	}
 	ShowTimestamp    bool                           // Show or hide current time in the top right of the screen
 	filterExpression *govaluate.EvaluableExpression // The filter as a govaluate expression
@@ -86,6 +88,7 @@ func NewProfile(filename string) (*Profile, error) {
 			InitColor(&profile.Colors.Header, defaultHeaderColor)
 			InitColor(&profile.Colors.Time, defaultTimeColor)
 			InitColor(&profile.Colors.Default, defaultColor)
+                        InitColor(&profile.Colors.RowShading, defaultColor)
 
 			profile.SetFilter(profile.Filter)
 		}
@@ -118,6 +121,8 @@ func (profile *Profile) InitDefaultProfile() {
 	profile.Colors.Header = defaultHeaderColor
 	profile.Colors.Time = defaultTimeColor
 	profile.Colors.Default = defaultColor
+        profile.Colors.RowShading = defaultColor
+        profile.RowShading = false
 	profile.ShowTimestamp = false
 	profile.Save()
 }
