@@ -68,6 +68,16 @@ To clear the filter, press `Shift+F`.
 
 You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 
+### Options and settings
+
+In `~/.moprc`:
+
+```
+    "RowShading": true,
+```
+
+will cause row shading on alternate lines.
+
 ### Contributing
 * Pull requests accepted.
 
