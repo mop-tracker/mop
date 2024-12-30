@@ -22,6 +22,7 @@ type Screen struct {
 	layout     *Layout    // Pointer to layout (gets created by screen).
 	markup     *Markup    // Pointer to markup processor (gets created by screen).
 	pausedAt   *time.Time // Timestamp of the pause request or nil if none.
+        profile    *Profile   // Pointer to profile passed to NewScreen
 	offset     int        // Offset for scolling
 	headerLine int        // Line number of header for scroll feature
 	max        int        // highest offset
@@ -37,6 +38,7 @@ func NewScreen(profile *Profile) *Screen {
 	screen := &Screen{}
 	screen.layout = NewLayout()
 	screen.markup = NewMarkup(profile)
+        screen.profile = profile
 	screen.offset = 0
 
 	return screen.Resize()
@@ -188,8 +190,21 @@ func (screen *Screen) DrawLineFlush(x int, y int, str string, flush bool) {
 			} else {
 				start = screen.width - len(token) + i
 			}
-			termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
+                        if y % 2 == 0  && y > 4 && screen.profile.RowShading {
+                                termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.RowShading)
+                        } else {
+                                termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
+                        }
+
 		}
+                if screen.profile.RowShading {
+                if start < screen.width && y % 2 == 0 && y > 4 {
+                        for i := start ; i < screen.width; i++ {
+                                start ++;
+                                termbox.SetCell(start, y, ' ', termbox.ColorDefault, screen.markup.RowShading);
+                        }
+                }
+                }
 	}
 	if flush {
 		termbox.Flush()
@@ -213,7 +228,7 @@ func (screen *Screen) DrawLineFlushInverted(x int, y int, str string, flush bool
 			} else {
 				start = screen.width - len(token) + i
 			}
-			termbox.SetCell(start, y, char, screen.markup.tags[`black`], screen.markup.Foreground)
+                        termbox.SetCell(start, y, char, screen.markup.tags[`black`], screen.markup.Foreground)
 		}
 	}
 	if flush {
