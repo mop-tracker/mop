@@ -199,7 +199,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 	}
 	layout.sorter.SortByCurrentColumn(pretty)
 	//
-	// Group stocks by advancing/declining unless sorted by Chanage or Change%
+	// Group stocks by advancing/declining unless sorted by Change or Change%
 	// in which case the grouping has been done already.
 	//
 	if profile.Grouped && (profile.SortColumn < 2 || profile.SortColumn > 3) {

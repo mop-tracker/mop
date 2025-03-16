@@ -23,7 +23,7 @@ type Screen struct {
 	markup     *Markup    // Pointer to markup processor (gets created by screen).
 	pausedAt   *time.Time // Timestamp of the pause request or nil if none.
         profile    *Profile   // Pointer to profile passed to NewScreen
-	offset     int        // Offset for scolling
+	offset     int        // Offset for scrolling
 	headerLine int        // Line number of header for scroll feature
 	max        int        // highest offset
 }
