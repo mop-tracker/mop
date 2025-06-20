@@ -17,12 +17,12 @@ import (
 )
 
 var currencies = map[string]string{
-	"RUB": "₽",
+	"EUR": "€",
 	"GBP": "£",
 	"GBp": "p",
-	"SEK": "kr",
-	"EUR": "€",
 	"JPY": "¥",
+	"RUB": "₽",
+	"USD": "$",
 }
 
 // Column describes formatting rules for individual column within the list
@@ -337,9 +337,9 @@ func currency(str ...string) string {
 	if len(str) < 2 {
 		return "ERR"
 	}
-	//default to $
-	symbol := "$"
+	// do not default to $ to avoid mislabelling other currencies as $
 	c, ok := currencies[str[1]]
+	symbol := str[1]
 	if ok {
 		symbol = c
 	}
