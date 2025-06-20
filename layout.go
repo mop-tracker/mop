@@ -20,8 +20,12 @@ var currencies = map[string]string{
 	"EUR": "€",
 	"GBP": "£",
 	"GBp": "p",
+	"ILA": "₪",
+	"INR": "₹",
 	"JPY": "¥",
+	"KRW": "₩",
 	"RUB": "₽",
+	"TRY": "₺",
 	"USD": "$",
 }
 
