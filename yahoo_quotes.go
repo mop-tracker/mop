@@ -197,7 +197,15 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 		// TODO calculate rt
 		quotes.stocks[i].PeRatioX = result["trailingPE"]
 		quotes.stocks[i].Dividend = result["trailingAnnualDividendRate"]
-		quotes.stocks[i].Yield = result["trailingAnnualDividendYield"]
+		// The value here is returned in decimal representation but we want to display it as a percentage.
+		val, err := strconv.ParseFloat(result["trailingAnnualDividendYield"], 64)
+		if err != nil {
+			// I think this might break if the case actually triggers no idea how to do it more robustly.
+			quotes.stocks[i].Yield = "N/A"
+		} else {
+			quotes.stocks[i].Yield = strconv.FormatFloat(val * 100, 'f', 2, 64)
+		}
+		//quotes.stocks[i].Yield = "100"
 		quotes.stocks[i].MarketCap = result["marketCap"]
 		// TODO calculate rt?
 		quotes.stocks[i].MarketCapX = result["marketCap"]
