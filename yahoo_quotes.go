@@ -82,7 +82,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 		url := fmt.Sprintf(quotesURL, quotes.market.crumb, strings.Join(quotes.profile.Tickers, `,`))
 
 		client := http.Client{}
-		request, err := http.NewRequest("GET", url, nil)
+		request, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
 			panic(err)
 		}

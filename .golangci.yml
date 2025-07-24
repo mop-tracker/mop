@@ -34,6 +34,7 @@ linters:
     - staticcheck
     - govet
     - gocritic
+    - usestdlibvars
 
   # See: https://golangci-lint.run/usage/false-positives/
   # exclusions:

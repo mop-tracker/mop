@@ -79,7 +79,7 @@ func (market *Market) Fetch() (self *Market) {
 	}()
 
 	client := http.Client{}
-	request, err := http.NewRequest("GET", market.url, nil)
+	request, err := http.NewRequest(http.MethodGet, market.url, nil)
 	if err != nil {
 		panic(err)
 	}
