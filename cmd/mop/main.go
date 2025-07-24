@@ -14,8 +14,9 @@ import (
 	"time"
 
 	"github.com/eiannone/keyboard"
-	"github.com/mop-tracker/mop"
 	"github.com/nsf/termbox-go"
+
+	"github.com/mop-tracker/mop"
 )
 
 // File name in user's home directory where we store the settings.
@@ -147,12 +148,12 @@ loop:
 			case termbox.EventResize:
 				screen.Resize()
 				if !showingHelp {
-					//screen.Draw(market)
-					//redrawQuotesFlag = true
-					//screen.Draw(market)
+					// screen.Draw(market)
+					// redrawQuotesFlag = true
+					// screen.Draw(market)
 					redrawQuotesFlag = true
 					redrawMarketFlag = true
-					//screen.DrawOldQuotes(quotes)
+					// screen.DrawOldQuotes(quotes)
 				} else {
 					screen.Draw(help)
 				}

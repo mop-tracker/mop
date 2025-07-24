@@ -13,10 +13,12 @@ import (
 	"strings"
 )
 
-const crumbURL = "https://query1.finance.yahoo.com/v1/test/getcrumb"
-const cookieURL = "https://finance.yahoo.com/"
-const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
-const euConsentURL = "https://consent.yahoo.com/v2/collectConsent?sessionId="
+const (
+	crumbURL     = "https://query1.finance.yahoo.com/v1/test/getcrumb"
+	cookieURL    = "https://finance.yahoo.com/"
+	userAgent    = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
+	euConsentURL = "https://consent.yahoo.com/v2/collectConsent?sessionId="
+)
 
 func fetchCrumb(cookies string) string {
 	client := http.Client{}
@@ -55,7 +57,6 @@ func fetchCrumb(cookies string) string {
 }
 
 func fetchCookies() string {
-
 	client := http.Client{}
 	var cookies []*http.Cookie
 
