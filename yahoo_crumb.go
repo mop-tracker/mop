@@ -99,7 +99,7 @@ func fetchCookies() string {
 	csrfToken := csrfRegex.FindStringSubmatch(response.Request.Response.Request.URL.RawQuery)[1]
 
 	gucsCookie := response.Request.Response.Request.Response.Cookies()
-	var gucsCookieString string = ""
+	gucsCookieString := ""
 	for _, cookie := range gucsCookie {
 		gucsCookieString += cookie.Name + "=" + cookie.Value + "; "
 	}

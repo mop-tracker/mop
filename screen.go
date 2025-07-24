@@ -139,15 +139,15 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 		defer screen.DrawLine(0, 0, `<right><r>`+screen.pausedAt.Format(`3:04:05pm `+zonename)+`</r></right>`)
 	}
 	for _, ptr := range objects {
-		switch ptr.(type) {
+		switch ptr := ptr.(type) {
 		case *Market:
-			object := ptr.(*Market)
+			object := ptr
 			screen.draw(screen.layout.Market(object.Fetch()), false)
 		case *Quotes:
-			object := ptr.(*Quotes)
+			object := ptr
 			screen.draw(screen.layout.Quotes(object.Fetch()), true)
 		case time.Time:
-			timestamp := ptr.(time.Time).Format(`3:04:05pm ` + zonename)
+			timestamp := ptr.Format(`3:04:05pm ` + zonename)
 			screen.DrawLineInverted(0, 0, `<right><time>`+timestamp+`</></right>`)
 		default:
 			screen.draw(ptr.(string), false)

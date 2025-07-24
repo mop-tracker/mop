@@ -172,11 +172,11 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 	for i, raw := range results {
 		result := map[string]string{}
 		for k, v := range raw {
-			switch v.(type) {
+			switch v := v.(type) {
 			case string:
-				result[k] = v.(string)
+				result[k] = v
 			case float64:
-				result[k] = float2Str(v.(float64))
+				result[k] = float2Str(v)
 			default:
 				result[k] = fmt.Sprintf("%v", v)
 			}
@@ -281,7 +281,7 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 
 // -----------------------------------------------------------------------------
 func sanitize(body []byte) []byte {
-	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
+	return bytes.ReplaceAll(bytes.TrimSpace(body), []byte{'"'}, []byte{})
 }
 
 func float2Str(v float64) string {
