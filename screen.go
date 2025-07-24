@@ -195,7 +195,6 @@ func (screen *Screen) DrawLineFlush(x, y int, str string, flush bool) {
 			} else {
 				termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
 			}
-
 		}
 		if screen.profile.RowShading {
 			if start < screen.width && y%2 == 0 && y > 4 {

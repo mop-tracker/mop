@@ -38,10 +38,14 @@ linters:
     - revive
     - unused
     - unconvert
+    - perfsprint
+    - loggercheck
+    - goprintffuncname
+    - dupl
+    - whitespace
 
   # See: https://golangci-lint.run/usage/false-positives/
   exclusions:
-    # paths:
     rules:
       - linters:
           - revive
@@ -54,5 +58,3 @@ linters:
       - linters:
           - revive
         text: comment on exported (function|type|method|var|const) (.+) should be
-
-  # settings:
