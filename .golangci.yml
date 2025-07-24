@@ -35,10 +35,24 @@ linters:
     - govet
     - gocritic
     - usestdlibvars
+    - revive
+    - unused
+    - unconvert
 
   # See: https://golangci-lint.run/usage/false-positives/
-  # exclusions:
-  #   paths:
-  #   rules:
+  exclusions:
+    # paths:
+    rules:
+      - linters:
+          - revive
+        text: exported (.+) should have comment( \(or a comment on this block\))? or be unexported
+
+      - linters:
+          - revive
+        text: "package-comments:"
+
+      - linters:
+          - revive
+        text: comment on exported (function|type|method|var|const) (.+) should be
 
   # settings:
