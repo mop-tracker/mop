@@ -53,7 +53,7 @@ func fetchCrumb(cookies string) string {
 		panic(err)
 	}
 
-	return string(body[:])
+	return string(body)
 }
 
 func fetchCookies() string {

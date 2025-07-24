@@ -288,16 +288,16 @@ func float2Str(v float64) string {
 	unit := ""
 	switch {
 	case v > 1.0e12:
-		v = v / 1.0e12
+		v /= 1.0e12
 		unit = "T"
 	case v > 1.0e9:
-		v = v / 1.0e9
+		v /= 1.0e9
 		unit = "B"
 	case v > 1.0e6:
-		v = v / 1.0e6
+		v /= 1.0e6
 		unit = "M"
 	case v > 1.0e5:
-		v = v / 1.0e3
+		v /= 1.0e3
 		unit = "K"
 	default:
 		unit = ""
