@@ -13,12 +13,14 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-const defaultGainColor = "green"
-const defaultLossColor = "red"
-const defaultTagColor = "yellow"
-const defaultHeaderColor = "lightgray"
-const defaultTimeColor = "lightgray"
-const defaultColor = "lightgray"
+const (
+	defaultGainColor   = "green"
+	defaultLossColor   = "red"
+	defaultTagColor    = "yellow"
+	defaultHeaderColor = "lightgray"
+	defaultTimeColor   = "lightgray"
+	defaultColor       = "lightgray"
+)
 
 // Profile manages Mop program settings as defined by user (ex. list of
 // stock tickers). The settings are serialized using JSON and saved in
@@ -32,15 +34,15 @@ type Profile struct {
 	Grouped       bool     // True when stocks are grouped by advancing/declining.
 	Filter        string   // Filter in human form
 	UpDownJump    int      // Number of lines to go up/down when scrolling.
-        RowShading    bool     // Should alternate rows be shaded?
+	RowShading    bool     // Should alternate rows be shaded?
 	Colors        struct { // User defined colors
-		Gain    string
-		Loss    string
-		Tag     string
-		Header  string
-		Time    string
-		Default string
-                RowShading  string
+		Gain       string
+		Loss       string
+		Tag        string
+		Header     string
+		Time       string
+		Default    string
+		RowShading string
 	}
 	ShowTimestamp    bool                           // Show or hide current time in the top right of the screen
 	filterExpression *govaluate.EvaluableExpression // The filter as a govaluate expression
@@ -88,7 +90,7 @@ func NewProfile(filename string) (*Profile, error) {
 			InitColor(&profile.Colors.Header, defaultHeaderColor)
 			InitColor(&profile.Colors.Time, defaultTimeColor)
 			InitColor(&profile.Colors.Default, defaultColor)
-                        InitColor(&profile.Colors.RowShading, defaultColor)
+			InitColor(&profile.Colors.RowShading, defaultColor)
 
 			profile.SetFilter(profile.Filter)
 		}
@@ -121,8 +123,8 @@ func (profile *Profile) InitDefaultProfile() {
 	profile.Colors.Header = defaultHeaderColor
 	profile.Colors.Time = defaultTimeColor
 	profile.Colors.Default = defaultColor
-        profile.Colors.RowShading = defaultColor
-        profile.RowShading = false
+	profile.Colors.RowShading = defaultColor
+	profile.RowShading = false
 	profile.ShowTimestamp = false
 	profile.Save()
 }
@@ -143,7 +145,7 @@ func (profile *Profile) Save() error {
 		return err
 	}
 
-	return ioutil.WriteFile(profile.filename, data, 0644)
+	return ioutil.WriteFile(profile.filename, data, 0o644)
 }
 
 // AddTickers updates the list of existing tickers to add the new ones making
@@ -217,7 +219,6 @@ func (profile *Profile) SetFilter(filter string) {
 	if len(filter) > 0 {
 		var err error
 		profile.filterExpression, err = govaluate.NewEvaluableExpression(filter)
-
 		if err != nil {
 			panic(err)
 		}

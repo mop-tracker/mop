@@ -180,7 +180,6 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 			default:
 				result[k] = fmt.Sprintf("%v", v)
 			}
-
 		}
 		quotes.stocks[i].Ticker = result["symbol"]
 		quotes.stocks[i].LastTrade = result["regularMarketPrice"]
@@ -203,9 +202,9 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 			// I think this might break if the case actually triggers no idea how to do it more robustly.
 			quotes.stocks[i].Yield = "N/A"
 		} else {
-			quotes.stocks[i].Yield = strconv.FormatFloat(val * 100, 'f', 2, 64)
+			quotes.stocks[i].Yield = strconv.FormatFloat(val*100, 'f', 2, 64)
 		}
-		//quotes.stocks[i].Yield = "100"
+		// quotes.stocks[i].Yield = "100"
 		quotes.stocks[i].MarketCap = result["marketCap"]
 		// TODO calculate rt?
 		quotes.stocks[i].MarketCapX = result["marketCap"]

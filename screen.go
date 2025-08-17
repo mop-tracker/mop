@@ -22,7 +22,7 @@ type Screen struct {
 	layout     *Layout    // Pointer to layout (gets created by screen).
 	markup     *Markup    // Pointer to markup processor (gets created by screen).
 	pausedAt   *time.Time // Timestamp of the pause request or nil if none.
-        profile    *Profile   // Pointer to profile passed to NewScreen
+	profile    *Profile   // Pointer to profile passed to NewScreen
 	offset     int        // Offset for scrolling
 	headerLine int        // Line number of header for scroll feature
 	max        int        // highest offset
@@ -38,7 +38,7 @@ func NewScreen(profile *Profile) *Screen {
 	screen := &Screen{}
 	screen.layout = NewLayout()
 	screen.markup = NewMarkup(profile)
-        screen.profile = profile
+	screen.profile = profile
 	screen.offset = 0
 
 	return screen.Resize()
@@ -83,7 +83,7 @@ func (screen *Screen) Clear() *Screen {
 
 // ClearLine erases the contents of the line starting from (x,y) coordinate
 // till the end of the line.
-func (screen *Screen) ClearLine(x int, y int) *Screen {
+func (screen *Screen) ClearLine(x, y int) *Screen {
 	for i := x; i < screen.width; i++ {
 		termbox.SetCell(i, y, ' ', termbox.ColorDefault, termbox.ColorDefault)
 	}
@@ -165,15 +165,15 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 // DrawLineFlush gives the option to flush screen after drawing
 
 // wrapper for DrawLineFlush
-func (screen *Screen) DrawLine(x int, y int, str string) {
+func (screen *Screen) DrawLine(x, y int, str string) {
 	screen.DrawLineFlush(x, y, str, true)
 }
 
-func (screen *Screen) DrawLineInverted(x int, y int, str string) {
+func (screen *Screen) DrawLineInverted(x, y int, str string) {
 	screen.DrawLineFlushInverted(x, y, str, true)
 }
 
-func (screen *Screen) DrawLineFlush(x int, y int, str string, flush bool) {
+func (screen *Screen) DrawLineFlush(x, y int, str string, flush bool) {
 	start, column := 0, 0
 
 	for _, token := range screen.markup.Tokenize(str) {
@@ -190,28 +190,28 @@ func (screen *Screen) DrawLineFlush(x int, y int, str string, flush bool) {
 			} else {
 				start = screen.width - len(token) + i
 			}
-                        if y % 2 == 0  && y > 4 && screen.profile.RowShading {
-                                termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.RowShading)
-                        } else {
-                                termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
-                        }
+			if y%2 == 0 && y > 4 && screen.profile.RowShading {
+				termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.RowShading)
+			} else {
+				termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
+			}
 
 		}
-                if screen.profile.RowShading {
-                if start < screen.width && y % 2 == 0 && y > 4 {
-                        for i := start ; i < screen.width; i++ {
-                                start ++;
-                                termbox.SetCell(start, y, ' ', termbox.ColorDefault, screen.markup.RowShading);
-                        }
-                }
-                }
+		if screen.profile.RowShading {
+			if start < screen.width && y%2 == 0 && y > 4 {
+				for i := start; i < screen.width; i++ {
+					start++
+					termbox.SetCell(start, y, ' ', termbox.ColorDefault, screen.markup.RowShading)
+				}
+			}
+		}
 	}
 	if flush {
 		termbox.Flush()
 	}
 }
 
-func (screen *Screen) DrawLineFlushInverted(x int, y int, str string, flush bool) {
+func (screen *Screen) DrawLineFlushInverted(x, y int, str string, flush bool) {
 	start, column := 0, 0
 
 	for _, token := range screen.markup.Tokenize(str) {
@@ -228,7 +228,7 @@ func (screen *Screen) DrawLineFlushInverted(x int, y int, str string, flush bool
 			} else {
 				start = screen.width - len(token) + i
 			}
-                        termbox.SetCell(start, y, char, screen.markup.tags[`black`], screen.markup.Foreground)
+			termbox.SetCell(start, y, char, screen.markup.tags[`black`], screen.markup.Foreground)
 		}
 	}
 	if flush {

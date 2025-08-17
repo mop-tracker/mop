@@ -337,7 +337,7 @@ func currency(str ...string) string {
 	if len(str) < 2 {
 		return "ERR"
 	}
-	//default to $
+	// default to $
 	symbol := "$"
 	c, ok := currencies[str[1]]
 	if ok {

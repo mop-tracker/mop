@@ -27,7 +27,7 @@ import (
 type Markup struct {
 	Foreground   termbox.Attribute            // Foreground color.
 	Background   termbox.Attribute            // Background color (so far always termbox.ColorDefault).
-        RowShading   termbox.Attribute            // Background color for Row Shading.
+	RowShading   termbox.Attribute            // Background color for Row Shading.
 	RightAligned bool                         // True when the string is right aligned.
 	tags         map[string]termbox.Attribute // Tags to Termbox translation hash.
 	regex        *regexp.Regexp               // Regex to identify the supported tag names.
@@ -75,7 +75,7 @@ func NewMarkup(profile *Profile) *Markup {
 	markup.Background = termbox.ColorDefault
 	markup.RightAligned = false
 
-        markup.RowShading = markup.tags[profile.Colors.RowShading]
+	markup.RowShading = markup.tags[profile.Colors.RowShading]
 
 	markup.regex = markup.supportedTags() // Once we have the hash we could build the regex.
 
@@ -86,12 +86,11 @@ func NewMarkup(profile *Profile) *Markup {
 // the delimiters. For example, the "<green>Hello, <red>world!</>" string when
 // tokenized by tags produces the following:
 //
-//   [0] "<green>"
-//   [1] "Hello, "
-//   [2] "<red>"
-//   [3] "world!"
-//   [4] "</>"
-//
+//	[0] "<green>"
+//	[1] "Hello, "
+//	[2] "<red>"
+//	[3] "world!"
+//	[4] "</>"
 func (markup *Markup) Tokenize(str string) []string {
 	matches := markup.regex.FindAllStringIndex(str, -1)
 	strings := make([]string, 0, len(matches))
@@ -130,7 +129,7 @@ func (markup *Markup) IsTag(str string) bool {
 	return markup.process(tag, open)
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (markup *Markup) process(tag string, open bool) bool {
 	if attribute, ok := markup.tags[tag]; ok {
 		switch tag {
@@ -168,7 +167,7 @@ func (markup *Markup) supportedTags() *regexp.Regexp {
 	return regexp.MustCompile(strings.Join(arr, `|`))
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func probeForTag(str string) (string, bool) {
 	if len(str) > 2 && str[0:1] == `<` && str[len(str)-1:] == `>` {
 		return extractTagName(str), str[1:2] != `/`

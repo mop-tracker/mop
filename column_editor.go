@@ -4,7 +4,7 @@
 
 package mop
 
-import `github.com/nsf/termbox-go`
+import "github.com/nsf/termbox-go"
 
 // ColumnEditor handles column sort order. When activated it highlights
 // current column name in the header, then waits for arrow keys (choose
@@ -53,14 +53,14 @@ func (editor *ColumnEditor) Handle(event termbox.Event) bool {
 	return false
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *ColumnEditor) selectCurrentColumn() *ColumnEditor {
 	editor.profile.selectedColumn = editor.profile.SortColumn
 	editor.redrawHeader()
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *ColumnEditor) selectLeftColumn() *ColumnEditor {
 	editor.profile.selectedColumn--
 	if editor.profile.selectedColumn < 0 {
@@ -69,7 +69,7 @@ func (editor *ColumnEditor) selectLeftColumn() *ColumnEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *ColumnEditor) selectRightColumn() *ColumnEditor {
 	editor.profile.selectedColumn++
 	if editor.profile.selectedColumn > editor.layout.TotalColumns()-1 {
@@ -78,7 +78,7 @@ func (editor *ColumnEditor) selectRightColumn() *ColumnEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *ColumnEditor) execute() *ColumnEditor {
 	if editor.profile.Reorder() == nil {
 		editor.screen.Draw(editor.quotes)
@@ -87,13 +87,13 @@ func (editor *ColumnEditor) execute() *ColumnEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *ColumnEditor) done() bool {
 	editor.profile.selectedColumn = -1
 	return true
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *ColumnEditor) redrawHeader() {
 	editor.screen.DrawLine(0, 4, editor.layout.Header(editor.profile))
 	termbox.Flush()

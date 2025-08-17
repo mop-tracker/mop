@@ -102,7 +102,7 @@ func (editor *LineEditor) Handle(ev termbox.Event) bool {
 	return false
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) deletePreviousCharacter() *LineEditor {
 	if editor.cursor > 0 {
 		if editor.cursor < len(editor.input) {
@@ -119,7 +119,7 @@ func (editor *LineEditor) deletePreviousCharacter() *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) insertCharacter(ch rune) *LineEditor {
 	if editor.cursor < len(editor.input) {
 		// Insert the character in the middle of the input string.
@@ -134,7 +134,7 @@ func (editor *LineEditor) insertCharacter(ch rune) *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) moveLeft() *LineEditor {
 	if editor.cursor > 0 {
 		editor.cursor--
@@ -144,7 +144,7 @@ func (editor *LineEditor) moveLeft() *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) moveRight() *LineEditor {
 	if editor.cursor < len(editor.input) {
 		editor.cursor++
@@ -154,7 +154,7 @@ func (editor *LineEditor) moveRight() *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) jumpToBeginning() *LineEditor {
 	editor.cursor = 0
 	termbox.SetCursor(len(editor.prompt)+editor.cursor, 3)
@@ -162,7 +162,7 @@ func (editor *LineEditor) jumpToBeginning() *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) jumpToEnd() *LineEditor {
 	editor.cursor = len(editor.input)
 	termbox.SetCursor(len(editor.prompt)+editor.cursor, 3)
@@ -170,7 +170,7 @@ func (editor *LineEditor) jumpToEnd() *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) execute() *LineEditor {
 	switch editor.command {
 	case '+':
@@ -207,7 +207,7 @@ func (editor *LineEditor) execute() *LineEditor {
 	return editor
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (editor *LineEditor) done() bool {
 	editor.screen.ClearLine(0, 3)
 	termbox.HideCursor()
