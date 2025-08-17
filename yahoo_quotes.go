@@ -82,7 +82,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 		url := fmt.Sprintf(quotesURL, quotes.market.crumb, strings.Join(quotes.profile.Tickers, `,`))
 
 		client := http.Client{}
-		request, err := http.NewRequest("GET", url, nil)
+		request, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
 			panic(err)
 		}
@@ -172,11 +172,11 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 	for i, raw := range results {
 		result := map[string]string{}
 		for k, v := range raw {
-			switch v.(type) {
+			switch v := v.(type) {
 			case string:
-				result[k] = v.(string)
+				result[k] = v
 			case float64:
-				result[k] = float2Str(v.(float64))
+				result[k] = float2Str(v)
 			default:
 				result[k] = fmt.Sprintf("%v", v)
 			}
@@ -281,23 +281,23 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 
 // -----------------------------------------------------------------------------
 func sanitize(body []byte) []byte {
-	return bytes.Replace(bytes.TrimSpace(body), []byte{'"'}, []byte{}, -1)
+	return bytes.ReplaceAll(bytes.TrimSpace(body), []byte{'"'}, []byte{})
 }
 
 func float2Str(v float64) string {
 	unit := ""
 	switch {
 	case v > 1.0e12:
-		v = v / 1.0e12
+		v /= 1.0e12
 		unit = "T"
 	case v > 1.0e9:
-		v = v / 1.0e9
+		v /= 1.0e9
 		unit = "B"
 	case v > 1.0e6:
-		v = v / 1.0e6
+		v /= 1.0e6
 		unit = "M"
 	case v > 1.0e5:
-		v = v / 1.0e3
+		v /= 1.0e3
 		unit = "K"
 	default:
 		unit = ""

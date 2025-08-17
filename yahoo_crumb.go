@@ -22,7 +22,7 @@ const (
 
 func fetchCrumb(cookies string) string {
 	client := http.Client{}
-	request, err := http.NewRequest("GET", crumbURL, nil)
+	request, err := http.NewRequest(http.MethodGet, crumbURL, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +53,7 @@ func fetchCrumb(cookies string) string {
 		panic(err)
 	}
 
-	return string(body[:])
+	return string(body)
 }
 
 func fetchCookies() string {
@@ -61,7 +61,7 @@ func fetchCookies() string {
 	var cookies []*http.Cookie
 
 	// Get the session ID from the first request
-	request, err := http.NewRequest("GET", cookieURL, nil)
+	request, err := http.NewRequest(http.MethodGet, cookieURL, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -99,7 +99,7 @@ func fetchCookies() string {
 	csrfToken := csrfRegex.FindStringSubmatch(response.Request.Response.Request.URL.RawQuery)[1]
 
 	gucsCookie := response.Request.Response.Request.Response.Cookies()
-	var gucsCookieString string = ""
+	gucsCookieString := ""
 	for _, cookie := range gucsCookie {
 		gucsCookieString += cookie.Name + "=" + cookie.Value + "; "
 	}
@@ -115,7 +115,7 @@ func fetchCookies() string {
 	form.Add("sessionId", sessionID)
 	form.Add("namespace", "yahoo")
 	form.Add("agree", "agree")
-	request2, err := http.NewRequest("POST", euConsentURL+sessionID, strings.NewReader(form.Encode()))
+	request2, err := http.NewRequest(http.MethodPost, euConsentURL+sessionID, strings.NewReader(form.Encode()))
 	if err != nil {
 		panic(err)
 	}

@@ -26,3 +26,30 @@ formatters:
       # Choose whether to use the extra rules.
       # Default: false
       extra-rules: true
+
+# See: https://golangci-lint.run/usage/linters/
+linters:
+  default: none
+  enable:
+    - staticcheck
+    - govet
+    - gocritic
+    - usestdlibvars
+    - revive
+    - unused
+    - unconvert
+    - perfsprint
+    - loggercheck
+    - goprintffuncname
+    - dupl
+    - whitespace
+
+  # See: https://golangci-lint.run/usage/false-positives/
+  exclusions:
+    rules:
+      - linters: [revive]
+        text: exported (.+) should have comment or be unexported
+      - linters: [revive]
+        text: "package-comments:"
+      - linters: [revive]
+        text: comment on exported (function|type|method|var|const) (.+) should be

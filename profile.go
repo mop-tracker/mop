@@ -222,7 +222,6 @@ func (profile *Profile) SetFilter(filter string) {
 		if err != nil {
 			panic(err)
 		}
-
 	} else if len(filter) == 0 && profile.filterExpression != nil {
 		profile.filterExpression = nil
 	}
