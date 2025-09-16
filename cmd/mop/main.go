@@ -67,6 +67,12 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 	redrawQuotesFlag := false
 	redrawMarketFlag := false
 
+	defer func() {
+		timestampQueue.Stop()
+		quotesQueue.Stop()
+		marketQueue.Stop()
+	}()
+
 	go func() {
 		for {
 			keyboardQueue <- termbox.PollEvent()
