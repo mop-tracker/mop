@@ -7,6 +7,7 @@ package mop
 import (
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -57,8 +58,8 @@ func fetchCrumb(cookies string) string {
 }
 
 func fetchCookies() string {
-	client := http.Client{}
-	var cookies []*http.Cookie
+	jar, _ := cookiejar.New(nil)
+	client := &http.Client{Jar: jar}
 
 	// Get the session ID from the first request
 	request, err := http.NewRequest(http.MethodGet, cookieURL, nil)
@@ -85,20 +86,20 @@ func fetchCookies() string {
 	}
 	defer response.Body.Close()
 
-	cookieA1 := getA1Cookie(response.Cookies())
+	cookies := jar.Cookies(response.Request.URL)
+	cookieA1 := getA1Cookie(cookies)
 	if cookieA1 != "" {
 		return cookieA1
 	}
 
 	// first pass failed - try EU shenanigans
-
 	sessionRegex := regexp.MustCompile("sessionId=(?:([A-Za-z0-9_-]*))")
 	sessionID := sessionRegex.FindStringSubmatch(response.Request.URL.RawQuery)[1]
 
 	csrfRegex := regexp.MustCompile("gcrumb=(?:([A-Za-z0-9_]*))")
 	csrfToken := csrfRegex.FindStringSubmatch(response.Request.Response.Request.URL.RawQuery)[1]
 
-	gucsCookie := response.Request.Response.Request.Response.Cookies()
+	gucsCookie := jar.Cookies(response.Request.URL)
 	gucsCookieString := ""
 	for _, cookie := range gucsCookie {
 		gucsCookieString += cookie.Name + "=" + cookie.Value + "; "
@@ -106,10 +107,9 @@ func fetchCookies() string {
 	gucsCookieString = strings.TrimSuffix(gucsCookieString, "; ")
 
 	if len(gucsCookie) == 0 {
-		panic(err)
+		panic("fetchCookies: no gucsCookie found")
 	}
 
-	// Create a new request to agree to the EU consent request
 	form := url.Values{}
 	form.Add("csrfToken", csrfToken)
 	form.Add("sessionId", sessionID)
@@ -148,13 +148,12 @@ func fetchCookies() string {
 	}
 	defer response2.Body.Close()
 
-	// redirect festival
-	cookies = response2.Request.Response.Request.Response.Request.Response.Cookies()
+	cookies = jar.Cookies(response2.Request.URL)
 	cookieA1 = getA1Cookie(cookies)
 	if cookieA1 != "" {
 		return cookieA1
 	} else {
-		panic(err)
+		panic("fetchCookies: failed to obtain A1 cookie")
 	}
 }
 
