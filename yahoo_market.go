@@ -9,29 +9,38 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 const (
 	marketURL           = `https://query1.finance.yahoo.com/v7/finance/quote?crumb=%s&symbols=%s`
-	marketURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
+	marketURLQueryParts = `range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
+	symbols             = `^DJI,^IXIC,^GSPC,^N225,^HSI,^FTSE,^GDAXI,^TNX,CL=F,JPY=X,EUR=X,GC=F`
 )
 
 // Market stores current market information displayed in the top three lines of
 // the screen. The market data is fetched and parsed from the HTML page above.
+type MarketIndex struct {
+	Change  string
+	Latest  string
+	Percent string
+	Name    string // optional
+}
+
 type Market struct {
-	IsClosed  bool              // True when U.S. markets are closed.
-	Dow       map[string]string // Hash of Dow Jones indicators.
-	Nasdaq    map[string]string // Hash of NASDAQ indicators.
-	Sp500     map[string]string // Hash of S&P 500 indicators.
-	Tokyo     map[string]string
-	HongKong  map[string]string
-	London    map[string]string
-	Frankfurt map[string]string
-	Yield     map[string]string
-	Oil       map[string]string
-	Yen       map[string]string
-	Euro      map[string]string
-	Gold      map[string]string
+	IsClosed  bool
+	Dow       MarketIndex
+	Nasdaq    MarketIndex
+	Sp500     MarketIndex
+	Tokyo     MarketIndex
+	HongKong  MarketIndex
+	London    MarketIndex
+	Frankfurt MarketIndex
+	Yield     MarketIndex
+	Oil       MarketIndex
+	Yen       MarketIndex
+	Euro      MarketIndex
+	Gold      MarketIndex
 	errors    string // Error(s), if any.
 	url       string // URL with symbols to fetch data
 	cookies   string // cookies for auth
@@ -42,26 +51,23 @@ type Market struct {
 func NewMarket() *Market {
 	market := &Market{}
 	market.IsClosed = false
-	market.Dow = make(map[string]string)
-	market.Nasdaq = make(map[string]string)
-	market.Sp500 = make(map[string]string)
-
-	market.Tokyo = make(map[string]string)
-	market.HongKong = make(map[string]string)
-	market.London = make(map[string]string)
-	market.Frankfurt = make(map[string]string)
-
-	market.Yield = make(map[string]string)
-	market.Oil = make(map[string]string)
-	market.Yen = make(map[string]string)
-	market.Euro = make(map[string]string)
-	market.Gold = make(map[string]string)
 
 	market.cookies = fetchCookies()
 	market.crumb = fetchCrumb(market.cookies)
-	market.url = fmt.Sprintf(marketURL, market.crumb, `^DJI,^IXIC,^GSPC,^N225,^HSI,^FTSE,^GDAXI,^TNX,CL=F,JPY=X,EUR=X,GC=F`) + marketURLQueryParts
 
-	market.errors = ``
+	// Construct URL with query parameters using url.Values
+	params := url.Values{}
+	params.Add("range", "1d")
+	params.Add("interval", "5m")
+	params.Add("indicators", "close")
+	params.Add("includeTimestamps", "false")
+	params.Add("includePrePost", "false")
+	params.Add("corsDomain", "finance.yahoo.com")
+	params.Add(".tsrc", "finance")
+
+	market.url = fmt.Sprintf(marketURL, market.crumb, symbols) + "&" + params.Encode()
+
+	market.errors = ""
 
 	return market
 }
@@ -128,40 +134,75 @@ func (market *Market) isMarketOpen(body []byte) []byte {
 }
 
 // -----------------------------------------------------------------------------
-func assign(results []map[string]interface{}, position int, changeAsPercent bool) map[string]string {
-	out := make(map[string]string)
-	out[`change`] = float2Str(results[position]["regularMarketChange"].(float64))
-	out[`latest`] = float2Str(results[position]["regularMarketPrice"].(float64))
+func assign(result struct {
+	RegularMarketChange        string `json:"regularMarketChange"`
+	RegularMarketPrice         string `json:"regularMarketPrice"`
+	RegularMarketChangePercent string `json:"regularMarketChangePercent"`
+}, changeAsPercent bool) MarketIndex {
+	change := result.RegularMarketChange
+	latest := result.RegularMarketPrice
+	percent := result.RegularMarketChangePercent
+
 	if changeAsPercent {
-		out[`change`] = float2Str(results[position]["regularMarketChangePercent"].(float64)) + `%`
+		change += "%"
 	} else {
-		out[`percent`] = float2Str(results[position]["regularMarketChangePercent"].(float64))
+		percent += "%"
 	}
-	return out
+
+	return MarketIndex{
+		Change:  change,
+		Latest:  latest,
+		Percent: percent,
+	}
+}
+
+func (mi MarketIndex) ToMap() map[string]string {
+	return map[string]string{
+		"change":  mi.Change,
+		"latest":  mi.Latest,
+		"percent": mi.Percent,
+	}
 }
 
 // -----------------------------------------------------------------------------
 func (market *Market) extract(body []byte) *Market {
-	d := map[string]map[string][]map[string]interface{}{}
-	err := json.Unmarshal(body, &d)
-	if err != nil {
-		panic(err)
+	var d struct {
+		MarketResponse struct {
+			Result []struct {
+				RegularMarketChange        string `json:"regularMarketChange"`
+				RegularMarketPrice         string `json:"regularMarketPrice"`
+				RegularMarketChangePercent string `json:"regularMarketChangePercent"`
+			} `json:"result"`
+		} `json:"quoteResponse"`
 	}
-	results := d["quoteResponse"]["result"]
-	market.Dow = assign(results, 0, false)
-	market.Nasdaq = assign(results, 1, false)
-	market.Sp500 = assign(results, 2, false)
-	market.Tokyo = assign(results, 3, false)
-	market.HongKong = assign(results, 4, false)
-	market.London = assign(results, 5, false)
-	market.Frankfurt = assign(results, 6, false)
-	market.Yield[`name`] = `10-year Yield`
-	market.Yield = assign(results, 7, false)
 
-	market.Oil = assign(results, 8, true)
-	market.Yen = assign(results, 9, true)
-	market.Euro = assign(results, 10, true)
-	market.Gold = assign(results, 11, true)
+	if err := json.Unmarshal(body, &d); err != nil {
+		panic(fmt.Sprintf("JSON unmarshal failed: %v", err))
+	}
+
+	results := d.MarketResponse.Result
+	if len(results) < 12 {
+		panic(fmt.Sprintf("unexpected number of results: got %d, expected at least 12", len(results)))
+	}
+
+	market.Dow = assign(results[0], false)
+	market.Nasdaq = assign(results[1], false)
+	market.Sp500 = assign(results[2], false)
+	market.Tokyo = assign(results[3], false)
+	market.HongKong = assign(results[4], false)
+	market.London = assign(results[5], false)
+	market.Frankfurt = assign(results[6], false)
+	market.Yield.Name = "10-year Yield"
+	market.Yield = assign(results[7], false)
+
+	market.Oil.Name = "Crude Oil"
+	market.Oil = assign(results[8], true)
+	market.Yen.Name = "Yen"
+	market.Yen = assign(results[9], true)
+	market.Euro.Name = "Euro"
+	market.Euro = assign(results[10], true)
+	market.Gold.Name = "Gold"
+	market.Gold = assign(results[11], true)
 
 	return market
 }

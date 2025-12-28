@@ -81,13 +81,25 @@ func (layout *Layout) Market(market *Market) string {
 		return err // then simply return the error string.
 	}
 
-	highlight(market.Dow, market.Sp500, market.Nasdaq,
-		market.Tokyo, market.HongKong, market.London, market.Frankfurt,
-		market.Yield, market.Oil, market.Euro, market.Yen, market.Gold)
+	highlight(
+		toMapSlice(
+			market.Dow, market.Sp500, market.Nasdaq,
+			market.Tokyo, market.HongKong, market.London, market.Frankfurt,
+			market.Yield, market.Oil, market.Euro, market.Yen, market.Gold,
+		)...,
+	)
 	buffer := new(bytes.Buffer)
 	layout.marketTemplate.Execute(buffer, market)
 
 	return buffer.String()
+}
+
+func toMapSlice(markets ...MarketIndex) []map[string]string {
+	result := make([]map[string]string, len(markets))
+	for i, m := range markets {
+		result[i] = m.ToMap()
+	}
+	return result
 }
 
 // Quotes uses quotes template to format timestamp, stock quotes header,
