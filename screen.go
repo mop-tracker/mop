@@ -47,7 +47,6 @@ func NewScreen(profile *Profile) *Screen {
 // Close gets called upon program termination to close the Termbox.
 func (screen *Screen) Close() *Screen {
 	termbox.Close()
-
 	return screen
 }
 
@@ -56,7 +55,6 @@ func (screen *Screen) Close() *Screen {
 func (screen *Screen) Resize() *Screen {
 	screen.width, screen.height = termbox.Size()
 	screen.cleared = false
-
 	return screen
 }
 
@@ -69,7 +67,6 @@ func (screen *Screen) Pause(pause bool) *Screen {
 	} else {
 		screen.pausedAt = nil
 	}
-
 	return screen
 }
 
@@ -77,7 +74,6 @@ func (screen *Screen) Pause(pause bool) *Screen {
 func (screen *Screen) Clear() *Screen {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	screen.cleared = true
-
 	return screen
 }
 
@@ -88,12 +84,10 @@ func (screen *Screen) ClearLine(x, y int) *Screen {
 		termbox.SetCell(i, y, ' ', termbox.ColorDefault, termbox.ColorDefault)
 	}
 	termbox.Flush()
-
 	return screen
 }
 
 // Increase the offset for scrolling feature by n
-// Takes number of tickers as max, so not scrolling down forever
 func (screen *Screen) IncreaseOffset(n int) {
 	if screen.offset+n <= screen.max {
 		screen.offset += n
@@ -121,6 +115,7 @@ func (screen *Screen) ScrollBottom() {
 	}
 }
 
+// DrawOldQuotes and DrawOldMarket are kept as is, but can be refactored later.
 func (screen *Screen) DrawOldQuotes(quotes *Quotes) {
 	screen.draw(screen.layout.Quotes(quotes), true)
 	termbox.Flush()
@@ -153,18 +148,12 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 			screen.draw(ptr.(string), false)
 		}
 	}
-
 	termbox.Flush()
-
 	return screen
 }
 
 // DrawLine takes the incoming string, tokenizes it to extract markup
 // elements, and displays it all starting at (x,y) location.
-
-// DrawLineFlush gives the option to flush screen after drawing
-
-// wrapper for DrawLineFlush
 func (screen *Screen) DrawLine(x, y int, str string) {
 	screen.DrawLineFlush(x, y, str, true)
 }
@@ -173,53 +162,25 @@ func (screen *Screen) DrawLineInverted(x, y int, str string) {
 	screen.DrawLineFlushInverted(x, y, str, true)
 }
 
+// DrawLineFlush gives the option to flush screen after drawing
 func (screen *Screen) DrawLineFlush(x, y int, str string, flush bool) {
-	start, column := 0, 0
-
-	for _, token := range screen.markup.Tokenize(str) {
-		// First check if it's a tag. Tags are eaten up and not displayed.
-		if screen.markup.IsTag(token) {
-			continue
-		}
-
-		// Here comes the actual text: display it one character at a time.
-		for i, char := range token {
-			if !screen.markup.RightAligned {
-				start = x + column
-				column++
-			} else {
-				start = screen.width - len(token) + i
-			}
-			if y%2 == 0 && y > 4 && screen.profile.RowShading {
-				termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.RowShading)
-			} else {
-				termbox.SetCell(start, y, char, screen.markup.Foreground, screen.markup.Background)
-			}
-		}
-		if screen.profile.RowShading {
-			if start < screen.width && y%2 == 0 && y > 4 {
-				for i := start; i < screen.width; i++ {
-					start++
-					termbox.SetCell(start, y, ' ', termbox.ColorDefault, screen.markup.RowShading)
-				}
-			}
-		}
-	}
-	if flush {
-		termbox.Flush()
-	}
+	screen.drawLine(x, y, str, false, flush)
 }
 
 func (screen *Screen) DrawLineFlushInverted(x, y int, str string, flush bool) {
-	start, column := 0, 0
+	screen.drawLine(x, y, str, true, flush)
+}
 
-	for _, token := range screen.markup.Tokenize(str) {
-		// First check if it's a tag. Tags are eaten up and not displayed.
+// Helper function for drawing a line with optional inverted color
+func (screen *Screen) drawLine(x, y int, str string, inverted bool, flush bool) {
+	start, column := 0, 0
+	tokens := screen.markup.Tokenize(str)
+
+	for _, token := range tokens {
 		if screen.markup.IsTag(token) {
 			continue
 		}
 
-		// Here comes the actual text: display it one character at a time.
 		for i, char := range token {
 			if !screen.markup.RightAligned {
 				start = x + column
@@ -227,7 +188,14 @@ func (screen *Screen) DrawLineFlushInverted(x, y int, str string, flush bool) {
 			} else {
 				start = screen.width - len(token) + i
 			}
-			termbox.SetCell(start, y, char, screen.markup.tags[`black`], screen.markup.Foreground)
+
+			// Set the cell with appropriate colors
+			fg, bg := screen.markup.Foreground, screen.markup.Background
+			if inverted {
+				fg, bg = screen.markup.tags["black"], screen.markup.Foreground
+			}
+
+			termbox.SetCell(start, y, char, fg, bg)
 		}
 	}
 	if flush {
@@ -261,6 +229,7 @@ func (screen *Screen) draw(str string, offset bool) {
 			// check, but--see comments below...
 			// --- Heading row only appears for quotes, so offset is true
 			if !drewHeading {
+				// Check for heading line
 				if strings.Contains(allLines[row], "Ticker") &&
 					strings.Contains(allLines[row], "Last") &&
 					strings.Contains(allLines[row], "Change") {
@@ -271,9 +240,7 @@ func (screen *Screen) draw(str string, offset bool) {
 					row += screen.offset
 				}
 			} else {
-				// only write the necessary lines
-				if row <= len(allLines) &&
-					row > screen.headerLine {
+				if row <= len(allLines) && row > screen.headerLine {
 					screen.DrawLineFlush(0, row-screen.offset, allLines[row], false)
 				} else if row > len(allLines)+1 {
 					row = len(allLines)

@@ -156,79 +156,75 @@ func (quotes *Quotes) isReady() bool {
 
 // this will parse the json objects
 func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
-	// response -> quoteResponse -> result|error (array) -> map[string]interface{}
-	// Stocks has non-int things
-	// d := map[string]map[string][]Stock{}
-	// some of these are numbers vs strings
-	// d := map[string]map[string][]map[string]string{}
-	d := map[string]map[string][]map[string]interface{}{}
-	err := json.Unmarshal(body, &d)
-	if err != nil {
-		return nil, err
+	var d struct {
+		QuoteResponse struct {
+			Result []struct {
+				Symbol                      string  `json:"symbol"`
+				RegularMarketPrice          float64 `json:"regularMarketPrice"`
+				RegularMarketChange         float64 `json:"regularMarketChange"`
+				RegularMarketChangePercent  float64 `json:"regularMarketChangePercent"`
+				RegularMarketOpen           float64 `json:"regularMarketOpen"`
+				RegularMarketDayLow         float64 `json:"regularMarketDayLow"`
+				RegularMarketDayHigh        float64 `json:"regularMarketDayHigh"`
+				FiftyTwoWeekLow             float64 `json:"fiftyTwoWeekLow"`
+				FiftyTwoWeekHigh            float64 `json:"fiftyTwoWeekHigh"`
+				RegularMarketVolume         float64 `json:"regularMarketVolume"`
+				AverageDailyVolume10Day     float64 `json:"averageDailyVolume10Day"`
+				TrailingPE                  float64 `json:"trailingPE"`
+				TrailingAnnualDividendRate  float64 `json:"trailingAnnualDividendRate"`
+				TrailingAnnualDividendYield float64 `json:"trailingAnnualDividendYield"`
+				MarketCap                   float64 `json:"marketCap"`
+				Currency                    string  `json:"currency"`
+				PreMarketChangePercent      float64 `json:"preMarketChangePercent,omitempty"`
+				PostMarketChangePercent     float64 `json:"postMarketChangePercent,omitempty"`
+			} `json:"result"`
+		} `json:"quoteResponse"`
 	}
-	results := d["quoteResponse"]["result"]
 
-	quotes.stocks = make([]Stock, len(results))
-	for i, raw := range results {
-		result := map[string]string{}
-		for k, v := range raw {
-			switch v := v.(type) {
-			case string:
-				result[k] = v
-			case float64:
-				result[k] = float2Str(v)
-			default:
-				result[k] = fmt.Sprintf("%v", v)
-			}
-		}
-		quotes.stocks[i].Ticker = result["symbol"]
-		quotes.stocks[i].LastTrade = result["regularMarketPrice"]
-		quotes.stocks[i].Change = result["regularMarketChange"]
-		quotes.stocks[i].ChangePct = result["regularMarketChangePercent"]
-		quotes.stocks[i].Open = result["regularMarketOpen"]
-		quotes.stocks[i].Low = result["regularMarketDayLow"]
-		quotes.stocks[i].High = result["regularMarketDayHigh"]
-		quotes.stocks[i].Low52 = result["fiftyTwoWeekLow"]
-		quotes.stocks[i].High52 = result["fiftyTwoWeekHigh"]
-		quotes.stocks[i].Volume = result["regularMarketVolume"]
-		quotes.stocks[i].AvgVolume = result["averageDailyVolume10Day"]
-		quotes.stocks[i].PeRatio = result["trailingPE"]
-		// TODO calculate rt
-		quotes.stocks[i].PeRatioX = result["trailingPE"]
-		quotes.stocks[i].Dividend = result["trailingAnnualDividendRate"]
-		// The value here is returned in decimal representation but we want to display it as a percentage.
-		val, err := strconv.ParseFloat(result["trailingAnnualDividendYield"], 64)
-		if err != nil {
-			// I think this might break if the case actually triggers no idea how to do it more robustly.
-			quotes.stocks[i].Yield = "N/A"
+	if err := json.Unmarshal(body, &d); err != nil {
+		// Can't unmarshal the data.
+		// Let's try to figure out what went wrong.
+		var data interface{}
+		json.Unmarshal(body, &data)
+		return nil, fmt.Errorf("JSON unmarshal failed: %w\n%+v", err, data)
+	}
+
+	quotes.stocks = make([]Stock, len(d.QuoteResponse.Result))
+	for i, stock := range d.QuoteResponse.Result {
+		quotes.stocks[i].Ticker = stock.Symbol
+		quotes.stocks[i].LastTrade = float2Str(stock.RegularMarketPrice)
+		quotes.stocks[i].Change = float2Str(stock.RegularMarketChange)
+		quotes.stocks[i].ChangePct = float2Str(stock.RegularMarketChangePercent)
+		quotes.stocks[i].Open = float2Str(stock.RegularMarketOpen)
+		quotes.stocks[i].Low = float2Str(stock.RegularMarketDayLow)
+		quotes.stocks[i].High = float2Str(stock.RegularMarketDayHigh)
+		quotes.stocks[i].Low52 = float2Str(stock.FiftyTwoWeekLow)
+		quotes.stocks[i].High52 = float2Str(stock.FiftyTwoWeekHigh)
+		quotes.stocks[i].Volume = float2Str(stock.RegularMarketVolume)
+		quotes.stocks[i].AvgVolume = float2Str(stock.AverageDailyVolume10Day)
+		quotes.stocks[i].PeRatio = float2Str(stock.TrailingPE)
+		quotes.stocks[i].PeRatioX = float2Str(stock.TrailingPE)
+		quotes.stocks[i].Dividend = float2Str(stock.TrailingAnnualDividendRate)
+		if stock.TrailingAnnualDividendYield != 0 {
+			quotes.stocks[i].Yield = float2Str(stock.TrailingAnnualDividendYield * 100)
 		} else {
-			quotes.stocks[i].Yield = strconv.FormatFloat(val*100, 'f', 2, 64)
+			quotes.stocks[i].Yield = noDataIndicator
 		}
-		// quotes.stocks[i].Yield = "100"
-		quotes.stocks[i].MarketCap = result["marketCap"]
-		// TODO calculate rt?
-		quotes.stocks[i].MarketCapX = result["marketCap"]
-		quotes.stocks[i].Currency = result["currency"]
-		quotes.stocks[i].PreOpen = result["preMarketChangePercent"]
-		quotes.stocks[i].AfterHours = result["postMarketChangePercent"]
-		/*
-			fmt.Println(i)
-			fmt.Println("-------------------")
-			for k, v := range result {
-				fmt.Println(k, v)
-			}
-			fmt.Println("-------------------")
-		*/
-		adv, err := strconv.ParseFloat(quotes.stocks[i].Change, 64)
+		quotes.stocks[i].MarketCap = float2Str(stock.MarketCap)
+		quotes.stocks[i].MarketCapX = float2Str(stock.MarketCap)
+		quotes.stocks[i].Currency = stock.Currency
+		quotes.stocks[i].PreOpen = float2Str(stock.PreMarketChangePercent)
+		quotes.stocks[i].AfterHours = float2Str(stock.PostMarketChangePercent)
+
+		adv := stock.RegularMarketChange
 		quotes.stocks[i].Direction = 0
-		if err == nil {
-			if adv < 0.0 {
-				quotes.stocks[i].Direction = -1
-			} else if adv > 0.0 {
-				quotes.stocks[i].Direction = 1
-			}
+		if adv < 0.0 {
+			quotes.stocks[i].Direction = -1
+		} else if adv > 0.0 {
+			quotes.stocks[i].Direction = 1
 		}
 	}
+
 	return quotes, nil
 }
 
@@ -280,10 +276,6 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 }
 
 // -----------------------------------------------------------------------------
-func sanitize(body []byte) []byte {
-	return bytes.ReplaceAll(bytes.TrimSpace(body), []byte{'"'}, []byte{})
-}
-
 func float2Str(v float64) string {
 	unit := ""
 	switch {
