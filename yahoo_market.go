@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -135,13 +136,13 @@ func (market *Market) isMarketOpen(body []byte) []byte {
 
 // -----------------------------------------------------------------------------
 func assign(result struct {
-	RegularMarketChange        string `json:"regularMarketChange"`
-	RegularMarketPrice         string `json:"regularMarketPrice"`
-	RegularMarketChangePercent string `json:"regularMarketChangePercent"`
+	RegularMarketChange        float64 `json:"regularMarketChange"`
+	RegularMarketPrice         float64 `json:"regularMarketPrice"`
+	RegularMarketChangePercent float64 `json:"regularMarketChangePercent"`
 }, changeAsPercent bool) MarketIndex {
-	change := result.RegularMarketChange
-	latest := result.RegularMarketPrice
-	percent := result.RegularMarketChangePercent
+	change := strconv.FormatFloat(result.RegularMarketChange, 'f', 2, 64)
+	latest := strconv.FormatFloat(result.RegularMarketPrice, 'f', 2, 64)
+	percent := strconv.FormatFloat(result.RegularMarketChangePercent, 'f', 2, 64)
 
 	if changeAsPercent {
 		change += "%"
@@ -169,9 +170,9 @@ func (market *Market) extract(body []byte) *Market {
 	var d struct {
 		MarketResponse struct {
 			Result []struct {
-				RegularMarketChange        string `json:"regularMarketChange"`
-				RegularMarketPrice         string `json:"regularMarketPrice"`
-				RegularMarketChangePercent string `json:"regularMarketChangePercent"`
+				RegularMarketChange        float64 `json:"regularMarketChange"`
+				RegularMarketPrice         float64 `json:"regularMarketPrice"`
+				RegularMarketChangePercent float64 `json:"regularMarketChangePercent"`
 			} `json:"result"`
 		} `json:"quoteResponse"`
 	}

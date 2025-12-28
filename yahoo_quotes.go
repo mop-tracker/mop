@@ -159,62 +159,70 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 	var d struct {
 		QuoteResponse struct {
 			Result []struct {
-				Symbol                      string `json:"symbol"`
-				RegularMarketPrice          string `json:"regularMarketPrice"`
-				RegularMarketChange         string `json:"regularMarketChange"`
-				RegularMarketChangePercent  string `json:"regularMarketChangePercent"`
-				RegularMarketOpen           string `json:"regularMarketOpen"`
-				RegularMarketDayLow         string `json:"regularMarketDayLow"`
-				RegularMarketDayHigh        string `json:"regularMarketDayHigh"`
-				FiftyTwoWeekLow             string `json:"fiftyTwoWeekLow"`
-				FiftyTwoWeekHigh            string `json:"fiftyTwoWeekHigh"`
-				RegularMarketVolume         string `json:"regularMarketVolume"`
-				AverageDailyVolume10Day     string `json:"averageDailyVolume10Day"`
-				TrailingPE                  string `json:"trailingPE"`
-				TrailingAnnualDividendRate  string `json:"trailingAnnualDividendRate"`
-				TrailingAnnualDividendYield string `json:"trailingAnnualDividendYield"`
-				MarketCap                   string `json:"marketCap"`
-				Currency                    string `json:"currency"`
-				PreMarketChangePercent      string `json:"preMarketChangePercent,omitempty"`
-				PostMarketChangePercent     string `json:"postMarketChangePercent,omitempty"`
+				Symbol                      string  `json:"symbol"`
+				RegularMarketPrice          float64 `json:"regularMarketPrice"`
+				RegularMarketChange         float64 `json:"regularMarketChange"`
+				RegularMarketChangePercent  float64 `json:"regularMarketChangePercent"`
+				RegularMarketOpen           float64 `json:"regularMarketOpen"`
+				RegularMarketDayLow         float64 `json:"regularMarketDayLow"`
+				RegularMarketDayHigh        float64 `json:"regularMarketDayHigh"`
+				FiftyTwoWeekLow             float64 `json:"fiftyTwoWeekLow"`
+				FiftyTwoWeekHigh            float64 `json:"fiftyTwoWeekHigh"`
+				RegularMarketVolume         float64 `json:"regularMarketVolume"`
+				AverageDailyVolume10Day     float64 `json:"averageDailyVolume10Day"`
+				TrailingPE                  float64 `json:"trailingPE"`
+				TrailingAnnualDividendRate  float64 `json:"trailingAnnualDividendRate"`
+				TrailingAnnualDividendYield float64 `json:"trailingAnnualDividendYield"`
+				MarketCap                   float64 `json:"marketCap"`
+				Currency                    string  `json:"currency"`
+				PreMarketChangePercent      float64 `json:"preMarketChangePercent,omitempty"`
+				PostMarketChangePercent     float64 `json:"postMarketChangePercent,omitempty"`
 			} `json:"result"`
 		} `json:"quoteResponse"`
 	}
 
 	if err := json.Unmarshal(body, &d); err != nil {
-		return nil, err
+		// Can't unmarshal the data.
+		// Let's try to figure out what went wrong.
+		var data interface{}
+		json.Unmarshal(body, &data)
+		return nil, fmt.Errorf("JSON unmarshal failed: %w\n%+v", err, data)
 	}
 
 	quotes.stocks = make([]Stock, len(d.QuoteResponse.Result))
 	for i, stock := range d.QuoteResponse.Result {
 		quotes.stocks[i].Ticker = stock.Symbol
-		quotes.stocks[i].LastTrade = stock.RegularMarketPrice
-		quotes.stocks[i].Change = stock.RegularMarketChange
-		quotes.stocks[i].ChangePct = stock.RegularMarketChangePercent
-		quotes.stocks[i].Open = stock.RegularMarketOpen
-		quotes.stocks[i].Low = stock.RegularMarketDayLow
-		quotes.stocks[i].High = stock.RegularMarketDayHigh
-		quotes.stocks[i].Low52 = stock.FiftyTwoWeekLow
-		quotes.stocks[i].High52 = stock.FiftyTwoWeekHigh
-		quotes.stocks[i].Volume = stock.RegularMarketVolume
-		quotes.stocks[i].AvgVolume = stock.AverageDailyVolume10Day
-		quotes.stocks[i].PeRatio = stock.TrailingPE
-		quotes.stocks[i].PeRatioX = stock.TrailingPE
-		quotes.stocks[i].Dividend = stock.TrailingAnnualDividendRate
-		// The value here is returned in decimal representation but we want to display it as a percentage.
-		val, err := strconv.ParseFloat(stock.TrailingAnnualDividendRate, 64)
-		if err != nil {
-			// I think this might break if the case actually triggers no idea how to do it more robustly.
-			quotes.stocks[i].Yield = "N/A"
+		quotes.stocks[i].LastTrade = strconv.FormatFloat(stock.RegularMarketPrice, 'f', 2, 64)
+		quotes.stocks[i].Change = strconv.FormatFloat(stock.RegularMarketChange, 'f', 2, 64)
+		quotes.stocks[i].ChangePct = strconv.FormatFloat(stock.RegularMarketChangePercent, 'f', 2, 64)
+		quotes.stocks[i].Open = strconv.FormatFloat(stock.RegularMarketOpen, 'f', 2, 64)
+		quotes.stocks[i].Low = strconv.FormatFloat(stock.RegularMarketDayLow, 'f', 2, 64)
+		quotes.stocks[i].High = strconv.FormatFloat(stock.RegularMarketDayHigh, 'f', 2, 64)
+		quotes.stocks[i].Low52 = strconv.FormatFloat(stock.FiftyTwoWeekLow, 'f', 2, 64)
+		quotes.stocks[i].High52 = strconv.FormatFloat(stock.FiftyTwoWeekHigh, 'f', 2, 64)
+		quotes.stocks[i].Volume = float2Str(stock.RegularMarketVolume)
+		quotes.stocks[i].AvgVolume = float2Str(stock.AverageDailyVolume10Day)
+		quotes.stocks[i].PeRatio = strconv.FormatFloat(stock.TrailingPE, 'f', 2, 64)
+		quotes.stocks[i].PeRatioX = strconv.FormatFloat(stock.TrailingPE, 'f', 2, 64)
+		quotes.stocks[i].Dividend = strconv.FormatFloat(stock.TrailingAnnualDividendRate, 'f', 2, 64)
+		if stock.TrailingAnnualDividendYield != 0 {
+			quotes.stocks[i].Yield = strconv.FormatFloat(stock.TrailingAnnualDividendYield*100, 'f', 2, 64)
 		} else {
-			quotes.stocks[i].Yield = strconv.FormatFloat(val*100, 'f', 2, 64)
+			quotes.stocks[i].Yield = noDataIndicator
 		}
-		quotes.stocks[i].Yield = stock.TrailingAnnualDividendYield
-		quotes.stocks[i].MarketCap = stock.MarketCap
-		quotes.stocks[i].MarketCapX = stock.MarketCap
+		quotes.stocks[i].MarketCap = float2Str(stock.MarketCap)
+		quotes.stocks[i].MarketCapX = float2Str(stock.MarketCap)
 		quotes.stocks[i].Currency = stock.Currency
-		quotes.stocks[i].PreOpen = stock.PreMarketChangePercent
-		quotes.stocks[i].AfterHours = stock.PostMarketChangePercent
+		quotes.stocks[i].PreOpen = strconv.FormatFloat(stock.PreMarketChangePercent, 'f', 2, 64)
+		quotes.stocks[i].AfterHours = strconv.FormatFloat(stock.PostMarketChangePercent, 'f', 2, 64)
+
+		adv := stock.RegularMarketChange
+		quotes.stocks[i].Direction = 0
+		if adv < 0.0 {
+			quotes.stocks[i].Direction = -1
+		} else if adv > 0.0 {
+			quotes.stocks[i].Direction = 1
+		}
 	}
 
 	return quotes, nil

@@ -238,9 +238,9 @@ func (layout *Layout) pad(str string, width int) string {
 
 // -----------------------------------------------------------------------------
 func buildMarketTemplate() *template.Template {
-	markup := `<tag>Dow</> {{.Dow.change}} ({{.Dow.percent}}) at {{.Dow.latest}} <tag>S&P 500</> {{.Sp500.change}} ({{.Sp500.percent}}) at {{.Sp500.latest}} <tag>NASDAQ</> {{.Nasdaq.change}} ({{.Nasdaq.percent}}) at {{.Nasdaq.latest}}
-<tag>Tokyo</> {{.Tokyo.change}} ({{.Tokyo.percent}}) at {{.Tokyo.latest}} <tag>HK</> {{.HongKong.change}} ({{.HongKong.percent}}) at {{.HongKong.latest}} <tag>London</> {{.London.change}} ({{.London.percent}}) at {{.London.latest}} <tag>Frankfurt</> {{.Frankfurt.change}} ({{.Frankfurt.percent}}) at {{.Frankfurt.latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
-<tag>10-Year Yield</> {{.Yield.latest}} ({{.Yield.change}}) <tag>Euro</> ${{.Euro.latest}} ({{.Euro.change}}) <tag>Yen</> ¥{{.Yen.latest}} ({{.Yen.change}}) <tag>Oil</> ${{.Oil.latest}} ({{.Oil.change}}) <tag>Gold</> ${{.Gold.latest}} ({{.Gold.change}})`
+	markup := `<tag>Dow</> {{.Dow.Change}} ({{.Dow.Percent}}) at {{.Dow.Latest}} <tag>S&P 500</> {{.Sp500.Change}} ({{.Sp500.Percent}}) at {{.Sp500.Latest}} <tag>NASDAQ</> {{.Nasdaq.Change}} ({{.Nasdaq.Percent}}) at {{.Nasdaq.Latest}}
+<tag>Tokyo</> {{.Tokyo.Change}} ({{.Tokyo.Percent}}) at {{.Tokyo.Latest}} <tag>HK</> {{.HongKong.Change}} ({{.HongKong.Percent}}) at {{.HongKong.Latest}} <tag>London</> {{.London.Change}} ({{.London.Percent}}) at {{.London.Latest}} <tag>Frankfurt</> {{.Frankfurt.Change}} ({{.Frankfurt.Percent}}) at {{.Frankfurt.Latest}} {{if .IsClosed}}<right>U.S. markets closed</right>{{end}}
+<tag>10-Year Yield</> {{.Yield.Latest}} ({{.Yield.Change}}) <tag>Euro</> ${{.Euro.Latest}} ({{.Euro.Change}}) <tag>Yen</> ¥{{.Yen.Latest}} ({{.Yen.Change}}) <tag>Oil</> ${{.Oil.Latest}} ({{.Oil.Change}}) <tag>Gold</> ${{.Gold.Latest}} ({{.Gold.Change}})`
 
 	return template.Must(template.New(`market`).Parse(markup))
 }
