@@ -192,29 +192,29 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 	quotes.stocks = make([]Stock, len(d.QuoteResponse.Result))
 	for i, stock := range d.QuoteResponse.Result {
 		quotes.stocks[i].Ticker = stock.Symbol
-		quotes.stocks[i].LastTrade = strconv.FormatFloat(stock.RegularMarketPrice, 'f', 2, 64)
-		quotes.stocks[i].Change = strconv.FormatFloat(stock.RegularMarketChange, 'f', 2, 64)
-		quotes.stocks[i].ChangePct = strconv.FormatFloat(stock.RegularMarketChangePercent, 'f', 2, 64)
-		quotes.stocks[i].Open = strconv.FormatFloat(stock.RegularMarketOpen, 'f', 2, 64)
-		quotes.stocks[i].Low = strconv.FormatFloat(stock.RegularMarketDayLow, 'f', 2, 64)
-		quotes.stocks[i].High = strconv.FormatFloat(stock.RegularMarketDayHigh, 'f', 2, 64)
-		quotes.stocks[i].Low52 = strconv.FormatFloat(stock.FiftyTwoWeekLow, 'f', 2, 64)
-		quotes.stocks[i].High52 = strconv.FormatFloat(stock.FiftyTwoWeekHigh, 'f', 2, 64)
+		quotes.stocks[i].LastTrade = float2Str(stock.RegularMarketPrice)
+		quotes.stocks[i].Change = float2Str(stock.RegularMarketChange)
+		quotes.stocks[i].ChangePct = float2Str(stock.RegularMarketChangePercent)
+		quotes.stocks[i].Open = float2Str(stock.RegularMarketOpen)
+		quotes.stocks[i].Low = float2Str(stock.RegularMarketDayLow)
+		quotes.stocks[i].High = float2Str(stock.RegularMarketDayHigh)
+		quotes.stocks[i].Low52 = float2Str(stock.FiftyTwoWeekLow)
+		quotes.stocks[i].High52 = float2Str(stock.FiftyTwoWeekHigh)
 		quotes.stocks[i].Volume = float2Str(stock.RegularMarketVolume)
 		quotes.stocks[i].AvgVolume = float2Str(stock.AverageDailyVolume10Day)
-		quotes.stocks[i].PeRatio = strconv.FormatFloat(stock.TrailingPE, 'f', 2, 64)
-		quotes.stocks[i].PeRatioX = strconv.FormatFloat(stock.TrailingPE, 'f', 2, 64)
-		quotes.stocks[i].Dividend = strconv.FormatFloat(stock.TrailingAnnualDividendRate, 'f', 2, 64)
+		quotes.stocks[i].PeRatio = float2Str(stock.TrailingPE)
+		quotes.stocks[i].PeRatioX = float2Str(stock.TrailingPE)
+		quotes.stocks[i].Dividend = float2Str(stock.TrailingAnnualDividendRate)
 		if stock.TrailingAnnualDividendYield != 0 {
-			quotes.stocks[i].Yield = strconv.FormatFloat(stock.TrailingAnnualDividendYield*100, 'f', 2, 64)
+			quotes.stocks[i].Yield = float2Str(stock.TrailingAnnualDividendYield * 100)
 		} else {
 			quotes.stocks[i].Yield = noDataIndicator
 		}
 		quotes.stocks[i].MarketCap = float2Str(stock.MarketCap)
 		quotes.stocks[i].MarketCapX = float2Str(stock.MarketCap)
 		quotes.stocks[i].Currency = stock.Currency
-		quotes.stocks[i].PreOpen = strconv.FormatFloat(stock.PreMarketChangePercent, 'f', 2, 64)
-		quotes.stocks[i].AfterHours = strconv.FormatFloat(stock.PostMarketChangePercent, 'f', 2, 64)
+		quotes.stocks[i].PreOpen = float2Str(stock.PreMarketChangePercent)
+		quotes.stocks[i].AfterHours = float2Str(stock.PostMarketChangePercent)
 
 		adv := stock.RegularMarketChange
 		quotes.stocks[i].Direction = 0

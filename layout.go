@@ -81,12 +81,10 @@ func (layout *Layout) Market(market *Market) string {
 		return err // then simply return the error string.
 	}
 
-	highlight(
-		toMapSlice(
-			market.Dow, market.Sp500, market.Nasdaq,
-			market.Tokyo, market.HongKong, market.London, market.Frankfurt,
-			market.Yield, market.Oil, market.Euro, market.Yen, market.Gold,
-		)...,
+	highlightMarket(
+		&market.Dow, &market.Sp500, &market.Nasdaq,
+		&market.Tokyo, &market.HongKong, &market.London, &market.Frankfurt,
+		&market.Yield, &market.Oil, &market.Euro, &market.Yen, &market.Gold,
 	)
 	buffer := new(bytes.Buffer)
 	layout.marketTemplate.Execute(buffer, market)
@@ -94,12 +92,23 @@ func (layout *Layout) Market(market *Market) string {
 	return buffer.String()
 }
 
-func toMapSlice(markets ...MarketIndex) []map[string]string {
-	result := make([]map[string]string, len(markets))
-	for i, m := range markets {
-		result[i] = m.ToMap()
+// highlightMarket iterates over the list of market indexes and adds markup
+// to highlight positive/negative price changes.
+func highlightMarket(indexes ...*MarketIndex) {
+	for _, index := range indexes {
+		change := index.Change
+		if len(change) > 0 && change[len(change)-1:] == `%` {
+			change = change[0 : len(change)-1]
+		}
+		adv, err := strconv.ParseFloat(change, 64)
+		if err == nil {
+			if adv < 0.0 {
+				index.Change = `<loss>` + index.Change + `</>`
+			} else if adv > 0.0 {
+				index.Change = `<gain>` + index.Change + `</>`
+			}
+		}
 	}
-	return result
 }
 
 // Quotes uses quotes template to format timestamp, stock quotes header,
@@ -256,24 +265,6 @@ func buildQuotesTemplate() *template.Template {
 {{end}}`
 
 	return template.Must(template.New(`quotes`).Parse(markup))
-}
-
-// -----------------------------------------------------------------------------
-func highlight(collections ...map[string]string) {
-	for _, collection := range collections {
-		change := collection[`change`]
-		if change[len(change)-1:] == `%` {
-			change = change[0 : len(change)-1]
-		}
-		adv, err := strconv.ParseFloat(change, 64)
-		if err == nil {
-			if adv < 0.0 {
-				collection[`change`] = `<loss>` + collection[`change`] + `</>`
-			} else if adv > 0.0 {
-				collection[`change`] = `<gain>` + collection[`change`] + `</>`
-			}
-		}
-	}
 }
 
 // -----------------------------------------------------------------------------

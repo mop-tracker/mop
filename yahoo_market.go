@@ -10,7 +10,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
 const (
@@ -140,14 +139,14 @@ func assign(result struct {
 	RegularMarketPrice         float64 `json:"regularMarketPrice"`
 	RegularMarketChangePercent float64 `json:"regularMarketChangePercent"`
 }, changeAsPercent bool) MarketIndex {
-	change := strconv.FormatFloat(result.RegularMarketChange, 'f', 2, 64)
-	latest := strconv.FormatFloat(result.RegularMarketPrice, 'f', 2, 64)
-	percent := strconv.FormatFloat(result.RegularMarketChangePercent, 'f', 2, 64)
+	change := float2Str(result.RegularMarketChange)
+	latest := float2Str(result.RegularMarketPrice)
+	percent := ""
 
 	if changeAsPercent {
-		change += "%"
+		change = float2Str(result.RegularMarketChangePercent) + `%`
 	} else {
-		percent += "%"
+		percent = float2Str(result.RegularMarketChangePercent) + `%`
 	}
 
 	return MarketIndex{
