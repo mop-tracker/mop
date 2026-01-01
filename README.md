@@ -68,6 +68,12 @@ To clear the filter, press `Shift+F`.
 
 You can specify the profile you want to use by passing ``-profile <filename>`` to the command-line.
 
+### Data Providers
+Mop supports multiple data providers. You can switch providers by setting the `"Provider"` value in your `~/.moprc`.
+
+- **Yahoo Finance**: (Default) Fast updates for quotes and market data.
+- **Stooq**: Alternative provider. Supports international markets but has strict rate limits and delayed loading for 52-week statistics. See [STOOQ.md](STOOQ.md) for details.
+
 ### Options and settings
 
 In `~/.moprc`:

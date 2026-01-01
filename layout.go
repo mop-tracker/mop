@@ -14,6 +14,8 @@ import (
 	"text/template"
 	"time"
 	"unicode"
+
+	"github.com/mop-tracker/mop/provider"
 )
 
 var currencies = map[string]string{
@@ -76,10 +78,12 @@ func NewLayout() *Layout {
 
 // Market merges given market data structure with the market template and
 // returns formatted string that includes highlighting markup.
-func (layout *Layout) Market(market *Market) string {
-	if ok, err := market.Ok(); !ok { // If there was an error fetching market data...
+func (layout *Layout) Market(m provider.Market) string {
+	if ok, err := m.Ok(); !ok { // If there was an error fetching market data...
 		return err // then simply return the error string.
 	}
+
+	market := m.GetData()
 
 	highlightMarket(
 		&market.Dow, &market.Sp500, &market.Nasdaq,
@@ -94,7 +98,7 @@ func (layout *Layout) Market(market *Market) string {
 
 // highlightMarket iterates over the list of market indexes and adds markup
 // to highlight positive/negative price changes.
-func highlightMarket(indexes ...*MarketIndex) {
+func highlightMarket(indexes ...*provider.MarketIndex) {
 	for _, index := range indexes {
 		change := index.Change
 		if len(change) > 0 && change[len(change)-1:] == `%` {
@@ -114,20 +118,20 @@ func highlightMarket(indexes ...*MarketIndex) {
 // Quotes uses quotes template to format timestamp, stock quotes header,
 // and the list of given stock quotes. It returns formatted string with
 // all the necessary markup.
-func (layout *Layout) Quotes(quotes *Quotes) string {
+func (layout *Layout) Quotes(quotes provider.Quotes, profile *Profile) string {
 	zonename, _ := time.Now().In(time.Local).Zone()
 	if ok, err := quotes.Ok(); !ok { // If there was an error fetching stock quotes...
 		return err // then simply return the error string.
 	}
 
 	vars := struct {
-		Now    string  // Current timestamp.
-		Header string  // Formatted header line.
-		Stocks []Stock // List of formatted stock quotes.
+		Now    string           // Current timestamp.
+		Header string           // Formatted header line.
+		Stocks []provider.Stock // List of formatted stock quotes.
 	}{
 		time.Now().Format(`3:04:05pm ` + zonename),
-		layout.Header(quotes.profile),
-		layout.prettify(quotes),
+		layout.Header(profile),
+		layout.prettify(quotes, profile),
 	}
 
 	buffer := new(bytes.Buffer)
@@ -162,15 +166,16 @@ func (layout *Layout) TotalColumns() int {
 }
 
 // -----------------------------------------------------------------------------
-func (layout *Layout) prettify(quotes *Quotes) []Stock {
-	pretty := make([]Stock, len(quotes.stocks))
+func (layout *Layout) prettify(quotes provider.Quotes, profile *Profile) []provider.Stock {
+	stocks := quotes.GetStocks()
+	pretty := make([]provider.Stock, len(stocks))
 
 	//
 	// Iterate over the list of stocks to get the longest ticker name (some tickers will exceed the allotted 10 char length for the Ticker column)
 	// Save the longest ticker length and use max(longestlength, column.width) later in the second loop to keep the ticker indentations consistent
 	//
 	tickerWidth := 0
-	for _, stock := range quotes.stocks {
+	for _, stock := range stocks {
 		value := reflect.ValueOf(&stock).Elem().FieldByName(`Ticker`).String()
 		currentLength := len(value)
 		if currentLength > tickerWidth {
@@ -181,7 +186,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 	//
 	// Iterate over the list of stocks and properly format all its columns.
 	//
-	for i, stock := range quotes.stocks {
+	for i, stock := range stocks {
 		pretty[i].Direction = stock.Direction
 		//
 		// Iterate over the list of stock columns. For each column name:
@@ -204,7 +209,7 @@ func (layout *Layout) prettify(quotes *Quotes) []Stock {
 		}
 	}
 
-	profile := quotes.profile
+	// profile := quotes.profile // Removed as passed in argument
 
 	if profile.Filter != "" { // Fix for blank display if invalid filter expression was cleared.
 		if profile.filterExpression != nil {
@@ -268,8 +273,8 @@ func buildQuotesTemplate() *template.Template {
 }
 
 // -----------------------------------------------------------------------------
-func group(stocks []Stock) []Stock {
-	grouped := make([]Stock, len(stocks))
+func group(stocks []provider.Stock) []provider.Stock {
+	grouped := make([]provider.Stock, len(stocks))
 	current := 0
 
 	for _, stock := range stocks {
@@ -374,7 +379,7 @@ func percent(str ...string) string {
 		}
 		str[0] = split[0] + "." + split[1][0:digits]
 	}
-	if str[0][len(str)-1] != '%' {
+	if len(str[0]) > 0 && str[0][len(str[0])-1] != '%' {
 		str[0] += `%`
 	}
 	return str[0]

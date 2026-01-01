@@ -7,6 +7,8 @@ package mop
 import (
 	"strconv"
 	"strings"
+
+	"github.com/mop-tracker/mop/provider"
 )
 
 // Filter gets called to sort stock quotes by one of the columns. The
@@ -40,8 +42,8 @@ func stringToNumber(numberString string) float64 {
 
 // Apply builds a list of sort interface based on current sort
 // order, then calls sort.Sort to do the actual job.
-func (filter *Filter) Apply(stocks []Stock) []Stock {
-	var filteredStocks []Stock
+func (filter *Filter) Apply(stocks []provider.Stock) []provider.Stock {
+	var filteredStocks []provider.Stock
 
 	for _, stock := range stocks {
 		values := make(map[string]interface{})

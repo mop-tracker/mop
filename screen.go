@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mop-tracker/mop/provider"
 	"github.com/nsf/termbox-go"
 )
 
@@ -116,12 +117,12 @@ func (screen *Screen) ScrollBottom() {
 }
 
 // DrawOldQuotes and DrawOldMarket are kept as is, but can be refactored later.
-func (screen *Screen) DrawOldQuotes(quotes *Quotes) {
-	screen.draw(screen.layout.Quotes(quotes), true)
+func (screen *Screen) DrawOldQuotes(quotes provider.Quotes) {
+	screen.draw(screen.layout.Quotes(quotes, screen.profile), true)
 	termbox.Flush()
 }
 
-func (screen *Screen) DrawOldMarket(market *Market) {
+func (screen *Screen) DrawOldMarket(market provider.Market) {
 	screen.draw(screen.layout.Market(market), false)
 	termbox.Flush()
 }
@@ -135,12 +136,12 @@ func (screen *Screen) Draw(objects ...interface{}) *Screen {
 	}
 	for _, ptr := range objects {
 		switch ptr := ptr.(type) {
-		case *Market:
+		case provider.Market:
 			object := ptr
 			screen.draw(screen.layout.Market(object.Fetch()), false)
-		case *Quotes:
+		case provider.Quotes:
 			object := ptr
-			screen.draw(screen.layout.Quotes(object.Fetch()), true)
+			screen.draw(screen.layout.Quotes(object.Fetch(), screen.profile), true)
 		case time.Time:
 			timestamp := ptr.Format(`3:04:05pm ` + zonename)
 			screen.DrawLineInverted(0, 0, `<right><time>`+timestamp+`</></right>`)

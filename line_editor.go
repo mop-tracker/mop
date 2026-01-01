@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/mop-tracker/mop/provider"
 	"github.com/nsf/termbox-go"
 )
 
@@ -16,17 +17,17 @@ import (
 // data and keep track of cursor movements (left, right, beginning of the
 // line, end of the line, and backspace).
 type LineEditor struct {
-	command rune           // Keyboard command such as '+' or '-'.
-	cursor  int            // Current cursor position within the input line.
-	prompt  string         // Prompt string for the command.
-	input   string         // User typed input string.
-	screen  *Screen        // Pointer to Screen.
-	quotes  *Quotes        // Pointer to Quotes.
-	regex   *regexp.Regexp // Regex to split comma-delimited input string.
+	command rune            // Keyboard command such as '+' or '-'.
+	cursor  int             // Current cursor position within the input line.
+	prompt  string          // Prompt string for the command.
+	input   string          // User typed input string.
+	screen  *Screen         // Pointer to Screen.
+	quotes  provider.Quotes // Pointer to Quotes.
+	regex   *regexp.Regexp  // Regex to split comma-delimited input string.
 }
 
 // Returns new initialized LineEditor struct.
-func NewLineEditor(screen *Screen, quotes *Quotes) *LineEditor {
+func NewLineEditor(screen *Screen, quotes provider.Quotes) *LineEditor {
 	return &LineEditor{
 		screen: screen,
 		quotes: quotes,
@@ -40,7 +41,7 @@ func NewLineEditor(screen *Screen, quotes *Quotes) *LineEditor {
 func (editor *LineEditor) Prompt(command rune) *LineEditor {
 	filterPrompt := `Set filter: `
 
-	if filter := editor.quotes.profile.Filter; len(filter) > 0 {
+	if filter := editor.screen.profile.Filter; len(filter) > 0 {
 		filterPrompt = `Set filter (` + filter + `): `
 	}
 
@@ -183,7 +184,7 @@ func (editor *LineEditor) execute() *LineEditor {
 	case '-':
 		tickers := editor.tokenize()
 		if len(tickers) > 0 {
-			before := len(editor.quotes.profile.Tickers)
+			before := len(editor.screen.profile.Tickers)
 			if removed, _ := editor.quotes.RemoveTickers(tickers); removed > 0 {
 				editor.screen.Draw(editor.quotes)
 
@@ -196,12 +197,12 @@ func (editor *LineEditor) execute() *LineEditor {
 		}
 	case 'f':
 		if len(editor.input) == 0 {
-			editor.input = editor.quotes.profile.Filter
+			editor.input = editor.screen.profile.Filter
 		}
 
-		editor.quotes.profile.SetFilter(editor.input)
+		editor.screen.profile.SetFilter(editor.input)
 	case 'F':
-		editor.quotes.profile.SetFilter("")
+		editor.screen.profile.SetFilter("")
 	}
 
 	return editor

@@ -6,7 +6,7 @@ package mop
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 
@@ -27,6 +27,7 @@ const (
 // the ~/.moprc file.
 type Profile struct {
 	Tickers       []string // List of stock tickers to display.
+	Provider      string   // Data provider to use (stooq, yahoo, etc.)
 	MarketRefresh int      // Time interval to refresh market data.
 	QuotesRefresh int      // Time interval to refresh stock quotes.
 	SortColumn    int      // Column number by which we sort stock quotes.
@@ -76,10 +77,10 @@ func IsSupportedColor(colorName string) bool {
 }
 
 // Creates the profile and attempts to load the settings from ~/.moprc file.
-// If the file is not there it gets created with default values.
+// If the file is there it gets created with default values.
 func NewProfile(filename string) (*Profile, error) {
 	profile := &Profile{filename: filename}
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err == nil {
 		err = json.Unmarshal(data, profile)
 
@@ -109,6 +110,7 @@ func NewProfile(filename string) (*Profile, error) {
 
 // Initializes a profile with the default values
 func (profile *Profile) InitDefaultProfile() {
+	profile.Provider = "yahoo"
 	profile.MarketRefresh = 600 // Market data gets fetched every 600s (1 time per 5 minutes).
 	profile.QuotesRefresh = 600 // Stock quotes get updated every 600s (1 time per 5 minutes).
 	profile.Grouped = false     // Stock quotes are *not* grouped by advancing/declining.
@@ -145,7 +147,11 @@ func (profile *Profile) Save() error {
 		return err
 	}
 
-	return ioutil.WriteFile(profile.filename, data, 0o644)
+	return os.WriteFile(profile.filename, data, 0o644)
+}
+
+func (profile *Profile) GetTickers() []string {
+	return profile.Tickers
 }
 
 // AddTickers updates the list of existing tickers to add the new ones making

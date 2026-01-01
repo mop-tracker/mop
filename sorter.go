@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/mop-tracker/mop/provider"
 )
 
 // Sorter gets called to sort stock quotes by one of the columns. The
@@ -17,7 +19,7 @@ type Sorter struct {
 	profile *Profile // Pointer to where we store sort column and order.
 }
 
-type sortable []Stock
+type sortable []provider.Stock
 
 func (list sortable) Len() int      { return len(list) }
 func (list sortable) Swap(i, j int) { list[i], list[j] = list[j], list[i] }
@@ -207,7 +209,7 @@ func NewSorter(profile *Profile) *Sorter {
 
 // SortByCurrentColumn builds a list of sort interface based on current sort
 // order, then calls sort.Sort to do the actual job.
-func (sorter *Sorter) SortByCurrentColumn(stocks []Stock) *Sorter {
+func (sorter *Sorter) SortByCurrentColumn(stocks []provider.Stock) *Sorter {
 	var interfaces []sort.Interface
 
 	if sorter.profile.Ascending {

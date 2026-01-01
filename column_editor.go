@@ -4,26 +4,29 @@
 
 package mop
 
-import "github.com/nsf/termbox-go"
+import (
+	"github.com/mop-tracker/mop/provider"
+	"github.com/nsf/termbox-go"
+)
 
 // ColumnEditor handles column sort order. When activated it highlights
 // current column name in the header, then waits for arrow keys (choose
 // another column), Enter (reverse sort order), or Esc (exit).
 type ColumnEditor struct {
-	screen  *Screen  // Pointer to Screen so we could use screen.Draw().
-	quotes  *Quotes  // Pointer to Quotes to redraw them when the sort order changes.
-	layout  *Layout  // Pointer to Layout to redraw stock quotes header.
-	profile *Profile // Pointer to Profile where we save newly selected sort order.
+	screen  *Screen         // Pointer to Screen so we could use screen.Draw().
+	quotes  provider.Quotes // Pointer to Quotes to redraw them when the sort order changes.
+	layout  *Layout         // Pointer to Layout to redraw stock quotes header.
+	profile *Profile        // Pointer to Profile where we save newly selected sort order.
 }
 
 // Returns new initialized ColumnEditor struct. As part of initialization it
 // highlights current column name (as stored in Profile).
-func NewColumnEditor(screen *Screen, quotes *Quotes) *ColumnEditor {
+func NewColumnEditor(screen *Screen, quotes provider.Quotes) *ColumnEditor {
 	editor := &ColumnEditor{
 		screen:  screen,
 		quotes:  quotes,
 		layout:  screen.layout,
-		profile: quotes.profile,
+		profile: screen.profile,
 	}
 
 	editor.selectCurrentColumn()

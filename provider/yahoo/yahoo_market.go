@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
-package mop
+package yahoo
 
 import (
 	"encoding/json"
@@ -10,6 +10,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/mop-tracker/mop/provider"
 )
 
 const (
@@ -18,39 +20,22 @@ const (
 	symbols             = `^DJI,^IXIC,^GSPC,^N225,^HSI,^FTSE,^GDAXI,^TNX,CL=F,JPY=X,EUR=X,GC=F`
 )
 
-// Market stores current market information displayed in the top three lines of
+// MarketIndex stores current market information displayed in the top three lines of
 // the screen. The market data is fetched and parsed from the HTML page above.
-type MarketIndex struct {
-	Change  string
-	Latest  string
-	Percent string
-	Name    string // optional
-}
+type MarketIndex = provider.MarketIndex
 
 type Market struct {
-	IsClosed  bool
-	Dow       MarketIndex
-	Nasdaq    MarketIndex
-	Sp500     MarketIndex
-	Tokyo     MarketIndex
-	HongKong  MarketIndex
-	London    MarketIndex
-	Frankfurt MarketIndex
-	Yield     MarketIndex
-	Oil       MarketIndex
-	Yen       MarketIndex
-	Euro      MarketIndex
-	Gold      MarketIndex
-	errors    string // Error(s), if any.
-	url       string // URL with symbols to fetch data
-	cookies   string // cookies for auth
-	crumb     string // crumb for the cookies, to be applied as a query param
+	provider.MarketData
+	errors  string // Error(s), if any.
+	url     string // URL with symbols to fetch data
+	cookies string // cookies for auth
+	crumb   string // crumb for the cookies, to be applied as a query param
 }
 
 // Returns new initialized Market struct.
 func NewMarket() *Market {
 	market := &Market{}
-	market.IsClosed = false
+	market.Closed = false
 
 	market.cookies = fetchCookies()
 	market.crumb = fetchCrumb(market.cookies)
@@ -74,8 +59,7 @@ func NewMarket() *Market {
 
 // Fetch downloads HTML page from the 'marketURL', parses it, and stores resulting data
 // in internal hashes. If download or data parsing fails Fetch populates 'market.errors'.
-func (market *Market) Fetch() (self *Market) {
-	self = market // <-- This ensures we return correct market after recover() from panic().
+func (market *Market) Fetch() provider.Market {
 	defer func() {
 		if err := recover(); err != nil {
 			market.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
@@ -127,6 +111,18 @@ func (market *Market) Ok() (bool, string) {
 	return market.errors == ``, market.errors
 }
 
+func (market *Market) IsClosed() bool {
+	return market.MarketData.Closed
+}
+
+func (market *Market) GetData() *provider.MarketData {
+	return &market.MarketData
+}
+
+func (market *Market) RefreshAdvice() int {
+	return 1
+}
+
 // -----------------------------------------------------------------------------
 func (market *Market) isMarketOpen(body []byte) []byte {
 	// TBD -- CNN page doesn't seem to have market open/close indicator.
@@ -153,14 +149,6 @@ func assign(result struct {
 		Change:  change,
 		Latest:  latest,
 		Percent: percent,
-	}
-}
-
-func (mi MarketIndex) ToMap() map[string]string {
-	return map[string]string{
-		"change":  mi.Change,
-		"latest":  mi.Latest,
-		"percent": mi.Percent,
 	}
 }
 

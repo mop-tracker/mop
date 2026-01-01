@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license that can
 // be found in the LICENSE file.
 
-package mop
+package yahoo
 
 import (
 	"bytes"
@@ -13,6 +13,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/mop-tracker/mop/provider"
 )
 
 const quotesURL = `https://query1.finance.yahoo.com/v7/finance/quote?crumb=%s&symbols=%s`
@@ -22,43 +24,24 @@ const quotesURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimes
 
 const noDataIndicator = `N/A`
 
+// Profile interface defines the methods required from the profile configuration
+type Profile = provider.Profile
+
 // Stock stores quote information for the particular stock ticker. The data
 // for all the fields except 'Direction' is fetched using Yahoo market API.
-type Stock struct {
-	Ticker     string `json:"symbol"`                      // Stock ticker.
-	LastTrade  string `json:"regularMarketPrice"`          // l1: last trade.
-	Change     string `json:"regularMarketChange"`         // c6: change real time.
-	ChangePct  string `json:"regularMarketChangePercent"`  // k2: percent change real time.
-	Open       string `json:"regularMarketOpen"`           // o: market open price.
-	Low        string `json:"regularMarketDayLow"`         // g: day's low.
-	High       string `json:"regularMarketDayHigh"`        // h: day's high.
-	Low52      string `json:"fiftyTwoWeekLow"`             // j: 52-weeks low.
-	High52     string `json:"fiftyTwoWeekHigh"`            // k: 52-weeks high.
-	Volume     string `json:"regularMarketVolume"`         // v: volume.
-	AvgVolume  string `json:"averageDailyVolume10Day"`     // a2: average volume.
-	PeRatio    string `json:"trailingPE"`                  // r2: P/E ration real time.
-	PeRatioX   string `json:"trailingPE"`                  // r: P/E ration (fallback when real time is N/A).
-	Dividend   string `json:"trailingAnnualDividendRate"`  // d: dividend.
-	Yield      string `json:"trailingAnnualDividendYield"` // y: dividend yield.
-	MarketCap  string `json:"marketCap"`                   // j3: market cap real time.
-	MarketCapX string `json:"marketCap"`                   // j1: market cap (fallback when real time is N/A).
-	Currency   string `json:"currency"`                    // String code for currency of stock.
-	Direction  int    // -1 when change is < $0, 0 when change is = $0, 1 when change is > $0.
-	PreOpen    string `json:"preMarketChangePercent,omitempty"`
-	AfterHours string `json:"postMarketChangePercent,omitempty"`
-}
+type Stock = provider.Stock
 
 // Quotes stores relevant pointers as well as the array of stock quotes for
 // the tickers we are tracking.
 type Quotes struct {
-	market  *Market  // Pointer to Market.
-	profile *Profile // Pointer to Profile.
-	stocks  []Stock  // Array of stock quote data.
-	errors  string   // Error string if any.
+	market  *Market // Pointer to Market.
+	profile Profile // Pointer to Profile (Interface).
+	Stocks  []Stock // Array of stock quote data.
+	errors  string  // Error string if any.
 }
 
 // Sets the initial values and returns new Quotes struct.
-func NewQuotes(market *Market, profile *Profile) *Quotes {
+func NewQuotes(market *Market, profile Profile) *Quotes {
 	return &Quotes{
 		market:  market,
 		profile: profile,
@@ -68,8 +51,7 @@ func NewQuotes(market *Market, profile *Profile) *Quotes {
 
 // Fetch the latest stock quotes and parse raw fetched data into array of
 // []Stock structs.
-func (quotes *Quotes) Fetch() (self *Quotes) {
-	self = quotes // <-- This ensures we return correct quotes after recover() from panic().
+func (quotes *Quotes) Fetch() provider.Quotes {
 	if quotes.isReady() {
 		defer func() {
 			if err := recover(); err != nil {
@@ -79,7 +61,7 @@ func (quotes *Quotes) Fetch() (self *Quotes) {
 			}
 		}()
 
-		url := fmt.Sprintf(quotesURL, quotes.market.crumb, strings.Join(quotes.profile.Tickers, `,`))
+		url := fmt.Sprintf(quotesURL, quotes.market.crumb, strings.Join(quotes.profile.GetTickers(), `,`))
 
 		client := http.Client{}
 		request, err := http.NewRequest(http.MethodGet, url, nil)
@@ -132,7 +114,7 @@ func (quotes *Quotes) Ok() (bool, string) {
 // when user adds new stock tickers.
 func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
 	if added, err = quotes.profile.AddTickers(tickers); err == nil && added > 0 {
-		quotes.stocks = nil // Force fetch.
+		quotes.Stocks = nil // Force fetch.
 	}
 	return
 }
@@ -142,7 +124,7 @@ func (quotes *Quotes) AddTickers(tickers []string) (added int, err error) {
 // when user removes existing stock tickers.
 func (quotes *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 	if removed, err = quotes.profile.RemoveTickers(tickers); err == nil && removed > 0 {
-		quotes.stocks = nil // Force fetch.
+		quotes.Stocks = nil // Force fetch.
 	}
 	return
 }
@@ -151,7 +133,19 @@ func (quotes *Quotes) RemoveTickers(tickers []string) (removed int, err error) {
 // market is still open and we might want to grab the latest quotes. In both
 // cases we make sure the list of requested tickers is not empty.
 func (quotes *Quotes) isReady() bool {
-	return (quotes.stocks == nil || !quotes.market.IsClosed) && len(quotes.profile.Tickers) > 0
+	return (quotes.Stocks == nil || !quotes.market.IsClosed()) && len(quotes.profile.GetTickers()) > 0
+}
+
+func (q *Quotes) GetStocks() []provider.Stock {
+	return q.Stocks
+}
+
+func (q *Quotes) RefreshAdvice() int {
+	return 1
+}
+
+func (q *Quotes) BindOnUpdate(f func()) {
+	// Yahoo has no background updates
 }
 
 // this will parse the json objects
@@ -189,39 +183,39 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 		return nil, fmt.Errorf("JSON unmarshal failed: %w\n%+v", err, data)
 	}
 
-	quotes.stocks = make([]Stock, len(d.QuoteResponse.Result))
+	quotes.Stocks = make([]Stock, len(d.QuoteResponse.Result))
 	for i, stock := range d.QuoteResponse.Result {
-		quotes.stocks[i].Ticker = stock.Symbol
-		quotes.stocks[i].LastTrade = float2Str(stock.RegularMarketPrice)
-		quotes.stocks[i].Change = float2Str(stock.RegularMarketChange)
-		quotes.stocks[i].ChangePct = float2Str(stock.RegularMarketChangePercent)
-		quotes.stocks[i].Open = float2Str(stock.RegularMarketOpen)
-		quotes.stocks[i].Low = float2Str(stock.RegularMarketDayLow)
-		quotes.stocks[i].High = float2Str(stock.RegularMarketDayHigh)
-		quotes.stocks[i].Low52 = float2Str(stock.FiftyTwoWeekLow)
-		quotes.stocks[i].High52 = float2Str(stock.FiftyTwoWeekHigh)
-		quotes.stocks[i].Volume = float2Str(stock.RegularMarketVolume)
-		quotes.stocks[i].AvgVolume = float2Str(stock.AverageDailyVolume10Day)
-		quotes.stocks[i].PeRatio = float2Str(stock.TrailingPE)
-		quotes.stocks[i].PeRatioX = float2Str(stock.TrailingPE)
-		quotes.stocks[i].Dividend = float2Str(stock.TrailingAnnualDividendRate)
+		quotes.Stocks[i].Ticker = stock.Symbol
+		quotes.Stocks[i].LastTrade = float2Str(stock.RegularMarketPrice)
+		quotes.Stocks[i].Change = float2Str(stock.RegularMarketChange)
+		quotes.Stocks[i].ChangePct = float2Str(stock.RegularMarketChangePercent)
+		quotes.Stocks[i].Open = float2Str(stock.RegularMarketOpen)
+		quotes.Stocks[i].Low = float2Str(stock.RegularMarketDayLow)
+		quotes.Stocks[i].High = float2Str(stock.RegularMarketDayHigh)
+		quotes.Stocks[i].Low52 = float2Str(stock.FiftyTwoWeekLow)
+		quotes.Stocks[i].High52 = float2Str(stock.FiftyTwoWeekHigh)
+		quotes.Stocks[i].Volume = float2Str(stock.RegularMarketVolume)
+		quotes.Stocks[i].AvgVolume = float2Str(stock.AverageDailyVolume10Day)
+		quotes.Stocks[i].PeRatio = float2Str(stock.TrailingPE)
+		quotes.Stocks[i].PeRatioX = float2Str(stock.TrailingPE)
+		quotes.Stocks[i].Dividend = float2Str(stock.TrailingAnnualDividendRate)
 		if stock.TrailingAnnualDividendYield != 0 {
-			quotes.stocks[i].Yield = float2Str(stock.TrailingAnnualDividendYield * 100)
+			quotes.Stocks[i].Yield = float2Str(stock.TrailingAnnualDividendYield * 100)
 		} else {
-			quotes.stocks[i].Yield = noDataIndicator
+			quotes.Stocks[i].Yield = noDataIndicator
 		}
-		quotes.stocks[i].MarketCap = float2Str(stock.MarketCap)
-		quotes.stocks[i].MarketCapX = float2Str(stock.MarketCap)
-		quotes.stocks[i].Currency = stock.Currency
-		quotes.stocks[i].PreOpen = float2Str(stock.PreMarketChangePercent)
-		quotes.stocks[i].AfterHours = float2Str(stock.PostMarketChangePercent)
+		quotes.Stocks[i].MarketCap = float2Str(stock.MarketCap)
+		quotes.Stocks[i].MarketCapX = float2Str(stock.MarketCap)
+		quotes.Stocks[i].Currency = stock.Currency
+		quotes.Stocks[i].PreOpen = float2Str(stock.PreMarketChangePercent)
+		quotes.Stocks[i].AfterHours = float2Str(stock.PostMarketChangePercent)
 
 		adv := stock.RegularMarketChange
-		quotes.stocks[i].Direction = 0
+		quotes.Stocks[i].Direction = 0
 		if adv < 0.0 {
-			quotes.stocks[i].Direction = -1
+			quotes.Stocks[i].Direction = -1
 		} else if adv > 0.0 {
-			quotes.stocks[i].Direction = 1
+			quotes.Stocks[i].Direction = 1
 		}
 	}
 
@@ -232,12 +226,12 @@ func (quotes *Quotes) parse2(body []byte) (*Quotes, error) {
 // market API.
 func (quotes *Quotes) parse(body []byte) *Quotes {
 	lines := bytes.Split(body, []byte{'\n'})
-	quotes.stocks = make([]Stock, len(lines))
+	quotes.Stocks = make([]Stock, len(lines))
 	//
 	// Get the total number of fields in the Stock struct. Skip the last
 	// Advancing field which is not fetched.
 	//
-	fieldsCount := reflect.ValueOf(quotes.stocks[0]).NumField() - 1
+	fieldsCount := reflect.ValueOf(quotes.Stocks[0]).NumField() - 1
 	//
 	// Split each line into columns, then iterate over the Stock struct
 	// fields to assign column values.
@@ -245,29 +239,29 @@ func (quotes *Quotes) parse(body []byte) *Quotes {
 	for i, line := range lines {
 		columns := bytes.Split(bytes.TrimSpace(line), []byte{','})
 		for j := 0; j < fieldsCount; j++ {
-			// ex. quotes.stocks[i].Ticker = string(columns[0])
-			reflect.ValueOf(&quotes.stocks[i]).Elem().Field(j).SetString(string(columns[j]))
+			// ex. quotes.Stocks[i].Ticker = string(columns[0])
+			reflect.ValueOf(&quotes.Stocks[i]).Elem().Field(j).SetString(string(columns[j]))
 		}
 		//
 		// Try realtime value and revert to the last known if the
 		// realtime is not available.
 		//
-		if quotes.stocks[i].PeRatio == `N/A` && quotes.stocks[i].PeRatioX != `N/A` {
-			quotes.stocks[i].PeRatio = quotes.stocks[i].PeRatioX
+		if quotes.Stocks[i].PeRatio == `N/A` && quotes.Stocks[i].PeRatioX != `N/A` {
+			quotes.Stocks[i].PeRatio = quotes.Stocks[i].PeRatioX
 		}
-		if quotes.stocks[i].MarketCap == `N/A` && quotes.stocks[i].MarketCapX != `N/A` {
-			quotes.stocks[i].MarketCap = quotes.stocks[i].MarketCapX
+		if quotes.Stocks[i].MarketCap == `N/A` && quotes.Stocks[i].MarketCapX != `N/A` {
+			quotes.Stocks[i].MarketCap = quotes.Stocks[i].MarketCapX
 		}
 		//
 		// Get the direction of the stock
 		//
-		adv, err := strconv.ParseFloat(quotes.stocks[i].Change, 64)
-		quotes.stocks[i].Direction = 0
+		adv, err := strconv.ParseFloat(quotes.Stocks[i].Change, 64)
+		quotes.Stocks[i].Direction = 0
 		if err == nil {
 			if adv < 0 {
-				quotes.stocks[i].Direction = -1
+				quotes.Stocks[i].Direction = -1
 			} else if adv > 0 {
-				quotes.stocks[i].Direction = 1
+				quotes.Stocks[i].Direction = 1
 			}
 		}
 	}

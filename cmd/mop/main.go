@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -17,6 +18,9 @@ import (
 	"github.com/nsf/termbox-go"
 
 	"github.com/mop-tracker/mop"
+	"github.com/mop-tracker/mop/provider"
+	"github.com/mop-tracker/mop/provider/stooq"
+	"github.com/mop-tracker/mop/provider/yahoo"
 )
 
 // File name in user's home directory where we store the settings.
@@ -49,6 +53,9 @@ Enter comma-delimited list of stock tickers when prompted.
 
 // -----------------------------------------------------------------------------
 func mainLoop(screen *mop.Screen, profile *mop.Profile) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	var lineEditor *mop.LineEditor
 	var columnEditor *mop.ColumnEditor
 
@@ -56,10 +63,25 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 
 	// use buffered channel for keyboard event queue
 	keyboardQueue := make(chan termbox.Event, 128)
+	updateQueue := make(chan bool, 128) // High bandwidth queue for updates
 
 	timestampQueue := time.NewTicker(1 * time.Second)
-	quotesQueue := time.NewTicker(time.Duration(profile.QuotesRefresh) * time.Second)
-	marketQueue := time.NewTicker(time.Duration(profile.MarketRefresh) * time.Second)
+
+	mRefresh := profile.MarketRefresh
+	qRefresh := profile.QuotesRefresh
+
+	// Stooq clamping: don't hammer the server faster than the internal throttle (5s)
+	if strings.ToLower(profile.Provider) == "stooq" {
+		if mRefresh < 5 {
+			mRefresh = 5
+		}
+		if qRefresh < 5 {
+			qRefresh = 5
+		}
+	}
+
+	quotesQueue := time.NewTicker(time.Duration(qRefresh) * time.Second)
+	marketQueue := time.NewTicker(time.Duration(mRefresh) * time.Second)
 	showingHelp := false
 	paused := false
 	showingTimestamp := profile.ShowTimestamp
@@ -79,10 +101,46 @@ func mainLoop(screen *mop.Screen, profile *mop.Profile) {
 		}
 	}()
 
-	market := mop.NewMarket()
-	quotes := mop.NewQuotes(market, profile)
-	screen.Draw(market)
-	screen.Draw(quotes)
+	var market provider.Market
+	var quotes provider.Quotes
+
+	// Define the factory type
+	type providerFactory func(*mop.Screen, *mop.Profile) (provider.Market, provider.Quotes)
+
+	// Map of available providers
+	providers := map[string]providerFactory{
+		"stooq": func(screen *mop.Screen, profile *mop.Profile) (provider.Market, provider.Quotes) {
+			m := stooq.NewMarket()
+			q := stooq.NewQuotes(ctx, m, profile)
+			screen.Draw("Stooq provider initialized. Fetching market and quotes data...")
+			m.Fetch()
+			q.Fetch()
+			return m, q
+		},
+		"yahoo": func(screen *mop.Screen, profile *mop.Profile) (provider.Market, provider.Quotes) {
+			m := yahoo.NewMarket()
+			return m, yahoo.NewQuotes(m, profile)
+		},
+	}
+
+	// Initialize the provider based on the profile
+	if factory, ok := providers[strings.ToLower(profile.Provider)]; ok {
+		market, quotes = factory(screen, profile)
+	} else {
+		// Default to yahoo if provider not found or empty
+		market, quotes = providers["yahoo"](screen, profile)
+	}
+
+	// Bind the update callback (for lazy-loaded data)
+	quotes.BindOnUpdate(func() {
+		// Non-blocking send
+		select {
+		case updateQueue <- true:
+		default:
+		}
+	})
+
+	screen.Draw(market, quotes)
 
 loop:
 	for {
@@ -190,6 +248,11 @@ loop:
 		case <-marketQueue.C:
 			if !showingHelp && !paused {
 				screen.Draw(market)
+			}
+
+		case <-updateQueue:
+			if !showingHelp && !paused && len(keyboardQueue) == 0 {
+				redrawQuotesFlag = true
 			}
 		}
 
