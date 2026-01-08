@@ -97,7 +97,7 @@ func fetchCookies() string {
 	sessionID := sessionRegex.FindStringSubmatch(response.Request.URL.RawQuery)[1]
 
 	csrfRegex := regexp.MustCompile("gcrumb=(?:([A-Za-z0-9_]*))")
-	csrfToken := csrfRegex.FindStringSubmatch(response.Request.Response.Request.URL.RawQuery)[1]
+	csrfToken := csrfRegex.FindStringSubmatch(response.Request.URL.RawQuery)[1]
 
 	gucsCookie := jar.Cookies(response.Request.URL)
 	gucsCookieString := ""
