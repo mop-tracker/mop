@@ -203,11 +203,11 @@ func (editor *LineEditor) execute() *LineEditor {
 			editor.hasError = true
 			termbox.Flush()
 		} else {
-			editor.screen.Draw(editor.quotes)
+			editor.screen.DrawOldQuotes(editor.quotes)
 		}
 	case 'F':
 		editor.quotes.profile.SetFilter("")
-		editor.screen.Draw(editor.quotes)
+		editor.screen.DrawOldQuotes(editor.quotes)
 	}
 
 	return editor

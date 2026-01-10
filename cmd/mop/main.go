@@ -106,7 +106,7 @@ loop:
 						columnEditor = mop.NewColumnEditor(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {
 						if profile.Regroup() == nil {
-							screen.Draw(quotes)
+							redrawQuotesFlag = true
 						}
 					} else if event.Ch == 'p' || event.Ch == 'P' {
 						paused = !paused
