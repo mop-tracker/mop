@@ -65,6 +65,19 @@ func (filter *Filter) Apply(stocks []Stock) []Stock {
 		values["peX"] = stringToNumber(stock.PeRatioX)
 		values["direction"] = stock.Direction // Remains int.
 
+		// Extract market from ticker
+		ticker, ok := values["ticker"].(string)
+		if ok {
+			if strings.Contains(ticker, ".") {
+				parts := strings.Split(ticker, ".")
+				values["market"] = parts[len(parts)-1]
+			} else {
+				values["market"] = "US"
+			}
+		} else {
+			values["market"] = ""
+		}
+
 		result, err := filter.profile.filterExpression.Evaluate(values)
 		if err != nil {
 			// The filter isn't working, so reset to no filter.
