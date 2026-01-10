@@ -101,6 +101,7 @@ loop:
 						lineEditor.Prompt(event.Ch)
 					} else if event.Ch == 'F' {
 						profile.SetFilter("")
+						redrawQuotesFlag = true
 					} else if event.Ch == 'o' || event.Ch == 'O' {
 						columnEditor = mop.NewColumnEditor(screen, quotes)
 					} else if event.Ch == 'g' || event.Ch == 'G' {

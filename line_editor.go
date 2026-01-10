@@ -16,13 +16,14 @@ import (
 // data and keep track of cursor movements (left, right, beginning of the
 // line, end of the line, and backspace).
 type LineEditor struct {
-	command rune           // Keyboard command such as '+' or '-'.
-	cursor  int            // Current cursor position within the input line.
-	prompt  string         // Prompt string for the command.
-	input   string         // User typed input string.
-	screen  *Screen        // Pointer to Screen.
-	quotes  *Quotes        // Pointer to Quotes.
-	regex   *regexp.Regexp // Regex to split comma-delimited input string.
+	command  rune           // Keyboard command such as '+' or '-'.
+	cursor   int            // Current cursor position within the input line.
+	prompt   string         // Prompt string for the command.
+	input    string         // User typed input string.
+	screen   *Screen        // Pointer to Screen.
+	quotes   *Quotes        // Pointer to Quotes.
+	regex    *regexp.Regexp // Regex to split comma-delimited input string.
+	hasError bool           // True if an error occurred during execute.
 }
 
 // Returns new initialized LineEditor struct.
@@ -39,11 +40,6 @@ func NewLineEditor(screen *Screen, quotes *Quotes) *LineEditor {
 // data and the stock quotes).
 func (editor *LineEditor) Prompt(command rune) *LineEditor {
 	filterPrompt := `Set filter: `
-
-	if filter := editor.quotes.profile.Filter; len(filter) > 0 {
-		filterPrompt = `Set filter (` + filter + `): `
-	}
-
 	prompts := map[rune]string{
 		'+': `Add tickers: `, '-': `Remove tickers: `,
 		'f': filterPrompt,
@@ -52,8 +48,14 @@ func (editor *LineEditor) Prompt(command rune) *LineEditor {
 		editor.prompt = prompt
 		editor.command = command
 
+		editor.screen.ClearLine(0, 3)
 		editor.screen.DrawLine(0, 3, `<white>`+editor.prompt+`</>`)
-		termbox.SetCursor(len(editor.prompt), 3)
+		if command == 'f' {
+			editor.input = editor.quotes.profile.Filter
+			editor.screen.DrawLine(len(editor.prompt), 3, editor.input)
+			editor.cursor = len(editor.input)
+		}
+		termbox.SetCursor(len(editor.prompt)+editor.cursor, 3)
 		termbox.Flush()
 	}
 
@@ -195,13 +197,17 @@ func (editor *LineEditor) execute() *LineEditor {
 			}
 		}
 	case 'f':
-		if len(editor.input) == 0 {
-			editor.input = editor.quotes.profile.Filter
+		if err := editor.quotes.profile.SetFilter(editor.input); err != nil {
+			editor.screen.DrawLine(0, 3, `<red>Error: `+err.Error()+`</>`)
+			editor.quotes.profile.SetFilter("")
+			editor.hasError = true
+			termbox.Flush()
+		} else {
+			editor.screen.Draw(editor.quotes)
 		}
-
-		editor.quotes.profile.SetFilter(editor.input)
 	case 'F':
 		editor.quotes.profile.SetFilter("")
+		editor.screen.Draw(editor.quotes)
 	}
 
 	return editor
@@ -209,7 +215,12 @@ func (editor *LineEditor) execute() *LineEditor {
 
 // -----------------------------------------------------------------------------
 func (editor *LineEditor) done() bool {
-	editor.screen.ClearLine(0, 3)
+	if editor == nil {
+		return false
+	}
+	if !editor.hasError {
+		editor.screen.ClearLine(0, 3)
+	}
 	termbox.HideCursor()
 
 	return true
