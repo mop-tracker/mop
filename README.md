@@ -58,7 +58,11 @@ Example:
 
 This expression will make Mop show only the stocks whose `last` values are less than $5.
 
-The available properties are: `last`, `change`, `changePercent`, `open`, `low`, `high`, `low52`, `high52`, `volume`, `avgVolume`, `pe`, `peX`, `dividend`, `yield`, `mktCap`, `mktCapX` and `advancing`.
+The available properties are: `last`, `change`, `changePercent`, `open`, `low`, `high`, `low52`, `high52`, `volume`, `avgVolume`, `pe`, `peX`, `dividend`, `yield`, `mktCap`, `mktCapX`, `advancing` and `market`.
+
+Example: `market == 'L'`
+
+Note: Tickers without a suffix (e.g., `GOOG`) are assigned the `US` market.
 
 The expression **must** return a boolean value, otherwise it will fail.
 

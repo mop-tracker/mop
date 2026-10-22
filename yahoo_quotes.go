@@ -36,8 +36,8 @@ type Stock struct {
 	High52     string `json:"fiftyTwoWeekHigh"`            // k: 52-weeks high.
 	Volume     string `json:"regularMarketVolume"`         // v: volume.
 	AvgVolume  string `json:"averageDailyVolume10Day"`     // a2: average volume.
-	PeRatio    string `json:"trailingPE"`                  // r2: P/E ration real time.
-	PeRatioX   string `json:"trailingPE"`                  // r: P/E ration (fallback when real time is N/A).
+	PeRatio    string `json:"trailingPE"`                  // r2: P/E ratio real time.
+	PeRatioX   string `json:"trailingPE"`                  // r: P/E ratio (fallback when real time is N/A).
 	Dividend   string `json:"trailingAnnualDividendRate"`  // d: dividend.
 	Yield      string `json:"trailingAnnualDividendYield"` // y: dividend yield.
 	MarketCap  string `json:"marketCap"`                   // j3: market cap real time.
